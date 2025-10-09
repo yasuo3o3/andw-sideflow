@@ -164,36 +164,44 @@
         }
 
         .andw-sideflow-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            padding: 0;
+            border: none;
             flex-shrink: 0;
         }
 
         .andw-sideflow-close {
-            width: 32px;
-            height: 32px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
             border: none;
-            background: #f3f4f6;
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #6b7280;
+            color: white;
             transition: all 0.2s ease;
+            z-index: 10;
+            backdrop-filter: blur(4px);
         }
 
         .andw-sideflow-close:hover {
-            background: #e5e7eb;
-            color: #374151;
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
         }
 
         .andw-sideflow-close:focus {
-            outline: 2px solid #3b82f6;
+            outline: 2px solid white;
             outline-offset: 2px;
+        }
+
+        .andw-sideflow-close svg {
+            width: 12px;
+            height: 12px;
         }
 
         .andw-sideflow-content {
@@ -436,7 +444,7 @@
         }
 
         .andw-sideflow-overlay.disabled {
-            display: none;
+            background: transparent;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -612,15 +620,13 @@
             <div class="${drawerClasses}" role="dialog" aria-labelledby="andw-sideflow-title" aria-hidden="true" id="andw-sideflow-drawer">
                 <div class="andw-sideflow-header">
                     <h2 id="andw-sideflow-title" class="andw-sideflow-sr-only">求人情報</h2>
-                    <button class="andw-sideflow-close" aria-label="閉じる">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M12.854 4.854a.5.5 0 0 0-.708-.708L8 8.293 3.854 4.146a.5.5 0 1 0-.708.708L7.293 9l-4.147 4.146a.5.5 0 0 0 .708.708L8 9.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 9l4.147-4.146z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="andw-sideflow-content">
                     <div class="${sliderClasses}" aria-roledescription="carousel" aria-label="求人スライドショー">
                         ${sliderHTML}
+                        <button class="andw-sideflow-close" aria-label="閉じる">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M12.854 4.854a.5.5 0 0 0-.708-.708L8 8.293 3.854 4.146a.5.5 0 1 0-.708.708L7.293 9l-4.147 4.146a.5.5 0 0 0 .708.708L8 9.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 9l4.147-4.146z"/>
+                            </svg>
+                        </button>
                         <div class="andw-sideflow-controls">
                             <button class="andw-sideflow-play-pause" aria-label="再生/停止">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="play-icon">
@@ -635,6 +641,8 @@
                         </div>
                         <div class="andw-sideflow-sr-only" aria-live="polite" aria-atomic="true" id="andw-sideflow-slide-status"></div>
                     </div>
+                </div>
+                <div class="andw-sideflow-content">
                     <div class="andw-sideflow-buttons ${getButtonsClass()}">
                         ${createButtonsHTML()}
                     </div>
@@ -751,9 +759,29 @@
         // タブクリック
         tab.addEventListener('click', toggleDrawer);
 
-        // オーバーレイクリック（backropが有効な場合のみ）
-        if (!overlay.classList.contains('disabled')) {
-            overlay.addEventListener('click', closeDrawer);
+        // オーバーレイクリック（常に有効）
+        overlay.addEventListener('click', closeDrawer);
+
+        // ドロワー領域外クリックでも閉じる
+        drawer.addEventListener('click', function(e) {
+            // ドロワー自体がクリックされた場合（子要素以外）は閉じる
+            if (e.target === drawer) {
+                closeDrawer();
+            }
+        });
+
+        // スライダー領域のクリックイベント制御
+        const sliderElement = shadowRoot.querySelector('.andw-sideflow-slider');
+        if (sliderElement) {
+            sliderElement.addEventListener('click', function(e) {
+                // 閉じるボタン、再生/停止ボタン、インジケーター以外のクリックでは何もしない
+                if (!e.target.closest('.andw-sideflow-close') &&
+                    !e.target.closest('.andw-sideflow-play-pause') &&
+                    !e.target.closest('.andw-sideflow-indicator') &&
+                    !e.target.closest('a')) {
+                    e.stopPropagation();
+                }
+            });
         }
 
         // 閉じるボタン
