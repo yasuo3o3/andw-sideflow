@@ -152,27 +152,42 @@ class ANDW_SideFlow {
             return;
         }
 
-        // nonce確認
-        if (isset($_POST['submit'])) {
-            if (!wp_verify_nonce($_POST['_wpnonce'], 'andw_sideflow_settings-options')) {
-                wp_die(__('セキュリティチェックに失敗しました。', 'andw-sideflow'));
+        // 保存完了メッセージの表示
+        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('設定を保存しました。', 'andw-sideflow') . '</p></div>';
+        }
+
+        // 設定エラーの表示
+        $errors = get_settings_errors('andw_sideflow_config');
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($error['message']) . '</p></div>';
             }
         }
 
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+
             <form action="options.php" method="post">
                 <?php
                 settings_fields('andw_sideflow_settings');
                 do_settings_sections('andw_sideflow_settings');
-                submit_button();
+                submit_button(__('設定を保存', 'andw-sideflow'));
                 ?>
             </form>
 
             <h2><?php esc_html_e('プレビュー', 'andw-sideflow'); ?></h2>
             <p><?php esc_html_e('設定内容のプレビュー：', 'andw-sideflow'); ?></p>
-            <pre id="andw-sideflow-preview" style="background: #f1f1f1; padding: 15px; overflow: auto; max-height: 400px;"></pre>
+            <pre id="andw-sideflow-preview" style="background: #f1f1f1; padding: 15px; overflow: auto; max-height: 400px; border: 1px solid #ccd0d4;"></pre>
+
+            <h2><?php esc_html_e('現在の保存済み設定', 'andw-sideflow'); ?></h2>
+            <pre style="background: #f9f9f9; padding: 15px; overflow: auto; max-height: 300px; border: 1px solid #ccd0d4;">
+                <?php
+                $saved_config = get_option('andw_sideflow_config', $this->get_default_config());
+                echo esc_html(json_encode($saved_config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                ?>
+            </pre>
 
             <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -183,13 +198,19 @@ class ANDW_SideFlow {
                     try {
                         const config = JSON.parse(textarea.value);
                         preview.textContent = JSON.stringify(config, null, 2);
+                        preview.style.color = '#333';
+                        preview.style.backgroundColor = '#f1f1f1';
                     } catch (e) {
                         preview.textContent = 'JSON形式エラー: ' + e.message;
+                        preview.style.color = '#d63638';
+                        preview.style.backgroundColor = '#fcf0f1';
                     }
                 }
 
-                textarea.addEventListener('input', updatePreview);
-                updatePreview();
+                if (textarea) {
+                    textarea.addEventListener('input', updatePreview);
+                    updatePreview();
+                }
             });
             </script>
         </div>
@@ -214,13 +235,54 @@ class ANDW_SideFlow {
      * 設定のサニタイズ
      */
     public function sanitize_config($input) {
+        // デバッグ情報をログに記録
+        error_log('andW SideFlow: sanitize_config called with: ' . print_r($input, true));
+
         if (is_string($input)) {
             $decoded = json_decode($input, true);
             if (json_last_error() === JSON_ERROR_NONE) {
-                return $this->sanitize_config_array($decoded);
+                try {
+                    $sanitized = $this->sanitize_config_array($decoded);
+                    error_log('andW SideFlow: sanitized config: ' . print_r($sanitized, true));
+                    add_settings_error(
+                        'andw_sideflow_config',
+                        'save_success',
+                        __('設定を正常に保存しました。', 'andw-sideflow'),
+                        'success'
+                    );
+                    return $sanitized;
+                } catch (Exception $e) {
+                    error_log('andW SideFlow: sanitize error: ' . $e->getMessage());
+                    add_settings_error(
+                        'andw_sideflow_config',
+                        'sanitize_error',
+                        sprintf(__('設定の処理中にエラーが発生しました: %s', 'andw-sideflow'), $e->getMessage()),
+                        'error'
+                    );
+                }
+            } else {
+                $error_msg = json_last_error_msg();
+                error_log('andW SideFlow: JSON decode error: ' . $error_msg);
+                add_settings_error(
+                    'andw_sideflow_config',
+                    'json_error',
+                    sprintf(__('JSON形式エラー: %s', 'andw-sideflow'), $error_msg),
+                    'error'
+                );
             }
+        } else {
+            error_log('andW SideFlow: input is not string, type: ' . gettype($input));
+            add_settings_error(
+                'andw_sideflow_config',
+                'input_error',
+                __('設定データの形式が正しくありません。', 'andw-sideflow'),
+                'error'
+            );
         }
-        return $this->get_default_config();
+
+        $default = $this->get_default_config();
+        error_log('andW SideFlow: returning default config');
+        return $default;
     }
 
     /**
@@ -248,61 +310,53 @@ class ANDW_SideFlow {
         }
 
         // タブ設定
-        if (isset($config['tab']) && is_array($config['tab'])) {
-            $tab = $config['tab'];
-            $sanitized['tab'] = array(
-                'anchor' => in_array($tab['anchor'] ?? '', array('center', 'bottom')) ? $tab['anchor'] : 'center',
-                'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24))
-            );
-        }
+        $tab = $config['tab'] ?? array();
+        $sanitized['tab'] = array(
+            'anchor' => in_array($tab['anchor'] ?? 'center', array('center', 'bottom')) ? $tab['anchor'] ?? 'center' : 'center',
+            'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24))
+        );
 
         // ドロワー設定
-        if (isset($config['drawer']) && is_array($config['drawer'])) {
-            $drawer = $config['drawer'];
-            $sanitized['drawer'] = array(
-                'backdrop' => (bool)($drawer['backdrop'] ?? false)
-            );
-        }
+        $drawer = $config['drawer'] ?? array();
+        $sanitized['drawer'] = array(
+            'backdrop' => (bool)($drawer['backdrop'] ?? false)
+        );
 
         // スライダー設定
-        if (isset($config['slider']) && is_array($config['slider'])) {
-            $slider = $config['slider'];
-            $sanitized['slider'] = array(
-                'autoplay' => (bool)($slider['autoplay'] ?? true),
-                'interval' => max(1000, intval($slider['interval'] ?? 3500)),
-                'fit' => in_array($slider['fit'] ?? '', array('cover', 'contain', 'blurExtend')) ? $slider['fit'] : 'cover',
-                'heightMode' => in_array($slider['heightMode'] ?? '', array('auto', 'vh')) ? $slider['heightMode'] : 'auto',
-                'aspectRatio' => $this->validate_aspect_ratio($slider['aspectRatio'] ?? '16:9'),
-                'items' => array()
-            );
+        $slider = $config['slider'] ?? array();
+        $sanitized['slider'] = array(
+            'autoplay' => (bool)($slider['autoplay'] ?? true),
+            'interval' => max(1000, intval($slider['interval'] ?? 3500)),
+            'fit' => in_array($slider['fit'] ?? 'cover', array('cover', 'contain', 'blurExtend')) ? $slider['fit'] ?? 'cover' : 'cover',
+            'heightMode' => in_array($slider['heightMode'] ?? 'auto', array('auto', 'vh')) ? $slider['heightMode'] ?? 'auto' : 'auto',
+            'aspectRatio' => $this->validate_aspect_ratio($slider['aspectRatio'] ?? '16:9'),
+            'items' => array()
+        );
 
-            if (isset($slider['items']) && is_array($slider['items'])) {
-                foreach ($slider['items'] as $item) {
-                    if (is_array($item)) {
-                        $sanitized['slider']['items'][] = array(
-                            'src' => esc_url_raw($item['src'] ?? ''),
-                            'alt' => sanitize_text_field($item['alt'] ?? ''),
-                            'href' => esc_url_raw($item['href'] ?? '')
-                        );
-                    }
+        if (isset($slider['items']) && is_array($slider['items'])) {
+            foreach ($slider['items'] as $item) {
+                if (is_array($item)) {
+                    $sanitized['slider']['items'][] = array(
+                        'src' => esc_url_raw($item['src'] ?? ''),
+                        'alt' => sanitize_text_field($item['alt'] ?? ''),
+                        'href' => esc_url_raw($item['href'] ?? '')
+                    );
                 }
             }
         }
 
         // レイアウト設定（新形式優先、旧形式は下位互換用）
-        if (isset($config['layout']) && is_array($config['layout'])) {
-            $layout = $config['layout'];
-            $sanitized['layout'] = array(
-                'maxHeightPx' => max(400, intval($layout['maxHeightPx'] ?? 640)),
-                'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48)),
-                // 下位互換用
-                'topSafeOffset' => max(0, intval($layout['topSafeOffset'] ?? 8)),
-                'bottomSafeOffset' => max(0, intval($layout['bottomSafeOffset'] ?? 16)),
-                'maxVh' => max(50, min(95, intval($layout['maxVh'] ?? 84))),
-                'sliderMinVh' => max(20, min(60, intval($layout['sliderMinVh'] ?? 38))),
-                'sliderMaxVh' => max(40, min(80, intval($layout['sliderMaxVh'] ?? 48)))
-            );
-        }
+        $layout = $config['layout'] ?? array();
+        $sanitized['layout'] = array(
+            'maxHeightPx' => max(400, intval($layout['maxHeightPx'] ?? 640)),
+            'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48)),
+            // 下位互換用
+            'topSafeOffset' => max(0, intval($layout['topSafeOffset'] ?? 8)),
+            'bottomSafeOffset' => max(0, intval($layout['bottomSafeOffset'] ?? 16)),
+            'maxVh' => max(50, min(95, intval($layout['maxVh'] ?? 84))),
+            'sliderMinVh' => max(20, min(60, intval($layout['sliderMinVh'] ?? 38))),
+            'sliderMaxVh' => max(40, min(80, intval($layout['sliderMaxVh'] ?? 48)))
+        );
 
         // その他設定
         $sanitized['showBubble'] = (bool)($config['showBubble'] ?? true);
