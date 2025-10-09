@@ -1,0 +1,282 @@
+/* andW SideFlow 管理画面スタイル */
+
+.andw-sideflow-admin {
+    max-width: none;
+}
+
+.andw-sideflow-admin-layout {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.andw-sideflow-settings {
+    flex: 2;
+    max-width: 800px;
+}
+
+.andw-sideflow-preview {
+    flex: 1;
+    min-width: 400px;
+    max-width: 500px;
+}
+
+.andw-sideflow-tabs .nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.tab-content {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-top: none;
+    padding: 20px;
+}
+
+.andw-sideflow-section {
+    margin-bottom: 30px;
+}
+
+.andw-sideflow-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* スライド設定 */
+.andw-sideflow-slides-list {
+    margin-bottom: 20px;
+}
+
+.slide-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #fafafa;
+    display: flex;
+    gap: 15px;
+}
+
+.slide-preview {
+    width: 100px;
+    height: 56px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    flex-shrink: 0;
+}
+
+.slide-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.slide-preview .no-image {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+.slide-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.slide-controls input,
+.slide-controls select {
+    max-width: 300px;
+}
+
+.slide-controls .select-media {
+    align-self: flex-start;
+}
+
+.slide-controls .remove-slide {
+    color: #d63638;
+    align-self: flex-start;
+    margin-top: 5px;
+}
+
+/* ボタン設定 */
+.andw-sideflow-buttons-list {
+    margin-bottom: 20px;
+}
+
+.button-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #fafafa;
+}
+
+.button-item h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.button-item .form-table {
+    margin-bottom: 10px;
+}
+
+.button-item .remove-button {
+    color: #d63638;
+}
+
+/* プレビューエリア */
+.andw-sideflow-preview {
+    position: sticky;
+    top: 32px;
+    align-self: flex-start;
+}
+
+.preview-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    height: 600px;
+}
+
+#preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* アクションボタン */
+.andw-sideflow-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* レスポンシブ */
+@media (max-width: 1200px) {
+    .andw-sideflow-admin-layout {
+        flex-direction: column;
+    }
+
+    .andw-sideflow-preview {
+        min-width: auto;
+        max-width: none;
+        position: static;
+    }
+
+    .preview-container {
+        height: 400px;
+    }
+}
+
+/* フォーム要素の調整 */
+.andw-sideflow-section .form-table th {
+    width: 200px;
+    padding-left: 0;
+}
+
+.andw-sideflow-section .form-table td {
+    padding-left: 20px;
+}
+
+.color-picker {
+    max-width: 100px;
+}
+
+/* 並び替え */
+.slide-item,
+.button-item {
+    cursor: move;
+}
+
+.slide-item.ui-sortable-helper,
+.button-item.ui-sortable-helper {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transform: rotate(2deg);
+}
+
+.ui-sortable-placeholder {
+    border: 2px dashed #ccc;
+    background: transparent;
+    visibility: visible !important;
+    height: 100px;
+}
+
+/* メディア選択モーダルのカスタマイズ */
+.andw-media-modal .attachment-preview {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.andw-media-modal .attachment-details {
+    padding: 15px;
+}
+
+/* バリデーションエラー */
+.field-error {
+    border-color: #d63638 !important;
+    box-shadow: 0 0 0 1px #d63638;
+}
+
+.error-message {
+    color: #d63638;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* ローディング状態 */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* プレビュー通知 */
+.preview-notice {
+    background: #007cba;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.preview-notice.success {
+    background: #00a32a;
+}
+
+.preview-notice.error {
+    background: #d63638;
+}

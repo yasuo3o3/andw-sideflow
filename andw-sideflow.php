@@ -2,7 +2,7 @@
 /**
  * Plugin Name: andW SideFlow
  * Description: 右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
- * Version: 0.0.2
+ * Version: 0.1.0
  * Author: yasuo3o3
  * Author URI: https://yasuo-o.xyz/
  * License: GPLv2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('ANDW_SIDEFLOW_VERSION', '0.0.2');
+define('ANDW_SIDEFLOW_VERSION', '0.1.0');
 define('ANDW_SIDEFLOW_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -79,6 +79,9 @@ class ANDW_SideFlow {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_settings_init'));
         add_action('wp_ajax_andw_sideflow_clean_legacy', array($this, 'ajax_clean_legacy'));
+
+        // 新しい管理UIを読み込み
+        require_once ANDW_SIDEFLOW_PLUGIN_PATH . 'includes/admin-ui.php';
     }
 
     /**
@@ -177,9 +180,29 @@ class ANDW_SideFlow {
             }
         }
 
+        // 新しいUIモードかチェック
+        $use_new_ui = isset($_GET['ui']) && $_GET['ui'] === 'new';
+
+        if ($use_new_ui) {
+            // 新しい管理画面UI
+            if (class_exists('ANDW_SideFlow_Admin_UI')) {
+                ANDW_SideFlow_Admin_UI::get_instance()->render_admin_page();
+            }
+            return;
+        }
+
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+
+            <div style="margin: 15px 0; padding: 10px; background: #e7f3ff; border-left: 4px solid #007cba;">
+                <p><strong><?php esc_html_e('新しい管理画面が利用可能です！', 'andw-sideflow'); ?></strong></p>
+                <p>
+                    <a href="<?php echo esc_url(add_query_arg('ui', 'new')); ?>" class="button button-primary">
+                        <?php esc_html_e('新しい管理画面を試す', 'andw-sideflow'); ?>
+                    </a>
+                </p>
+            </div>
 
             <form action="options.php" method="post">
                 <?php
@@ -368,7 +391,7 @@ class ANDW_SideFlow {
     /**
      * 設定配列のサニタイズ
      */
-    private function sanitize_config_array($config) {
+    public function sanitize_config_array($config) {
         $sanitized = array();
 
         // ボタン設定
@@ -416,20 +439,51 @@ class ANDW_SideFlow {
         if (isset($slider['items']) && is_array($slider['items'])) {
             foreach ($slider['items'] as $item) {
                 if (is_array($item)) {
-                    $sanitized['slider']['items'][] = array(
-                        'src' => esc_url_raw($item['src'] ?? ''),
+                    $sanitized_item = array(
+                        'mediaId' => intval($item['mediaId'] ?? 0),
                         'alt' => sanitize_text_field($item['alt'] ?? ''),
-                        'href' => esc_url_raw($item['href'] ?? '')
+                        'href' => esc_url_raw($item['href'] ?? ''),
+                        'fit' => in_array($item['fit'] ?? 'inherit', array('cover', 'contain', 'inherit')) ? $item['fit'] : 'inherit'
                     );
+
+                    // 後方互換：srcがある場合は優先
+                    if (!empty($item['src'])) {
+                        $sanitized_item['src'] = esc_url_raw($item['src']);
+                    }
+
+                    $sanitized['slider']['items'][] = $sanitized_item;
                 }
             }
         }
+
+        // スタイル設定（新規）
+        $styles = $config['styles'] ?? array();
+        $sanitized['styles'] = array(
+            'preset' => in_array($styles['preset'] ?? 'light', array('light', 'brand', 'minimal')) ? $styles['preset'] : 'light',
+            'customCssUrl' => esc_url_raw($styles['customCssUrl'] ?? ''),
+            'tokens' => array(
+                'colorBrand' => sanitize_hex_color($styles['tokens']['colorBrand'] ?? '#667eea'),
+                'radius' => max(0, intval($styles['tokens']['radius'] ?? 8)),
+                'shadow' => sanitize_text_field($styles['tokens']['shadow'] ?? '0 4px 12px rgba(0,0,0,0.15)'),
+                'spacing' => max(0, intval($styles['tokens']['spacing'] ?? 16)),
+                'durationMs' => max(0, intval($styles['tokens']['durationMs'] ?? 300)),
+                'easing' => sanitize_text_field($styles['tokens']['easing'] ?? 'cubic-bezier(0.34, 1.56, 0.64, 1)'),
+                'fontFamily' => sanitize_text_field($styles['tokens']['fontFamily'] ?? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif')
+            )
+        );
 
         // レイアウト設定（新形式のみ、古い項目は除外）
         $layout = $config['layout'] ?? array();
         $sanitized['layout'] = array(
             'maxHeightPx' => max(400, intval($layout['maxHeightPx'] ?? 640)),
             'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48))
+        );
+
+        // 開発・デバッグ設定（新規）
+        $dev = $config['dev'] ?? array();
+        $sanitized['dev'] = array(
+            'previewMode' => (bool)($dev['previewMode'] ?? false),
+            'debug' => (bool)($dev['debug'] ?? false)
         );
 
         // その他設定
@@ -522,7 +576,7 @@ class ANDW_SideFlow {
     /**
      * デフォルト設定取得
      */
-    private function get_default_config() {
+    public function get_default_config() {
         return array(
             'buttons' => array(
                 array(
@@ -559,15 +613,34 @@ class ANDW_SideFlow {
                 'aspectRatio' => '16:9',
                 'items' => array(
                     array(
+                        'mediaId' => 0,
                         'src' => '/wp-content/uploads/2025/10/名称未設定のデザイン.jpg',
                         'alt' => '求人募集の画像',
-                        'href' => ''
+                        'href' => '',
+                        'fit' => 'inherit'
                     )
+                )
+            ),
+            'styles' => array(
+                'preset' => 'light',
+                'customCssUrl' => '',
+                'tokens' => array(
+                    'colorBrand' => '#667eea',
+                    'radius' => 8,
+                    'shadow' => '0 4px 12px rgba(0,0,0,0.15)',
+                    'spacing' => 16,
+                    'durationMs' => 300,
+                    'easing' => 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    'fontFamily' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                 )
             ),
             'layout' => array(
                 'maxHeightPx' => 640,
                 'buttonRowHeight' => 48
+            ),
+            'dev' => array(
+                'previewMode' => false,
+                'debug' => false
             ),
             'showBubble' => true,
             'glitterInterval' => 25000,
@@ -584,14 +657,132 @@ class ANDW_SideFlow {
             'callback' => array($this, 'get_config_api'),
             'permission_callback' => '__return_true'
         ));
+
+        register_rest_route('andw-sideflow/v1', '/preview', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'set_preview_config_api'),
+            'permission_callback' => array($this, 'preview_permission_callback'),
+            'args' => array(
+                'config' => array(
+                    'required' => true,
+                    'type' => 'object',
+                    'sanitize_callback' => array($this, 'sanitize_config_array')
+                )
+            )
+        ));
+
+        register_rest_route('andw-sideflow/v1', '/preview', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_preview_config_api'),
+            'permission_callback' => '__return_true'
+        ));
     }
 
     /**
      * 設定取得API
      */
     public function get_config_api($request) {
+        $preview_mode = $request->get_param('andwsideflow');
+
+        if ($preview_mode === 'preview') {
+            return $this->get_preview_config_api($request);
+        }
+
         $config = get_option('andw_sideflow_config', $this->get_default_config());
-        return rest_ensure_response($config);
+        $config_version = md5(json_encode($config));
+
+        $response = rest_ensure_response($config);
+        $response->header('ETag', '"' . $config_version . '"');
+        $response->data['configVersion'] = $config_version;
+
+        return $response;
+    }
+
+    /**
+     * プレビュー設定保存API
+     */
+    public function set_preview_config_api($request) {
+        $config = $request->get_param('config');
+
+        if (empty($config)) {
+            return new WP_Error('missing_config', __('設定データが必要です。', 'andw-sideflow'), array('status' => 400));
+        }
+
+        set_transient('andw_sideflow_preview_config', $config, 30 * MINUTE_IN_SECONDS);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => __('プレビュー設定を一時保存しました。', 'andw-sideflow')
+        ));
+    }
+
+    /**
+     * プレビュー設定取得API
+     */
+    public function get_preview_config_api($request) {
+        $preview_config = get_transient('andw_sideflow_preview_config');
+
+        if (false === $preview_config) {
+            $config = get_option('andw_sideflow_config', $this->get_default_config());
+        } else {
+            $config = $preview_config;
+        }
+
+        $config_version = md5(json_encode($config) . '_preview');
+
+        $response = rest_ensure_response($config);
+        $response->header('ETag', '"' . $config_version . '"');
+        $response->data['configVersion'] = $config_version;
+
+        return $response;
+    }
+
+    /**
+     * プレビュー権限チェック
+     */
+    public function preview_permission_callback() {
+        return current_user_can('manage_options');
+    }
+
+    /**
+     * MediaID から srcset 情報を取得
+     */
+    public function get_media_srcset($media_id) {
+        if (empty($media_id)) {
+            return array();
+        }
+
+        $attachment = get_post($media_id);
+        if (!$attachment || $attachment->post_type !== 'attachment') {
+            return array();
+        }
+
+        $image_sizes = array(
+            'andw_sideflow_600',
+            'andw_sideflow_720',
+            'andw_sideflow_960',
+            'andw_sideflow_1200',
+            'andw_sideflow_1440'
+        );
+
+        $srcset = array();
+        $sizes = array();
+
+        foreach ($image_sizes as $size) {
+            $image_data = wp_get_attachment_image_src($media_id, $size);
+            if ($image_data) {
+                $srcset[] = $image_data[0] . ' ' . $image_data[1] . 'w';
+                $sizes[] = '(max-width: ' . $image_data[1] . 'px) ' . $image_data[1] . 'px';
+            }
+        }
+
+        return array(
+            'src' => wp_get_attachment_image_url($media_id, 'andw_sideflow_960'),
+            'srcset' => implode(', ', $srcset),
+            'sizes' => implode(', ', $sizes),
+            'width' => 960,
+            'height' => 540
+        );
     }
 
     /**

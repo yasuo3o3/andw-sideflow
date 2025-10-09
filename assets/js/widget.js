@@ -21,7 +21,16 @@
             right: 0;
             z-index: 120;
             pointer-events: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: var(--sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+
+            /* CSS変数API */
+            --sf-color-brand: var(--andw-sf-color-brand, #667eea);
+            --sf-radius: var(--andw-sf-radius, 8px);
+            --sf-shadow: var(--andw-sf-shadow, 0 4px 12px rgba(0,0,0,0.15));
+            --sf-spacing: var(--andw-sf-spacing, 16px);
+            --sf-duration: var(--andw-sf-duration, 300ms);
+            --sf-ease: var(--andw-sf-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
+            --sf-font: var(--andw-sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
         }
 
         .andw-sideflow-tab {
@@ -29,8 +38,8 @@
             right: 0;
             width: 48px;
             height: 120px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px 0 0 8px;
+            background: linear-gradient(135deg, var(--sf-color-brand) 0%, color-mix(in srgb, var(--sf-color-brand) 80%, #764ba2 20%) 100%);
+            border-radius: var(--sf-radius) 0 0 var(--sf-radius);
             border: none;
             cursor: pointer;
             pointer-events: auto;
@@ -42,18 +51,19 @@
             font-weight: 600;
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all var(--sf-duration) var(--sf-ease);
+            box-shadow: var(--sf-shadow);
             overflow: hidden;
+            font-family: var(--sf-font);
         }
 
         .andw-sideflow-tab.anchor-center {
-            top: 50%;
+            top: calc(50% + var(--tab-offset-center, 0px));
             transform: translateY(-50%);
         }
 
         .andw-sideflow-tab.anchor-bottom {
-            bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-offset, 24px));
+            bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-offset-bottom, 24px));
         }
 
         .andw-sideflow-tab:hover {
@@ -415,7 +425,7 @@
             background: rgba(0, 0, 0, 0.3);
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all var(--sf-duration) var(--sf-ease);
             z-index: 110;
             pointer-events: auto;
         }
@@ -483,32 +493,60 @@
     // 設定取得
     async function fetchConfig() {
         try {
-            const response = await fetch(andwSideFlowConfig.apiUrl);
+            const urlParams = new URLSearchParams(window.location.search);
+            const debugMode = urlParams.get('andwsideflow');
+
+            let apiUrl = andwSideFlowConfig.apiUrl;
+            if (debugMode === 'preview') {
+                apiUrl += '?andwsideflow=preview';
+            } else if (debugMode === 'debug') {
+                apiUrl += '?andwsideflow=debug';
+            }
+
+            const response = await fetch(apiUrl);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             config = await response.json();
+
+            // デバッグモード時は設定をログ出力
+            if (debugMode === 'debug' && config.dev?.debug) {
+                console.log('andW SideFlow Debug Config:', config);
+                showDebugInfo();
+            }
+
             return config;
         } catch (error) {
             console.error('andW SideFlow: 設定取得エラー:', error);
+
+            // フェイルセーフ：設定取得失敗時は描画停止
+            if (widget) {
+                widget.style.display = 'none';
+            }
             throw error;
         }
     }
 
     // ウィジェット作成
-    function createWidget() {
+    async function createWidget() {
         // Shadow DOM作成
         widget = document.createElement('div');
         widget.setAttribute('id', 'andw-sideflow-widget');
         shadowRoot = widget.attachShadow({ mode: 'closed' });
+
+        // CSS変数を設定
+        applyCSSVariables();
 
         // スタイル注入
         const style = document.createElement('style');
         style.textContent = CSS_STYLES;
         shadowRoot.appendChild(style);
 
+        // カスタムCSS読み込み
+        loadCustomCSS();
+
         // UI作成
-        createUI();
+        await createUI();
 
         // イベントリスナー設定
         setupEventListeners();
@@ -527,7 +565,7 @@
     }
 
     // UI作成
-    function createUI() {
+    async function createUI() {
         // タブ位置の設定
         const tabConfig = config.tab || { anchor: 'center', offsetPx: 24 };
         const tabClasses = `andw-sideflow-tab anchor-${tabConfig.anchor}`;
@@ -560,6 +598,9 @@
             container.style.setProperty('--max-height-px', `${layoutConfig.maxHeightPx}px`);
         }
 
+        // スライダーHTMLを非同期で生成
+        const sliderHTML = await createSliderHTML();
+
         container.innerHTML = `
             <div class="${overlayClasses}" role="presentation"></div>
             <button class="${tabClasses}" aria-expanded="false" aria-controls="andw-sideflow-drawer">
@@ -579,7 +620,7 @@
                 </div>
                 <div class="andw-sideflow-content">
                     <div class="${sliderClasses}" aria-roledescription="carousel" aria-label="求人スライドショー">
-                        ${createSliderHTML()}
+                        ${sliderHTML}
                         <div class="andw-sideflow-controls">
                             <button class="andw-sideflow-play-pause" aria-label="再生/停止">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="play-icon">
@@ -605,25 +646,56 @@
     }
 
     // スライダーHTML作成
-    function createSliderHTML() {
+    async function createSliderHTML() {
         if (!config.slider.items || config.slider.items.length === 0) {
             return '<div class="andw-sideflow-slides"></div>';
         }
 
-        const slides = config.slider.items.map((item, index) => {
-            const fitClass = config.slider.fit === 'contain' ? 'contain' :
-                           config.slider.fit === 'blurExtend' ? 'blur-extend' : '';
+        const slidePromises = config.slider.items.map(async (item, index) => {
+            let imageData = null;
+
+            // MediaIDがある場合は取得、なければ従来のsrcを使用
+            if (item.mediaId && item.mediaId > 0) {
+                imageData = await getMediaInfo(item.mediaId);
+            }
+
+            const src = imageData?.src || item.src || '';
+            const srcset = imageData?.srcset || '';
+            const sizes = imageData?.sizes || '(max-width: 480px) 85vw, 400px';
+            const alt = item.alt || imageData?.alt || '';
+
+            if (!src) return '';
+
+            // 個別のfitかグローバルのfitを使用
+            const itemFit = item.fit !== 'inherit' ? item.fit : config.slider.fit;
+            const fitClass = itemFit === 'contain' ? 'contain' :
+                           itemFit === 'blurExtend' ? 'blur-extend' : '';
+
+            const imgAttributes = [
+                `src="${escapeHtml(src)}"`,
+                `alt="${escapeHtml(alt)}"`,
+                `loading="${index === 0 ? 'eager' : 'lazy'}"`
+            ];
+
+            if (srcset) {
+                imgAttributes.push(`srcset="${escapeHtml(srcset)}"`);
+                imgAttributes.push(`sizes="${escapeHtml(sizes)}"`);
+            }
+
+            const backgroundStyle = itemFit === 'blurExtend' ? `style="background-image: url('${escapeHtml(src)}')"` : '';
 
             const slideContent = item.href ?
-                `<a href="${escapeHtml(item.href)}" class="andw-sideflow-slide ${fitClass}" data-index="${index}" ${config.slider.fit === 'blurExtend' ? `style="background-image: url('${escapeHtml(item.src)}')"` : ''}>
-                    <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" loading="${index === 0 ? 'eager' : 'lazy'}">
+                `<a href="${escapeHtml(item.href)}" class="andw-sideflow-slide ${fitClass}" data-index="${index}" ${backgroundStyle}>
+                    <img ${imgAttributes.join(' ')}>
                 </a>` :
-                `<div class="andw-sideflow-slide ${fitClass}" data-index="${index}" ${config.slider.fit === 'blurExtend' ? `style="background-image: url('${escapeHtml(item.src)}')"` : ''}>
-                    <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" loading="${index === 0 ? 'eager' : 'lazy'}">
+                `<div class="andw-sideflow-slide ${fitClass}" data-index="${index}" ${backgroundStyle}>
+                    <img ${imgAttributes.join(' ')}>
                 </div>`;
 
             return slideContent;
-        }).join('');
+        });
+
+        const slides = (await Promise.all(slidePromises)).filter(slide => slide).join('');
 
         const indicators = config.slider.items.length > 1 ?
             `<div class="andw-sideflow-indicators">
@@ -1033,13 +1105,142 @@
         return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
-    // トラッキングイベント
+
+    // CSS変数を適用
+    function applyCSSVariables() {
+        if (!config?.styles?.tokens) return;
+
+        const tokens = config.styles.tokens;
+        const host = shadowRoot.host;
+
+        host.style.setProperty('--andw-sf-color-brand', tokens.colorBrand || '#667eea');
+        host.style.setProperty('--andw-sf-radius', (tokens.radius || 8) + 'px');
+        host.style.setProperty('--andw-sf-shadow', tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
+        host.style.setProperty('--andw-sf-spacing', (tokens.spacing || 16) + 'px');
+        host.style.setProperty('--andw-sf-duration', (tokens.durationMs || 300) + 'ms');
+        host.style.setProperty('--andw-sf-ease', tokens.easing || 'cubic-bezier(0.34, 1.56, 0.64, 1)');
+        host.style.setProperty('--andw-sf-font', tokens.fontFamily || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+
+        // タブオフセットも設定
+        const tabConfig = config.tab || {};
+        if (tabConfig.anchor === 'center') {
+            host.style.setProperty('--tab-offset-center', (tabConfig.offsetPx || 0) + 'px');
+        } else {
+            host.style.setProperty('--tab-offset-bottom', (tabConfig.offsetPx || 24) + 'px');
+        }
+    }
+
+    // カスタムCSS読み込み
+    function loadCustomCSS() {
+        if (!config?.styles?.customCssUrl) return;
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = config.styles.customCssUrl;
+        link.onload = function() {
+            console.log('andW SideFlow: カスタムCSSを読み込みました');
+        };
+        link.onerror = function() {
+            console.warn('andW SideFlow: カスタムCSSの読み込みに失敗しました:', config.styles.customCssUrl);
+        };
+
+        shadowRoot.appendChild(link);
+    }
+
+    // デバッグ情報表示
+    function showDebugInfo() {
+        if (!config?.dev?.debug) return;
+
+        const debugContainer = document.createElement('div');
+        debugContainer.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            max-width: 300px;
+            white-space: pre-wrap;
+        `;
+
+        const safeAreaTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-top)')) || 0;
+        const safeAreaBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)')) || 0;
+
+        debugContainer.textContent = `andW SideFlow Debug
+Config Version: ${config.configVersion || 'unknown'}
+Safe Area Top: ${safeAreaTop}px
+Safe Area Bottom: ${safeAreaBottom}px
+Tab Anchor: ${config.tab?.anchor || 'center'}
+Tab Offset: ${config.tab?.offsetPx || 24}px
+Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
+
+        document.body.appendChild(debugContainer);
+
+        // 10秒後に自動削除
+        setTimeout(() => {
+            if (debugContainer.parentNode) {
+                debugContainer.parentNode.removeChild(debugContainer);
+            }
+        }, 10000);
+    }
+
+    // MediaIDから画像情報を取得
+    async function getMediaInfo(mediaId) {
+        if (!mediaId) return null;
+
+        try {
+            const response = await fetch(`/wp-json/wp/v2/media/${mediaId}`);
+            if (!response.ok) return null;
+
+            const media = await response.json();
+            return {
+                id: media.id,
+                src: media.source_url,
+                srcset: media.media_details?.sizes ? buildSrcSet(media.media_details.sizes) : '',
+                sizes: '(max-width: 480px) 85vw, 400px',
+                alt: media.alt_text || media.title?.rendered || '',
+                width: media.media_details?.width || 0,
+                height: media.media_details?.height || 0
+            };
+        } catch (error) {
+            console.warn('andW SideFlow: メディア情報の取得に失敗:', error);
+            return null;
+        }
+    }
+
+    // srcset構築
+    function buildSrcSet(sizes) {
+        const supportedSizes = ['andw_sideflow_600', 'andw_sideflow_720', 'andw_sideflow_960', 'andw_sideflow_1200', 'andw_sideflow_1440'];
+        const srcsetParts = [];
+
+        supportedSizes.forEach(sizeName => {
+            if (sizes[sizeName]) {
+                srcsetParts.push(`${sizes[sizeName].source_url} ${sizes[sizeName].width}w`);
+            }
+        });
+
+        return srcsetParts.join(', ');
+    }
+
+    // イベント追跡（configVersionを含む）
     function trackEvent(event, data = {}) {
+        const eventData = {
+            event: 'andw_sideflow_' + event,
+            configVersion: config?.configVersion,
+            ...data
+        };
+
         if (typeof window.dataLayer !== 'undefined') {
-            window.dataLayer.push({
-                event: 'andw_sideflow_' + event,
-                ...data
-            });
+            window.dataLayer.push(eventData);
+        }
+
+        // デバッグモード時はログ出力
+        if (config?.dev?.debug) {
+            console.log('andW SideFlow Event:', eventData);
         }
     }
 
