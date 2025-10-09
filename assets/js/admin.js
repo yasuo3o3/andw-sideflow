@@ -11,6 +11,7 @@
         initializeMediaSelection();
         initializePreview();
         initializeFormHandling();
+        initializeCustomValidation();
     });
 
     // タブ切り替え
@@ -167,7 +168,7 @@
                     <button type="button" class="button select-media">${andwSideFlowAdmin.strings.selectMedia}</button>
                     <input type="hidden" class="media-id" value="0">
                     <input type="text" class="slide-alt" placeholder="代替テキスト">
-                    <input type="url" class="slide-href" placeholder="リンクURL（オプション）">
+                    <input type="text" class="slide-href" placeholder="リンクURL（オプション）" data-validation="url">
                     <select class="slide-fit">
                         <option value="inherit">全体設定に従う</option>
                         <option value="cover">カバー</option>
@@ -213,7 +214,7 @@
                     <tr>
                         <th scope="row">リンクURL</th>
                         <td>
-                            <input type="url" class="button-href" placeholder="https://example.com">
+                            <input type="text" class="button-href" placeholder="https://example.com" data-validation="url">
                         </td>
                     </tr>
                     <tr>
@@ -505,7 +506,7 @@
                     <button type="button" class="button select-media">${andwSideFlowAdmin.strings.selectMedia}</button>
                     <input type="hidden" class="media-id" value="${mediaId}">
                     <input type="text" class="slide-alt" placeholder="代替テキスト" value="${item.alt || ''}">
-                    <input type="url" class="slide-href" placeholder="リンクURL（オプション）" value="${item.href || ''}">
+                    <input type="text" class="slide-href" placeholder="リンクURL（オプション）" value="${item.href || ''}" data-validation="url">
                     <select class="slide-fit">
                         <option value="inherit" ${item.fit === 'inherit' ? 'selected' : ''}>全体設定に従う</option>
                         <option value="cover" ${item.fit === 'cover' ? 'selected' : ''}>カバー</option>
@@ -554,7 +555,7 @@
                     <tr>
                         <th scope="row">リンクURL</th>
                         <td>
-                            <input type="url" class="button-href" value="${button.href || ''}" placeholder="https://example.com">
+                            <input type="text" class="button-href" value="${button.href || ''}" placeholder="https://example.com" data-validation="url">
                         </td>
                     </tr>
                     <tr>
@@ -595,6 +596,69 @@
         wp.media.attachment(mediaId).fetch().then(function(attachment) {
             const thumbnail = attachment.get('sizes')?.thumbnail?.url || attachment.get('url');
             $(`.slide-item[data-index="${slideIndex}"] .slide-preview`).html(`<img src="${thumbnail}" alt="">`);
+        });
+    }
+
+    // カスタムバリデーション初期化
+    function initializeCustomValidation() {
+        // URL形式のバリデーション
+        $(document).on('blur', 'input[data-validation="url"]', function() {
+            const input = $(this);
+            const value = input.val().trim();
+
+            // 空値は許可
+            if (!value) {
+                input.removeClass('field-error');
+                input.next('.error-message').remove();
+                return;
+            }
+
+            // 相対URL（/で始まる）は許可
+            if (value.startsWith('/')) {
+                input.removeClass('field-error');
+                input.next('.error-message').remove();
+                return;
+            }
+
+            // 絶対URLの場合は形式チェック
+            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+            const isValidUrl = urlPattern.test(value) || value.startsWith('http://') || value.startsWith('https://');
+
+            if (!isValidUrl) {
+                input.addClass('field-error');
+                if (!input.next('.error-message').length) {
+                    input.after('<span class="error-message">有効なURLまたは相対パス（/から始まる）を入力してください</span>');
+                }
+            } else {
+                input.removeClass('field-error');
+                input.next('.error-message').remove();
+            }
+        });
+
+        // フォーム送信時のバリデーション
+        $('#andw-sideflow-form').on('submit', function(e) {
+            let hasErrors = false;
+
+            $('input[data-validation="url"]').each(function() {
+                const input = $(this);
+                const value = input.val().trim();
+
+                if (value && !value.startsWith('/')) {
+                    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+                    const isValidUrl = urlPattern.test(value) || value.startsWith('http://') || value.startsWith('https://');
+
+                    if (!isValidUrl) {
+                        input.addClass('field-error');
+                        hasErrors = true;
+                    }
+                }
+            });
+
+            if (hasErrors) {
+                e.preventDefault();
+                alert('入力エラーがあります。赤枠のフィールドを修正してください。');
+                return false;
+            }
         });
     }
 

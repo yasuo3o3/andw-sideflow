@@ -252,7 +252,7 @@ class ANDW_SideFlow_Admin_UI {
                 <button type="button" class="button select-media"><?php esc_html_e('画像を選択', 'andw-sideflow'); ?></button>
                 <input type="hidden" class="media-id" value="<?php echo esc_attr($media_id); ?>">
                 <input type="text" class="slide-alt" placeholder="<?php esc_attr_e('代替テキスト', 'andw-sideflow'); ?>" value="<?php echo esc_attr($alt); ?>">
-                <input type="url" class="slide-href" placeholder="<?php esc_attr_e('リンクURL（オプション）', 'andw-sideflow'); ?>" value="<?php echo esc_attr($href); ?>">
+                <input type="text" class="slide-href" placeholder="<?php esc_attr_e('リンクURL（オプション）', 'andw-sideflow'); ?>" value="<?php echo esc_attr($href); ?>" data-validation="url">
                 <select class="slide-fit">
                     <option value="inherit" <?php selected($fit, 'inherit'); ?>><?php esc_html_e('全体設定に従う', 'andw-sideflow'); ?></option>
                     <option value="cover" <?php selected($fit, 'cover'); ?>><?php esc_html_e('カバー', 'andw-sideflow'); ?></option>
@@ -287,7 +287,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('カスタムCSS URL', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="url" id="custom-css-url" value="<?php echo esc_attr($styles['customCssUrl'] ?? ''); ?>" class="regular-text">
+                        <input type="text" id="custom-css-url" value="<?php echo esc_attr($styles['customCssUrl'] ?? ''); ?>" class="regular-text" data-validation="url">
                         <p class="description"><?php esc_html_e('外部CSSファイルのURL（オプション）', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
@@ -463,7 +463,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('リンクURL', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="url" class="button-href" value="<?php echo esc_attr($button['href'] ?? ''); ?>" placeholder="https://example.com">
+                        <input type="text" class="button-href" value="<?php echo esc_attr($button['href'] ?? ''); ?>" placeholder="https://example.com" data-validation="url">
                     </td>
                 </tr>
                 <tr>
