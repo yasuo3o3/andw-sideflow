@@ -26,7 +26,6 @@
 
         .andw-sideflow-tab {
             position: fixed;
-            top: calc(env(safe-area-inset-top, 0px) + 8px);
             right: 0;
             width: 48px;
             height: 120px;
@@ -48,9 +47,25 @@
             overflow: hidden;
         }
 
+        .andw-sideflow-tab.anchor-center {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .andw-sideflow-tab.anchor-bottom {
+            bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-offset, 24px));
+        }
+
         .andw-sideflow-tab:hover {
-            transform: translateX(-4px);
             box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .andw-sideflow-tab.anchor-center:hover {
+            transform: translateY(-50%) translateX(-4px);
+        }
+
+        .andw-sideflow-tab.anchor-bottom:hover {
+            transform: translateX(-4px);
         }
 
         .andw-sideflow-tab:focus {
@@ -115,7 +130,6 @@
             bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
             width: 75vw;
             max-width: 400px;
-            max-height: 84vh;
             background: white;
             border-radius: 16px 0 0 16px;
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
@@ -131,10 +145,13 @@
             transform: translateX(0);
         }
 
-        @media (max-height: 600px) {
-            .andw-sideflow-drawer {
-                max-height: 70vh;
-            }
+        .andw-sideflow-drawer.auto-height {
+            height: auto;
+            max-height: var(--max-height-px, 640px);
+        }
+
+        .andw-sideflow-drawer.auto-height .andw-sideflow-content {
+            overflow-y: auto;
         }
 
         .andw-sideflow-header {
@@ -178,12 +195,21 @@
         }
 
         .andw-sideflow-slider {
-            flex: 1;
-            min-height: 38vh;
-            max-height: 48vh;
             position: relative;
             overflow: hidden;
             background: #f9fafb;
+        }
+
+        .andw-sideflow-slider.vh-mode {
+            flex: 1;
+            min-height: 38vh;
+            max-height: 48vh;
+        }
+
+        .andw-sideflow-slider.auto-mode {
+            width: 100%;
+            aspect-ratio: var(--aspect-ratio, 16/9);
+            flex-shrink: 0;
         }
 
         .andw-sideflow-slides {
@@ -400,6 +426,10 @@
             visibility: visible;
         }
 
+        .andw-sideflow-overlay.disabled {
+            display: none;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .andw-sideflow-tab,
             .andw-sideflow-drawer,
@@ -499,16 +529,47 @@
 
     // UI作成
     function createUI() {
+        // タブ位置の設定
+        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24 };
+        const tabClasses = `andw-sideflow-tab anchor-${tabConfig.anchor}`;
+
+        // backdrop設定
+        const backdropConfig = config.drawer || { backdrop: false };
+        const overlayClasses = `andw-sideflow-overlay ${backdropConfig.backdrop ? '' : 'disabled'}`;
+
+        // スライダー設定
+        const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
+        const sliderClasses = `andw-sideflow-slider ${sliderConfig.heightMode === 'vh' ? 'vh-mode' : 'auto-mode'}`;
+
+        // ドロワー設定
+        const layoutConfig = config.layout || { maxHeightPx: 640 };
+        const drawerClasses = `andw-sideflow-drawer ${sliderConfig.heightMode === 'auto' ? 'auto-height' : ''}`;
+
         const container = document.createElement('div');
+
+        // CSS変数設定
+        if (tabConfig.anchor !== 'center') {
+            container.style.setProperty('--tab-offset', `${tabConfig.offsetPx}px`);
+        }
+
+        if (sliderConfig.heightMode === 'auto' && sliderConfig.aspectRatio) {
+            const [width, height] = sliderConfig.aspectRatio.split(':').map(Number);
+            container.style.setProperty('--aspect-ratio', `${width}/${height}`);
+        }
+
+        if (layoutConfig.maxHeightPx) {
+            container.style.setProperty('--max-height-px', `${layoutConfig.maxHeightPx}px`);
+        }
+
         container.innerHTML = `
-            <div class="andw-sideflow-overlay" role="presentation"></div>
-            <button class="andw-sideflow-tab" aria-expanded="false" aria-controls="andw-sideflow-drawer">
+            <div class="${overlayClasses}" role="presentation"></div>
+            <button class="${tabClasses}" aria-expanded="false" aria-controls="andw-sideflow-drawer">
                 求人
             </button>
             <div class="andw-sideflow-bubble" style="display: none;">
                 タップして求人をチェック！
             </div>
-            <div class="andw-sideflow-drawer" role="dialog" aria-labelledby="andw-sideflow-title" aria-hidden="true" id="andw-sideflow-drawer">
+            <div class="${drawerClasses}" role="dialog" aria-labelledby="andw-sideflow-title" aria-hidden="true" id="andw-sideflow-drawer">
                 <div class="andw-sideflow-header">
                     <h2 id="andw-sideflow-title" class="andw-sideflow-sr-only">求人情報</h2>
                     <button class="andw-sideflow-close" aria-label="閉じる">
@@ -518,7 +579,7 @@
                     </button>
                 </div>
                 <div class="andw-sideflow-content">
-                    <div class="andw-sideflow-slider" aria-roledescription="carousel" aria-label="求人スライドショー">
+                    <div class="${sliderClasses}" aria-roledescription="carousel" aria-label="求人スライドショー">
                         ${createSliderHTML()}
                         <div class="andw-sideflow-controls">
                             <button class="andw-sideflow-play-pause" aria-label="再生/停止">
@@ -619,8 +680,10 @@
         // タブクリック
         tab.addEventListener('click', toggleDrawer);
 
-        // オーバーレイクリック
-        overlay.addEventListener('click', closeDrawer);
+        // オーバーレイクリック（backropが有効な場合のみ）
+        if (!overlay.classList.contains('disabled')) {
+            overlay.addEventListener('click', closeDrawer);
+        }
 
         // 閉じるボタン
         closeBtn.addEventListener('click', closeDrawer);
@@ -725,7 +788,9 @@
 
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
-        overlay.classList.add('visible');
+        if (!overlay.classList.contains('disabled')) {
+            overlay.classList.add('visible');
+        }
         drawer.classList.add('open');
 
         // フォーカストラップ設定
@@ -747,7 +812,9 @@
 
         tab.setAttribute('aria-expanded', 'false');
         drawer.setAttribute('aria-hidden', 'true');
-        overlay.classList.remove('visible');
+        if (!overlay.classList.contains('disabled')) {
+            overlay.classList.remove('visible');
+        }
         drawer.classList.remove('open');
 
         // フォーカストラップ解除

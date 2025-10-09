@@ -4,7 +4,7 @@ Tags: sidebar, drawer, slider, mobile, recruitment
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.0.1
+Stable tag: 0.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,12 @@ iOS SafeAreaに対応済みです。設定のlayout.topSafeOffset, bottomSafeOff
 4. 管理画面の設定画面
 
 == Changelog ==
+
+= 0.0.2 =
+* タブ位置をanchor（center/bottom）+offsetPxで制御可能に変更
+* ドロワー展開時の背景（backdrop）を設定で無効化可能に変更
+* スライド領域の高さを成り行き高さ（aspectRatio基準）に変更
+* 新設定JSON仕様への対応（下位互換性維持）
 
 = 0.0.1 =
 * 初回リリース

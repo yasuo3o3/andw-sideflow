@@ -2,7 +2,7 @@
 /**
  * Plugin Name: andW SideFlow
  * Description: 右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author: yasuo3o3
  * Author URI: https://yasuo-o.xyz/
  * License: GPLv2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('ANDW_SIDEFLOW_VERSION', '0.0.1');
+define('ANDW_SIDEFLOW_VERSION', '0.0.2');
 define('ANDW_SIDEFLOW_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -247,6 +247,23 @@ class ANDW_SideFlow {
             }
         }
 
+        // タブ設定
+        if (isset($config['tab']) && is_array($config['tab'])) {
+            $tab = $config['tab'];
+            $sanitized['tab'] = array(
+                'anchor' => in_array($tab['anchor'] ?? '', array('center', 'bottom')) ? $tab['anchor'] : 'center',
+                'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24))
+            );
+        }
+
+        // ドロワー設定
+        if (isset($config['drawer']) && is_array($config['drawer'])) {
+            $drawer = $config['drawer'];
+            $sanitized['drawer'] = array(
+                'backdrop' => (bool)($drawer['backdrop'] ?? false)
+            );
+        }
+
         // スライダー設定
         if (isset($config['slider']) && is_array($config['slider'])) {
             $slider = $config['slider'];
@@ -254,6 +271,8 @@ class ANDW_SideFlow {
                 'autoplay' => (bool)($slider['autoplay'] ?? true),
                 'interval' => max(1000, intval($slider['interval'] ?? 3500)),
                 'fit' => in_array($slider['fit'] ?? '', array('cover', 'contain', 'blurExtend')) ? $slider['fit'] : 'cover',
+                'heightMode' => in_array($slider['heightMode'] ?? '', array('auto', 'vh')) ? $slider['heightMode'] : 'auto',
+                'aspectRatio' => $this->validate_aspect_ratio($slider['aspectRatio'] ?? '16:9'),
                 'items' => array()
             );
 
@@ -270,16 +289,18 @@ class ANDW_SideFlow {
             }
         }
 
-        // レイアウト設定
+        // レイアウト設定（新形式優先、旧形式は下位互換用）
         if (isset($config['layout']) && is_array($config['layout'])) {
             $layout = $config['layout'];
             $sanitized['layout'] = array(
+                'maxHeightPx' => max(400, intval($layout['maxHeightPx'] ?? 640)),
+                'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48)),
+                // 下位互換用
                 'topSafeOffset' => max(0, intval($layout['topSafeOffset'] ?? 8)),
                 'bottomSafeOffset' => max(0, intval($layout['bottomSafeOffset'] ?? 16)),
                 'maxVh' => max(50, min(95, intval($layout['maxVh'] ?? 84))),
                 'sliderMinVh' => max(20, min(60, intval($layout['sliderMinVh'] ?? 38))),
-                'sliderMaxVh' => max(40, min(80, intval($layout['sliderMaxVh'] ?? 48))),
-                'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48))
+                'sliderMaxVh' => max(40, min(80, intval($layout['sliderMaxVh'] ?? 48)))
             );
         }
 
@@ -289,6 +310,20 @@ class ANDW_SideFlow {
         $sanitized['respectReducedMotion'] = (bool)($config['respectReducedMotion'] ?? true);
 
         return $sanitized;
+    }
+
+    /**
+     * アスペクト比の検証
+     */
+    private function validate_aspect_ratio($ratio) {
+        if (preg_match('/^(\d+):(\d+)$/', $ratio, $matches)) {
+            $width = intval($matches[1]);
+            $height = intval($matches[2]);
+            if ($width > 0 && $height > 0) {
+                return $ratio;
+            }
+        }
+        return '16:9';
     }
 
     /**
@@ -316,19 +351,30 @@ class ANDW_SideFlow {
                     'visible' => true
                 )
             ),
+            'tab' => array(
+                'anchor' => 'center',
+                'offsetPx' => 24
+            ),
+            'drawer' => array(
+                'backdrop' => false
+            ),
             'slider' => array(
                 'autoplay' => true,
                 'interval' => 3500,
                 'fit' => 'cover',
+                'heightMode' => 'auto',
+                'aspectRatio' => '16:9',
                 'items' => array()
             ),
             'layout' => array(
+                'maxHeightPx' => 640,
+                'buttonRowHeight' => 48,
+                // 下位互換用
                 'topSafeOffset' => 8,
                 'bottomSafeOffset' => 16,
                 'maxVh' => 84,
                 'sliderMinVh' => 38,
-                'sliderMaxVh' => 48,
-                'buttonRowHeight' => 48
+                'sliderMaxVh' => 48
             ),
             'showBubble' => true,
             'glitterInterval' => 25000,
