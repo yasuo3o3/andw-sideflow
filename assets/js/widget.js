@@ -125,7 +125,6 @@
 
         .andw-sideflow-drawer {
             position: fixed;
-            top: calc(env(safe-area-inset-top, 0px) + 8px);
             right: 0;
             bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
             width: 75vw;
