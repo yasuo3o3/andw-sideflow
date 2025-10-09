@@ -124,8 +124,11 @@ class ANDW_SideFlow {
      */
     public function admin_settings_init() {
         register_setting('andw_sideflow_settings', 'andw_sideflow_config', array(
+            'type' => 'array',
+            'description' => 'andW SideFlow configuration',
             'sanitize_callback' => array($this, 'sanitize_config'),
-            'default' => $this->get_default_config()
+            'default' => $this->get_default_config(),
+            'show_in_rest' => false
         ));
 
         add_settings_section(
@@ -222,11 +225,25 @@ class ANDW_SideFlow {
      */
     public function config_json_field() {
         $config = get_option('andw_sideflow_config', $this->get_default_config());
-        $json = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+        // 配列の場合はJSONエンコード、既にJSONの場合はそのまま
+        if (is_array($config)) {
+            $json = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        } else {
+            $json = $config;
+        }
+
+        error_log('andW SideFlow: config_json_field - loaded config: ' . print_r($config, true));
+        error_log('andW SideFlow: config_json_field - json output: ' . $json);
+
         ?>
-        <textarea id="config_json" name="andw_sideflow_config" rows="20" cols="80" style="width: 100%; font-family: monospace;"><?php echo esc_textarea($json); ?></textarea>
+        <textarea id="config_json" name="andw_sideflow_config" rows="20" cols="80" style="width: 100%; font-family: monospace; font-size: 13px;"><?php echo esc_textarea($json); ?></textarea>
         <p class="description">
-            <?php esc_html_e('JSON形式で設定を入力してください。', 'andw-sideflow'); ?>
+            <?php esc_html_e('JSON形式で設定を入力してください。保存ボタンを押すと設定が反映されます。', 'andw-sideflow'); ?>
+        </p>
+        <p class="description">
+            <strong><?php esc_html_e('現在のDBの値:', 'andw-sideflow'); ?></strong>
+            <code><?php echo esc_html(is_array($config) ? 'Array' : gettype($config)); ?></code>
         </p>
         <?php
     }
@@ -244,6 +261,10 @@ class ANDW_SideFlow {
                 try {
                     $sanitized = $this->sanitize_config_array($decoded);
                     error_log('andW SideFlow: sanitized config: ' . print_r($sanitized, true));
+
+                    // フックでDBへの保存確認
+                    add_action('updated_option', array($this, 'debug_option_updated'), 10, 3);
+
                     add_settings_error(
                         'andw_sideflow_config',
                         'save_success',
@@ -381,6 +402,23 @@ class ANDW_SideFlow {
     }
 
     /**
+     * オプション更新デバッグ
+     */
+    public function debug_option_updated($option, $old_value, $value) {
+        if ($option === 'andw_sideflow_config') {
+            error_log('andW SideFlow: Option updated in DB: ' . print_r($value, true));
+            error_log('andW SideFlow: Old value was: ' . print_r($old_value, true));
+
+            // 実際にDBから読み込んでみる
+            $stored_value = get_option('andw_sideflow_config');
+            error_log('andW SideFlow: Value retrieved from DB: ' . print_r($stored_value, true));
+
+            // フックを削除（一度だけ実行）
+            remove_action('updated_option', array($this, 'debug_option_updated'), 10);
+        }
+    }
+
+    /**
      * デフォルト設定取得
      */
     private function get_default_config() {
@@ -477,10 +515,25 @@ class ANDW_SideFlow {
      * プラグイン有効化
      */
     public function activate() {
-        // デフォルト設定を保存
-        if (!get_option('andw_sideflow_config')) {
-            add_option('andw_sideflow_config', $this->get_default_config());
+        // デフォルト設定を保存（強制的に初期化）
+        $default_config = $this->get_default_config();
+        $existing_config = get_option('andw_sideflow_config');
+
+        error_log('andW SideFlow: Activation - existing config: ' . print_r($existing_config, true));
+
+        if (!$existing_config) {
+            $result = add_option('andw_sideflow_config', $default_config, '', 'no');
+            error_log('andW SideFlow: Activation - add_option result: ' . ($result ? 'true' : 'false'));
+        } else {
+            // 既存設定がある場合は新しい項目のみマージ
+            $merged_config = array_merge($default_config, $existing_config);
+            $result = update_option('andw_sideflow_config', $merged_config);
+            error_log('andW SideFlow: Activation - update_option result: ' . ($result ? 'true' : 'false'));
         }
+
+        // 保存後の確認
+        $final_config = get_option('andw_sideflow_config');
+        error_log('andW SideFlow: Activation - final config: ' . print_r($final_config, true));
 
         // 画像サイズを追加
         $this->add_image_sizes();
