@@ -434,17 +434,24 @@
             opacity: 0;
             visibility: hidden;
             transition: all var(--sf-duration) var(--sf-ease);
-            z-index: 110;
-            pointer-events: auto;
+            z-index: 115;
+            pointer-events: none;
         }
 
         .andw-sideflow-overlay.visible {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
 
         .andw-sideflow-overlay.disabled {
             background: transparent;
+        }
+
+        .andw-sideflow-overlay.disabled.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -759,8 +766,13 @@
         // タブクリック
         tab.addEventListener('click', toggleDrawer);
 
-        // オーバーレイクリック（常に有効）
-        overlay.addEventListener('click', closeDrawer);
+        // オーバーレイクリック（backdrop設定に関係なく常に有効）
+        overlay.addEventListener('click', function(e) {
+            // オーバーレイ自体がクリックされた場合のみ閉じる
+            if (e.target === overlay) {
+                closeDrawer();
+            }
+        });
 
         // ドロワー領域外クリックでも閉じる
         drawer.addEventListener('click', function(e) {
@@ -887,9 +899,9 @@
 
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
-        if (!overlay.classList.contains('disabled')) {
-            overlay.classList.add('visible');
-        }
+
+        // オーバーレイは backdrop 設定に関係なく常に表示（クリック領域として機能）
+        overlay.classList.add('visible');
         drawer.classList.add('open');
 
         // フォーカストラップ設定
@@ -911,9 +923,9 @@
 
         tab.setAttribute('aria-expanded', 'false');
         drawer.setAttribute('aria-hidden', 'true');
-        if (!overlay.classList.contains('disabled')) {
-            overlay.classList.remove('visible');
-        }
+
+        // オーバーレイは常に非表示に
+        overlay.classList.remove('visible');
         drawer.classList.remove('open');
 
         // フォーカストラップ解除
