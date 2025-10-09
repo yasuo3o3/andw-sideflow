@@ -78,6 +78,7 @@ class ANDW_SideFlow {
     private function admin_init() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_settings_init'));
+        add_action('wp_ajax_andw_sideflow_clean_legacy', array($this, 'ajax_clean_legacy'));
     }
 
     /**
@@ -142,6 +143,14 @@ class ANDW_SideFlow {
             'config_json',
             __('設定JSON', 'andw-sideflow'),
             array($this, 'config_json_field'),
+            'andw_sideflow_settings',
+            'andw_sideflow_main'
+        );
+
+        add_settings_field(
+            'clean_legacy',
+            __('レガシー設定の削除', 'andw-sideflow'),
+            array($this, 'clean_legacy_field'),
             'andw_sideflow_settings',
             'andw_sideflow_main'
         );
@@ -245,6 +254,56 @@ class ANDW_SideFlow {
             <strong><?php esc_html_e('現在のDBの値:', 'andw-sideflow'); ?></strong>
             <code><?php echo esc_html(is_array($config) ? 'Array' : gettype($config)); ?></code>
         </p>
+        <?php
+    }
+
+    /**
+     * レガシー設定削除フィールド
+     */
+    public function clean_legacy_field() {
+        ?>
+        <button type="button" id="clean-legacy-btn" class="button button-secondary">古い設定項目を削除</button>
+        <p class="description">
+            <?php esc_html_e('topSafeOffset等の古い設定項目をDBから完全に削除します。', 'andw-sideflow'); ?>
+        </p>
+        <div id="clean-legacy-result" style="margin-top: 10px;"></div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('clean-legacy-btn');
+            const result = document.getElementById('clean-legacy-result');
+
+            btn.addEventListener('click', function() {
+                btn.disabled = true;
+                btn.textContent = '処理中...';
+
+                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=andw_sideflow_clean_legacy&nonce=<?php echo wp_create_nonce('andw_sideflow_clean'); ?>'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
+                        // ページをリロードして更新された設定を表示
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        result.innerHTML = '<div style="color: red;">✗ ' + data.data + '</div>';
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML = '<div style="color: red;">✗ エラーが発生しました</div>';
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = '古い設定項目を削除';
+                });
+            });
+        });
+        </script>
         <?php
     }
 
@@ -366,17 +425,11 @@ class ANDW_SideFlow {
             }
         }
 
-        // レイアウト設定（新形式優先、旧形式は下位互換用）
+        // レイアウト設定（新形式のみ、古い項目は除外）
         $layout = $config['layout'] ?? array();
         $sanitized['layout'] = array(
             'maxHeightPx' => max(400, intval($layout['maxHeightPx'] ?? 640)),
-            'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48)),
-            // 下位互換用
-            'topSafeOffset' => max(0, intval($layout['topSafeOffset'] ?? 8)),
-            'bottomSafeOffset' => max(0, intval($layout['bottomSafeOffset'] ?? 16)),
-            'maxVh' => max(50, min(95, intval($layout['maxVh'] ?? 84))),
-            'sliderMinVh' => max(20, min(60, intval($layout['sliderMinVh'] ?? 38))),
-            'sliderMaxVh' => max(40, min(80, intval($layout['sliderMaxVh'] ?? 48)))
+            'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48))
         );
 
         // その他設定
@@ -415,6 +468,54 @@ class ANDW_SideFlow {
 
             // フックを削除（一度だけ実行）
             remove_action('updated_option', array($this, 'debug_option_updated'), 10);
+        }
+    }
+
+    /**
+     * レガシー設定削除AJAX処理
+     */
+    public function ajax_clean_legacy() {
+        // nonce確認
+        if (!wp_verify_nonce($_POST['nonce'], 'andw_sideflow_clean')) {
+            wp_die('セキュリティチェックに失敗しました。');
+        }
+
+        // 権限確認
+        if (!current_user_can('manage_options')) {
+            wp_die('権限がありません。');
+        }
+
+        try {
+            // 現在の設定を取得
+            $config = get_option('andw_sideflow_config', array());
+
+            if (is_array($config)) {
+                // レガシー項目を削除
+                $legacy_keys = array('topSafeOffset', 'bottomSafeOffset', 'maxVh', 'sliderMinVh', 'sliderMaxVh');
+                $removed_keys = array();
+
+                if (isset($config['layout']) && is_array($config['layout'])) {
+                    foreach ($legacy_keys as $key) {
+                        if (isset($config['layout'][$key])) {
+                            unset($config['layout'][$key]);
+                            $removed_keys[] = $key;
+                        }
+                    }
+                }
+
+                // 設定を更新
+                update_option('andw_sideflow_config', $config);
+
+                if (empty($removed_keys)) {
+                    wp_send_json_success('削除する古い設定項目はありませんでした。');
+                } else {
+                    wp_send_json_success('古い設定項目を削除しました: ' . implode(', ', $removed_keys));
+                }
+            } else {
+                wp_send_json_error('設定データが見つかりません。');
+            }
+        } catch (Exception $e) {
+            wp_send_json_error('処理中にエラーが発生しました: ' . $e->getMessage());
         }
     }
 
@@ -460,13 +561,7 @@ class ANDW_SideFlow {
             ),
             'layout' => array(
                 'maxHeightPx' => 640,
-                'buttonRowHeight' => 48,
-                // 下位互換用
-                'topSafeOffset' => 8,
-                'bottomSafeOffset' => 16,
-                'maxVh' => 84,
-                'sliderMinVh' => 38,
-                'sliderMaxVh' => 48
+                'buttonRowHeight' => 48
             ),
             'showBubble' => true,
             'glitterInterval' => 25000,
