@@ -60,16 +60,21 @@ class ANDW_SideFlow_Admin_UI {
             ANDW_SIDEFLOW_VERSION
         );
 
+        $main_instance = ANDW_SideFlow::get_instance();
+        $current_config = get_option('andw_sideflow_config', $main_instance->get_default_config());
+
         wp_localize_script('andw-sideflow-admin', 'andwSideFlowAdmin', array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('andw_sideflow_admin'),
             'previewUrl' => rest_url('andw-sideflow/v1/preview'),
+            'currentConfig' => $current_config,
             'strings' => array(
                 'selectMedia' => __('画像を選択', 'andw-sideflow'),
                 'selectFiles' => __('ファイルを選択', 'andw-sideflow'),
                 'useThis' => __('この画像を使用', 'andw-sideflow'),
                 'previewApplied' => __('プレビューを適用しました', 'andw-sideflow'),
-                'previewError' => __('プレビューの適用に失敗しました', 'andw-sideflow')
+                'previewError' => __('プレビューの適用に失敗しました', 'andw-sideflow'),
+                'noImage' => __('画像なし', 'andw-sideflow')
             )
         ));
     }
@@ -132,7 +137,8 @@ class ANDW_SideFlow_Admin_UI {
                             <?php $this->render_advanced_section($config); ?>
                         </div>
 
-                        <input type="hidden" name="andw_sideflow_config" id="andw_sideflow_config_input" value="">
+                        <!-- WordPressの設定APIに合わせた隠しフィールド名 -->
+                        <textarea name="andw_sideflow_config" id="andw_sideflow_config_textarea" style="display: none;"></textarea>
 
                         <div class="andw-sideflow-actions">
                             <button type="button" id="preview-apply" class="button button-secondary">

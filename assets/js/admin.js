@@ -139,12 +139,19 @@
 
     // フォーム処理初期化
     function initializeFormHandling() {
-        $('#andw-sideflow-form').on('submit', function() {
+        $('#andw-sideflow-form').on('submit', function(e) {
             const config = collectFormData();
-            $('#andw_sideflow_config_input').val(JSON.stringify(config));
+            const configJson = JSON.stringify(config);
+
+            // WordPressの設定APIに合わせたフィールドに設定
+            $('#andw_sideflow_config_textarea').val(configJson);
+
+            console.log('Form submission - config data:', config);
+            console.log('Form submission - JSON length:', configJson.length);
         });
 
         // 初期設定の読み込み
+        loadInitialConfig();
         updateConfig();
     }
 
@@ -406,10 +413,195 @@
         }, 3000);
     }
 
+    // 初期設定読み込み
+    function loadInitialConfig() {
+        if (typeof andwSideFlowAdmin === 'undefined' || !andwSideFlowAdmin.currentConfig) {
+            console.warn('Initial config not found');
+            return;
+        }
+
+        const config = andwSideFlowAdmin.currentConfig;
+        console.log('Loading initial config:', config);
+
+        // スライダー設定
+        if (config.slider) {
+            $('#slider-autoplay').prop('checked', config.slider.autoplay || false);
+            $('#slider-interval').val(config.slider.interval || 3500);
+            $('#slider-fit').val(config.slider.fit || 'cover');
+            $('#slider-aspect-ratio').val(config.slider.aspectRatio || '16:9');
+
+            // スライドアイテム
+            if (config.slider.items && config.slider.items.length > 0) {
+                $('#slides-list').empty();
+                config.slider.items.forEach((item, index) => {
+                    addSlideItemWithData(item, index);
+                });
+            }
+        }
+
+        // ボタン設定
+        if (config.buttons && config.buttons.length > 0) {
+            $('#buttons-list').empty();
+            config.buttons.forEach((button, index) => {
+                addButtonItemWithData(button, index);
+            });
+        }
+
+        // スタイル設定
+        if (config.styles) {
+            $('#style-preset').val(config.styles.preset || 'light');
+            $('#custom-css-url').val(config.styles.customCssUrl || '');
+
+            if (config.styles.tokens) {
+                $('#token-color-brand').val(config.styles.tokens.colorBrand || '#667eea');
+                $('#token-radius').val(config.styles.tokens.radius || 8);
+                $('#token-shadow').val(config.styles.tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
+                $('#token-spacing').val(config.styles.tokens.spacing || 16);
+                $('#token-duration').val(config.styles.tokens.durationMs || 300);
+                $('#token-easing').val(config.styles.tokens.easing || 'cubic-bezier(0.34, 1.56, 0.64, 1)');
+                $('#token-font-family').val(config.styles.tokens.fontFamily || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+            }
+        }
+
+        // タブ・レイアウト設定
+        if (config.tab) {
+            $('input[name="tab-anchor"][value="' + (config.tab.anchor || 'center') + '"]').prop('checked', true);
+            $('#tab-offset').val(config.tab.offsetPx || 24);
+        }
+
+        if (config.drawer) {
+            $('#drawer-backdrop').prop('checked', config.drawer.backdrop || false);
+        }
+
+        if (config.layout) {
+            $('#layout-max-height').val(config.layout.maxHeightPx || 640);
+            $('#layout-button-row-height').val(config.layout.buttonRowHeight || 48);
+        }
+
+        // その他設定
+        $('#show-bubble').prop('checked', config.showBubble !== false);
+        $('#glitter-interval').val(config.glitterInterval || 25000);
+        $('#respect-reduced-motion').prop('checked', config.respectReducedMotion !== false);
+
+        if (config.dev) {
+            $('#dev-debug').prop('checked', config.dev.debug || false);
+        }
+
+        // カラーピッカーの再初期化
+        $('.color-picker').wpColorPicker('color', config.styles?.tokens?.colorBrand || '#667eea');
+    }
+
+    // データ付きスライドアイテム追加
+    function addSlideItemWithData(item, index) {
+        const mediaId = item.mediaId || 0;
+        const imageUrl = mediaId > 0 ? '' : (item.src || ''); // MediaIDがある場合は後で取得
+
+        const template = `
+            <div class="slide-item" data-index="${index}">
+                <div class="slide-preview">
+                    ${imageUrl ? `<img src="${imageUrl}" alt="">` : `<div class="no-image">${andwSideFlowAdmin.strings.noImage || '画像なし'}</div>`}
+                </div>
+                <div class="slide-controls">
+                    <button type="button" class="button select-media">${andwSideFlowAdmin.strings.selectMedia}</button>
+                    <input type="hidden" class="media-id" value="${mediaId}">
+                    <input type="text" class="slide-alt" placeholder="代替テキスト" value="${item.alt || ''}">
+                    <input type="url" class="slide-href" placeholder="リンクURL（オプション）" value="${item.href || ''}">
+                    <select class="slide-fit">
+                        <option value="inherit" ${item.fit === 'inherit' ? 'selected' : ''}>全体設定に従う</option>
+                        <option value="cover" ${item.fit === 'cover' ? 'selected' : ''}>カバー</option>
+                        <option value="contain" ${item.fit === 'contain' ? 'selected' : ''}>全体表示</option>
+                    </select>
+                    <button type="button" class="button-link-delete remove-slide">削除</button>
+                </div>
+            </div>
+        `;
+
+        $('#slides-list').append(template);
+
+        // MediaIDがある場合はサムネイルを取得
+        if (mediaId > 0) {
+            fetchMediaThumbnail(mediaId, index);
+        }
+    }
+
+    // データ付きボタンアイテム追加
+    function addButtonItemWithData(button, index) {
+        const template = `
+            <div class="button-item" data-index="${index}">
+                <h4>ボタン ${index + 1}</h4>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">表示</th>
+                        <td>
+                            <label>
+                                <input type="checkbox" class="button-visible" ${button.visible !== false ? 'checked' : ''}>
+                                このボタンを表示する
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">ID</th>
+                        <td>
+                            <input type="text" class="button-id" value="${button.id || ''}" placeholder="btn${index + 1}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">テキスト</th>
+                        <td>
+                            <input type="text" class="button-text" value="${button.text || ''}" placeholder="ボタンテキスト">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">リンクURL</th>
+                        <td>
+                            <input type="url" class="button-href" value="${button.href || ''}" placeholder="https://example.com">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">トラッキングID</th>
+                        <td>
+                            <input type="text" class="button-tracking-id" value="${button.trackingId || ''}" placeholder="button_click">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">スタイル</th>
+                        <td>
+                            <select class="button-variant">
+                                <option value="default" ${button.variant === 'default' ? 'selected' : ''}>デフォルト</option>
+                                <option value="accent" ${button.variant === 'accent' ? 'selected' : ''}>アクセント</option>
+                                <option value="line" ${button.variant === 'line' ? 'selected' : ''}>ライン</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">LINEブランディング</th>
+                        <td>
+                            <label>
+                                <input type="checkbox" class="button-line-branding" ${button.lineBranding ? 'checked' : ''}>
+                                LINEカラーを使用（lineスタイル時のみ）
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+                <button type="button" class="button-link-delete remove-button">このボタンを削除</button>
+            </div>
+        `;
+
+        $('#buttons-list').append(template);
+    }
+
+    // メディアサムネイル取得
+    function fetchMediaThumbnail(mediaId, slideIndex) {
+        wp.media.attachment(mediaId).fetch().then(function(attachment) {
+            const thumbnail = attachment.get('sizes')?.thumbnail?.url || attachment.get('url');
+            $(`.slide-item[data-index="${slideIndex}"] .slide-preview`).html(`<img src="${thumbnail}" alt="">`);
+        });
+    }
+
     // 設定更新
     function updateConfig() {
         const config = collectFormData();
-        $('#andw_sideflow_config_input').val(JSON.stringify(config));
+        $('#andw_sideflow_config_textarea').val(JSON.stringify(config));
     }
 
 })(jQuery);
