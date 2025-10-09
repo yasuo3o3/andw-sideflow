@@ -557,7 +557,13 @@ class ANDW_SideFlow {
                 'fit' => 'cover',
                 'heightMode' => 'auto',
                 'aspectRatio' => '16:9',
-                'items' => array()
+                'items' => array(
+                    array(
+                        'src' => '/wp-content/uploads/2025/10/名称未設定のデザイン.jpg',
+                        'alt' => '求人募集の画像',
+                        'href' => ''
+                    )
+                )
             ),
             'layout' => array(
                 'maxHeightPx' => 640,
@@ -629,6 +635,19 @@ class ANDW_SideFlow {
         // 保存後の確認
         $final_config = get_option('andw_sideflow_config');
         error_log('andW SideFlow: Activation - final config: ' . print_r($final_config, true));
+
+        // 画像がない場合はサンプル画像を追加（一回だけ）
+        if (empty($final_config['slider']['items'])) {
+            $final_config['slider']['items'] = array(
+                array(
+                    'src' => '/wp-content/uploads/2025/10/名称未設定のデザイン.jpg',
+                    'alt' => '求人募集の画像',
+                    'href' => ''
+                )
+            );
+            update_option('andw_sideflow_config', $final_config);
+            error_log('andW SideFlow: Added sample image to slider');
+        }
 
         // 画像サイズを追加
         $this->add_image_sizes();
