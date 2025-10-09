@@ -28,21 +28,43 @@
             --sf-radius: var(--andw-sf-radius, 8px);
             --sf-shadow: var(--andw-sf-shadow, 0 4px 12px rgba(0,0,0,0.15));
             --sf-spacing: var(--andw-sf-spacing, 16px);
-            --sf-duration: var(--andw-sf-duration, 300ms);
-            --sf-ease: var(--andw-sf-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
             --sf-font: var(--andw-sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
         }
 
-        .andw-sideflow-tab {
+        .sf-wrap {
             position: fixed;
             right: 0;
-            width: 48px;
+            display: flex;
+            pointer-events: auto;
+            transform: translateX(var(--sf-drawerW));
+            transition: transform var(--sf-duration) var(--sf-ease);
+            z-index: 120;
+        }
+
+        .sf-wrap.open {
+            transform: translateX(0);
+        }
+
+        .sf-wrap.anchor-center {
+            top: calc(50% + var(--tab-offset, 0px));
+            transform: translateY(-50%) translateX(var(--sf-drawerW));
+        }
+
+        .sf-wrap.anchor-center.open {
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .sf-wrap.anchor-bottom {
+            bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-offset, 24px));
+        }
+
+        .sf-tab {
+            width: var(--sf-tabW);
             height: 120px;
             background: linear-gradient(135deg, var(--sf-color-brand) 0%, color-mix(in srgb, var(--sf-color-brand) 80%, #764ba2 20%) 100%);
             border-radius: var(--sf-radius) 0 0 var(--sf-radius);
             border: none;
             cursor: pointer;
-            pointer-events: auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -51,39 +73,24 @@
             font-weight: 600;
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            transition: all var(--sf-duration) var(--sf-ease);
+            transition: all 0.2s ease;
             box-shadow: var(--sf-shadow);
             overflow: hidden;
             font-family: var(--sf-font);
+            flex-shrink: 0;
         }
 
-        .andw-sideflow-tab.anchor-center {
-            top: calc(50% + var(--tab-offset-center, 0px));
-            transform: translateY(-50%);
-        }
-
-        .andw-sideflow-tab.anchor-bottom {
-            bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-offset-bottom, 24px));
-        }
-
-        .andw-sideflow-tab:hover {
+        .sf-tab:hover {
             box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .andw-sideflow-tab.anchor-center:hover {
-            transform: translateY(-50%) translateX(-4px);
-        }
-
-        .andw-sideflow-tab.anchor-bottom:hover {
             transform: translateX(-4px);
         }
 
-        .andw-sideflow-tab:focus {
+        .sf-tab:focus {
             outline: 2px solid #ff6b6b;
             outline-offset: 2px;
         }
 
-        .andw-sideflow-tab.glitter::before {
+        .sf-tab.glitter::before {
             content: '';
             position: absolute;
             top: -2px;
@@ -133,44 +140,30 @@
             100% { opacity: 1; transform: translateY(-50%) translateX(0); }
         }
 
-        .andw-sideflow-drawer {
-            position: fixed;
-            right: 0;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-            width: 75vw;
-            max-width: 400px;
+        .sf-drawer {
+            width: var(--sf-drawerW);
             background: white;
             border-radius: 16px 0 0 16px;
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-            transform: translateX(100%);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: auto;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-        }
-
-        .andw-sideflow-drawer.open {
-            transform: translateX(0);
-        }
-
-        .andw-sideflow-drawer.auto-height {
             height: auto;
             max-height: var(--max-height-px, 640px);
         }
 
-        .andw-sideflow-drawer.auto-height .andw-sideflow-content {
+        .sf-drawer.auto-height .sf-content {
             overflow-y: auto;
         }
 
-        .andw-sideflow-header {
+        .sf-header {
             position: relative;
             padding: 0;
             border: none;
             flex-shrink: 0;
         }
 
-        .andw-sideflow-close {
+        .sf-close {
             position: absolute;
             top: 8px;
             right: 8px;
@@ -189,54 +182,51 @@
             backdrop-filter: blur(4px);
         }
 
-        .andw-sideflow-close:hover {
+        .sf-close:hover {
             background: rgba(0, 0, 0, 0.8);
             transform: scale(1.1);
         }
 
-        .andw-sideflow-close:focus {
+        .sf-close:focus {
             outline: 2px solid white;
             outline-offset: 2px;
         }
 
-        .andw-sideflow-close svg {
+        .sf-close svg {
             width: 12px;
             height: 12px;
         }
 
-        .andw-sideflow-content {
+        .sf-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        .andw-sideflow-slider {
+        .sf-slider {
             position: relative;
             overflow: hidden;
             background: #f9fafb;
-        }
-
-        .andw-sideflow-slider.vh-mode {
-            flex: 1;
-            min-height: 38vh;
-            max-height: 48vh;
-        }
-
-        .andw-sideflow-slider.auto-mode {
             width: 100%;
             aspect-ratio: var(--aspect-ratio, 16/9);
             flex-shrink: 0;
         }
 
-        .andw-sideflow-slides {
+        .sf-slider.auto-mode {
+            width: 100%;
+            aspect-ratio: var(--aspect-ratio, 16/9);
+            flex-shrink: 0;
+        }
+
+        .sf-slides {
             width: 100%;
             height: 100%;
             display: flex;
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .andw-sideflow-slide {
+        .sf-slide {
             width: 100%;
             height: 100%;
             flex-shrink: 0;
@@ -244,31 +234,31 @@
             cursor: pointer;
         }
 
-        .andw-sideflow-slide img {
+        .sf-slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
 
-        .andw-sideflow-slide.contain img {
+        .sf-slide.contain img {
             object-fit: contain;
         }
 
-        .andw-sideflow-slide.blur-extend {
+        .sf-slide.blur-extend {
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             filter: blur(20px);
         }
 
-        .andw-sideflow-slide.blur-extend img {
+        .sf-slide.blur-extend img {
             object-fit: contain;
             position: relative;
             z-index: 1;
         }
 
-        .andw-sideflow-indicators {
+        .sf-indicators {
             position: absolute;
             bottom: 12px;
             left: 50%;
@@ -278,7 +268,7 @@
             z-index: 2;
         }
 
-        .andw-sideflow-indicator {
+        .sf-indicator {
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -287,19 +277,19 @@
             cursor: pointer;
         }
 
-        .andw-sideflow-indicator.active {
+        .sf-indicator.active {
             background: white;
             transform: scale(1.2);
         }
 
-        .andw-sideflow-controls {
+        .sf-controls {
             position: absolute;
             top: 12px;
             left: 12px;
             z-index: 3;
         }
 
-        .andw-sideflow-play-pause {
+        .sf-play-pause {
             width: 32px;
             height: 32px;
             border: none;
@@ -313,16 +303,16 @@
             transition: all 0.2s ease;
         }
 
-        .andw-sideflow-play-pause:hover {
+        .sf-play-pause:hover {
             background: rgba(0, 0, 0, 0.8);
         }
 
-        .andw-sideflow-play-pause:focus {
+        .sf-play-pause:focus {
             outline: 2px solid white;
             outline-offset: 2px;
         }
 
-        .andw-sideflow-buttons {
+        .sf-buttons {
             padding: 12px;
             display: flex;
             gap: 16px;
@@ -332,19 +322,19 @@
             min-height: 48px;
         }
 
-        .andw-sideflow-buttons.single {
+        .sf-buttons.single {
             justify-content: center;
         }
 
-        .andw-sideflow-buttons.double {
+        .sf-buttons.double {
             justify-content: space-between;
         }
 
-        .andw-sideflow-buttons.triple {
+        .sf-buttons.triple {
             justify-content: space-between;
         }
 
-        .andw-sideflow-button {
+        .sf-button {
             flex: 1;
             min-height: 44px;
             border: 2px solid transparent;
@@ -365,49 +355,49 @@
             white-space: nowrap;
         }
 
-        .andw-sideflow-button.default {
+        .sf-button.default {
             background: #f3f4f6;
             color: #374151;
         }
 
-        .andw-sideflow-button.default:hover {
+        .sf-button.default:hover {
             background: #e5e7eb;
             transform: translateY(-1px);
         }
 
-        .andw-sideflow-button.accent {
+        .sf-button.accent {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
-        .andw-sideflow-button.accent:hover {
+        .sf-button.accent:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        .andw-sideflow-button.line {
+        .sf-button.line {
             background: transparent;
             border-color: #e5e7eb;
             color: #374151;
         }
 
-        .andw-sideflow-button.line:hover {
+        .sf-button.line:hover {
             border-color: #d1d5db;
             background: #f9fafb;
             transform: translateY(-1px);
         }
 
-        .andw-sideflow-button.line.line-branding {
+        .sf-button.line.line-branding {
             border-color: #06c755;
             color: #06c755;
         }
 
-        .andw-sideflow-button.line.line-branding:hover {
+        .sf-button.line.line-branding:hover {
             background: #06c755;
             color: white;
         }
 
-        .andw-sideflow-button:focus {
+        .sf-button:focus {
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
         }
@@ -424,46 +414,15 @@
             border: 0;
         }
 
-        .andw-sideflow-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            visibility: hidden;
-            transition: all var(--sf-duration) var(--sf-ease);
-            z-index: 115;
-            pointer-events: none;
-        }
-
-        .andw-sideflow-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        .andw-sideflow-overlay.disabled {
-            background: transparent;
-        }
-
-        .andw-sideflow-overlay.disabled.visible {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-
         @media (prefers-reduced-motion: reduce) {
-            .andw-sideflow-tab,
-            .andw-sideflow-drawer,
-            .andw-sideflow-slides,
-            .andw-sideflow-button,
-            .andw-sideflow-overlay {
+            .sf-wrap,
+            .sf-tab,
+            .sf-slides,
+            .sf-button {
                 transition: none;
             }
 
-            .andw-sideflow-tab.glitter::before {
+            .sf-tab.glitter::before {
                 animation: none;
             }
 
@@ -474,17 +433,17 @@
         }
 
         @media (max-width: 480px) {
-            .andw-sideflow-drawer {
+            .sf-drawer {
                 width: 85vw;
             }
 
-            .andw-sideflow-tab {
+            .sf-tab {
                 width: 44px;
                 height: 100px;
                 font-size: 12px;
             }
 
-            .andw-sideflow-button {
+            .sf-button {
                 font-size: 12px;
                 padding: 6px 8px;
             }
@@ -577,29 +536,30 @@
 
         // Page Visibility API対応
         setupPageVisibility();
+
+        // レスポンシブ対応
+        setupResponsive();
     }
 
     // UI作成
     async function createUI() {
-        // タブ位置の設定
-        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24 };
-        const tabClasses = `andw-sideflow-tab anchor-${tabConfig.anchor}`;
-
-        // backdrop設定
-        const backdropConfig = config.drawer || { backdrop: false };
-        const overlayClasses = `andw-sideflow-overlay ${backdropConfig.backdrop ? '' : 'disabled'}`;
-
-        // スライダー設定
+        // 設定取得
+        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50 };
+        const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76 };
+        const motionConfig = config.motion || { durationMs: 300, easing: 'cubic-bezier(0.2,0,0,1)' };
         const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
-        const sliderClasses = `andw-sideflow-slider ${sliderConfig.heightMode === 'vh' ? 'vh-mode' : 'auto-mode'}`;
-
-        // ドロワー設定
         const layoutConfig = config.layout || { maxHeightPx: 640 };
-        const drawerClasses = `andw-sideflow-drawer ${sliderConfig.heightMode === 'auto' ? 'auto-height' : ''}`;
-
-        const container = document.createElement('div');
 
         // CSS変数設定
+        const container = document.createElement('div');
+        container.className = 'sf-wrap';
+
+        // CSS変数を設定
+        container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
+        container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
+        container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
+        container.style.setProperty('--sf-ease', motionConfig.easing);
+
         if (tabConfig.anchor !== 'center') {
             container.style.setProperty('--tab-offset', `${tabConfig.offsetPx}px`);
         }
@@ -616,26 +576,29 @@
         // スライダーHTMLを非同期で生成
         const sliderHTML = await createSliderHTML();
 
+        // anchor設定をコンテナに追加
+        container.classList.add(`anchor-${tabConfig.anchor}`);
+
+        // タブとドロワーを横並び配置
         container.innerHTML = `
-            <div class="${overlayClasses}" role="presentation"></div>
-            <button class="${tabClasses}" aria-expanded="false" aria-controls="andw-sideflow-drawer">
+            <button class="sf-tab" aria-expanded="false" aria-controls="sf-drawer">
                 求人
             </button>
             <div class="andw-sideflow-bubble" style="display: none;">
                 タップして求人をチェック！
             </div>
-            <div class="${drawerClasses}" role="dialog" aria-labelledby="andw-sideflow-title" aria-hidden="true" id="andw-sideflow-drawer">
-                <div class="andw-sideflow-header">
-                    <h2 id="andw-sideflow-title" class="andw-sideflow-sr-only">求人情報</h2>
-                    <div class="${sliderClasses}" aria-roledescription="carousel" aria-label="求人スライドショー">
+            <div class="sf-drawer auto-height" role="dialog" aria-labelledby="sf-title" aria-hidden="true" id="sf-drawer">
+                <div class="sf-header">
+                    <h2 id="sf-title" class="andw-sideflow-sr-only">求人情報</h2>
+                    <div class="sf-slider auto-mode" aria-roledescription="carousel" aria-label="求人スライドショー">
                         ${sliderHTML}
-                        <button class="andw-sideflow-close" aria-label="閉じる">
+                        <button class="sf-close" aria-label="閉じる">
                             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M12.854 4.854a.5.5 0 0 0-.708-.708L8 8.293 3.854 4.146a.5.5 0 1 0-.708.708L7.293 9l-4.147 4.146a.5.5 0 0 0 .708.708L8 9.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 9l4.147-4.146z"/>
                             </svg>
                         </button>
-                        <div class="andw-sideflow-controls">
-                            <button class="andw-sideflow-play-pause" aria-label="再生/停止">
+                        <div class="sf-controls">
+                            <button class="sf-play-pause" aria-label="再生/停止">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="play-icon">
                                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                     <path d="M6.271 5.055a.5.5 0 0 1 .52.033L11 7.055a.5.5 0 0 1 0 .89L6.791 9.912a.5.5 0 0 1-.791-.39V5.478a.5.5 0 0 1 .271-.423z"/>
@@ -646,11 +609,11 @@
                                 </svg>
                             </button>
                         </div>
-                        <div class="andw-sideflow-sr-only" aria-live="polite" aria-atomic="true" id="andw-sideflow-slide-status"></div>
+                        <div class="andw-sideflow-sr-only" aria-live="polite" aria-atomic="true" id="sf-slide-status"></div>
                     </div>
                 </div>
-                <div class="andw-sideflow-content">
-                    <div class="andw-sideflow-buttons ${getButtonsClass()}">
+                <div class="sf-content">
+                    <div class="sf-buttons ${getButtonsClass()}">
                         ${createButtonsHTML()}
                     </div>
                 </div>
@@ -700,10 +663,10 @@
             const backgroundStyle = itemFit === 'blurExtend' ? `style="background-image: url('${escapeHtml(src)}')"` : '';
 
             const slideContent = item.href ?
-                `<a href="${escapeHtml(item.href)}" class="andw-sideflow-slide ${fitClass}" data-index="${index}" ${backgroundStyle}>
+                `<a href="${escapeHtml(item.href)}" class="sf-slide ${fitClass}" data-index="${index}" ${backgroundStyle}>
                     <img ${imgAttributes.join(' ')}>
                 </a>` :
-                `<div class="andw-sideflow-slide ${fitClass}" data-index="${index}" ${backgroundStyle}>
+                `<div class="sf-slide ${fitClass}" data-index="${index}" ${backgroundStyle}>
                     <img ${imgAttributes.join(' ')}>
                 </div>`;
 
@@ -713,14 +676,14 @@
         const slides = (await Promise.all(slidePromises)).filter(slide => slide).join('');
 
         const indicators = config.slider.items.length > 1 ?
-            `<div class="andw-sideflow-indicators">
+            `<div class="sf-indicators">
                 ${config.slider.items.map((_, index) =>
-                    `<button class="andw-sideflow-indicator ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="スライド ${index + 1}へ移動"></button>`
+                    `<button class="sf-indicator ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="スライド ${index + 1}へ移動"></button>`
                 ).join('')}
             </div>` : '';
 
         return `
-            <div class="andw-sideflow-slides" style="transform: translateX(0%)">
+            <div class="sf-slides" style="transform: translateX(0%)">
                 ${slides}
             </div>
             ${indicators}
@@ -732,7 +695,7 @@
         const visibleButtons = config.buttons.filter(button => button.visible && button.text);
 
         return visibleButtons.map(button => {
-            const classes = ['andw-sideflow-button', button.variant || 'default'];
+            const classes = ['sf-button', button.variant || 'default'];
             if (button.variant === 'line' && button.lineBranding) {
                 classes.push('line-branding');
             }
@@ -754,50 +717,41 @@
 
     // イベントリスナー設定
     function setupEventListeners() {
-        const tab = shadowRoot.querySelector('.andw-sideflow-tab');
-        const overlay = shadowRoot.querySelector('.andw-sideflow-overlay');
-        const closeBtn = shadowRoot.querySelector('.andw-sideflow-close');
-        const drawer = shadowRoot.querySelector('.andw-sideflow-drawer');
-        const playPauseBtn = shadowRoot.querySelector('.andw-sideflow-play-pause');
-        const slides = shadowRoot.querySelector('.andw-sideflow-slides');
-        const indicators = shadowRoot.querySelectorAll('.andw-sideflow-indicator');
-        const buttons = shadowRoot.querySelectorAll('.andw-sideflow-button');
+        const wrap = shadowRoot.querySelector('.sf-wrap');
+        const tab = shadowRoot.querySelector('.sf-tab');
+        const closeBtn = shadowRoot.querySelector('.sf-close');
+        const drawer = shadowRoot.querySelector('.sf-drawer');
+        const playPauseBtn = shadowRoot.querySelector('.sf-play-pause');
+        const slides = shadowRoot.querySelector('.sf-slides');
+        const indicators = shadowRoot.querySelectorAll('.sf-indicator');
+        const buttons = shadowRoot.querySelectorAll('.sf-button');
 
         // タブクリック
         tab.addEventListener('click', toggleDrawer);
 
-        // オーバーレイクリック（backdrop設定に関係なく常に有効）
-        overlay.addEventListener('click', function(e) {
-            // オーバーレイ自体がクリックされた場合のみ閉じる
-            if (e.target === overlay) {
-                closeDrawer();
-            }
-        });
-
-        // ドロワー領域外クリックでも閉じる
-        drawer.addEventListener('click', function(e) {
-            // ドロワー自体がクリックされた場合（子要素以外）は閉じる
-            if (e.target === drawer) {
-                closeDrawer();
-            }
-        });
+        // 閉じるボタン
+        closeBtn.addEventListener('click', closeDrawer);
 
         // スライダー領域のクリックイベント制御
-        const sliderElement = shadowRoot.querySelector('.andw-sideflow-slider');
+        const sliderElement = shadowRoot.querySelector('.sf-slider');
         if (sliderElement) {
             sliderElement.addEventListener('click', function(e) {
                 // 閉じるボタン、再生/停止ボタン、インジケーター以外のクリックでは何もしない
-                if (!e.target.closest('.andw-sideflow-close') &&
-                    !e.target.closest('.andw-sideflow-play-pause') &&
-                    !e.target.closest('.andw-sideflow-indicator') &&
+                if (!e.target.closest('.sf-close') &&
+                    !e.target.closest('.sf-play-pause') &&
+                    !e.target.closest('.sf-indicator') &&
                     !e.target.closest('a')) {
                     e.stopPropagation();
                 }
             });
         }
 
-        // 閉じるボタン
-        closeBtn.addEventListener('click', closeDrawer);
+        // 画面外クリックでの閉じる機能
+        document.addEventListener('click', function(e) {
+            if (isDrawerOpen && !wrap.contains(e.target)) {
+                closeDrawer();
+            }
+        });
 
         // キーボードイベント
         document.addEventListener('keydown', handleKeydown);
@@ -893,16 +847,15 @@
 
     function openDrawer() {
         isDrawerOpen = true;
-        const tab = shadowRoot.querySelector('.andw-sideflow-tab');
-        const overlay = shadowRoot.querySelector('.andw-sideflow-overlay');
-        const drawer = shadowRoot.querySelector('.andw-sideflow-drawer');
+        const wrap = shadowRoot.querySelector('.sf-wrap');
+        const tab = shadowRoot.querySelector('.sf-tab');
+        const drawer = shadowRoot.querySelector('.sf-drawer');
 
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
 
-        // オーバーレイは backdrop 設定に関係なく常に表示（クリック領域として機能）
-        overlay.classList.add('visible');
-        drawer.classList.add('open');
+        // wrapにopenクラスを追加してtransformで開く
+        wrap.classList.add('open');
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -917,16 +870,15 @@
 
     function closeDrawer() {
         isDrawerOpen = false;
-        const tab = shadowRoot.querySelector('.andw-sideflow-tab');
-        const overlay = shadowRoot.querySelector('.andw-sideflow-overlay');
-        const drawer = shadowRoot.querySelector('.andw-sideflow-drawer');
+        const wrap = shadowRoot.querySelector('.sf-wrap');
+        const tab = shadowRoot.querySelector('.sf-tab');
+        const drawer = shadowRoot.querySelector('.sf-drawer');
 
         tab.setAttribute('aria-expanded', 'false');
         drawer.setAttribute('aria-hidden', 'true');
 
-        // オーバーレイは常に非表示に
-        overlay.classList.remove('visible');
-        drawer.classList.remove('open');
+        // wrapからopenクラスを削除してtransformで閉じる
+        wrap.classList.remove('open');
 
         // フォーカストラップ解除
         removeFocusTrap();
@@ -948,7 +900,7 @@
 
     // フォーカストラップ
     function setupFocusTrap() {
-        const drawer = shadowRoot.querySelector('.andw-sideflow-drawer');
+        const drawer = shadowRoot.querySelector('.sf-drawer');
         const focusableElements = drawer.querySelectorAll(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
@@ -1056,7 +1008,7 @@
     }
 
     function updateSlidePosition() {
-        const slides = shadowRoot.querySelector('.andw-sideflow-slides');
+        const slides = shadowRoot.querySelector('.sf-slides');
         if (slides) {
             const translateX = -currentSlideIndex * 100;
             slides.style.transform = `translateX(${translateX}%)`;
@@ -1064,14 +1016,14 @@
     }
 
     function updateIndicators() {
-        const indicators = shadowRoot.querySelectorAll('.andw-sideflow-indicator');
+        const indicators = shadowRoot.querySelectorAll('.sf-indicator');
         indicators.forEach((indicator, index) => {
             indicator.classList.toggle('active', index === currentSlideIndex);
         });
     }
 
     function updateSlideStatus() {
-        const statusElement = shadowRoot.querySelector('#andw-sideflow-slide-status');
+        const statusElement = shadowRoot.querySelector('#sf-slide-status');
         if (statusElement && config.slider.items && config.slider.items.length > 1) {
             statusElement.textContent = `${currentSlideIndex + 1}/${config.slider.items.length}`;
         }
@@ -1111,7 +1063,7 @@
 
     // 光沢エフェクト
     function startGlitterEffect() {
-        const tab = shadowRoot.querySelector('.andw-sideflow-tab');
+        const tab = shadowRoot.querySelector('.sf-tab');
 
         function addGlitter() {
             if (!isDrawerOpen) {
@@ -1136,6 +1088,35 @@
                 startSlider();
             }
         });
+    }
+
+    // レスポンシブ対応
+    function setupResponsive() {
+        function updateLayout() {
+            const wrap = shadowRoot.querySelector('.sf-wrap');
+            if (!wrap) return;
+
+            const drawerConfig = config.drawer || { widthPercent: 0.76 };
+            const newDrawerWidth = `${drawerConfig.widthPercent * 100}vw`;
+
+            wrap.style.setProperty('--sf-drawerW', newDrawerWidth);
+
+            // mobile時の最大幅調整
+            if (window.innerWidth <= 480) {
+                wrap.style.setProperty('--sf-drawerW', '85vw');
+            }
+        }
+
+        // 初回更新
+        updateLayout();
+
+        // ウィンドウリサイズ
+        window.addEventListener('resize', updateLayout);
+
+        // visualViewport対応（iOS Safari等）
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', updateLayout);
+        }
     }
 
     // Reduced Motion確認

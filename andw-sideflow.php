@@ -416,13 +416,22 @@ class ANDW_SideFlow {
         $tab = $config['tab'] ?? array();
         $sanitized['tab'] = array(
             'anchor' => in_array($tab['anchor'] ?? 'center', array('center', 'bottom')) ? $tab['anchor'] ?? 'center' : 'center',
-            'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24))
+            'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24)),
+            'widthPx' => max(30, min(80, intval($tab['widthPx'] ?? 50)))
         );
 
         // ドロワー設定
         $drawer = $config['drawer'] ?? array();
         $sanitized['drawer'] = array(
-            'backdrop' => (bool)($drawer['backdrop'] ?? false)
+            'backdrop' => (bool)($drawer['backdrop'] ?? false),
+            'widthPercent' => max(0.5, min(0.95, floatval($drawer['widthPercent'] ?? 0.76)))
+        );
+
+        // モーション設定
+        $motion = $config['motion'] ?? array();
+        $sanitized['motion'] = array(
+            'durationMs' => max(100, min(1000, intval($motion['durationMs'] ?? 300))),
+            'easing' => sanitize_text_field($motion['easing'] ?? 'cubic-bezier(0.2,0,0,1)')
         );
 
         // スライダー設定
