@@ -417,7 +417,8 @@ class ANDW_SideFlow {
         $sanitized['tab'] = array(
             'anchor' => in_array($tab['anchor'] ?? 'center', array('center', 'bottom')) ? $tab['anchor'] ?? 'center' : 'center',
             'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24)),
-            'widthPx' => max(30, min(80, intval($tab['widthPx'] ?? 50)))
+            'widthPx' => max(30, min(80, intval($tab['widthPx'] ?? 50))),
+            'heightMode' => in_array($tab['heightMode'] ?? 'matchDrawer', array('fixed', 'matchDrawer')) ? $tab['heightMode'] ?? 'matchDrawer' : 'matchDrawer'
         );
 
         // ドロワー設定
@@ -495,10 +496,28 @@ class ANDW_SideFlow {
             'debug' => (bool)($dev['debug'] ?? false)
         );
 
+        // UI設定（新規）
+        $ui = $config['ui'] ?? array();
+        $sanitized['ui'] = array(
+            'startOpen' => (bool)($ui['startOpen'] ?? false)
+        );
+
+        // キラッ設定（新規）
+        $glitter = $config['glitter'] ?? array();
+        $sanitized['glitter'] = array(
+            'enabled' => (bool)($glitter['enabled'] ?? true),
+            'target' => in_array($glitter['target'] ?? 'tab', array('tab', 'all')) ? $glitter['target'] ?? 'tab' : 'tab',
+            'interval' => max(10000, intval($glitter['interval'] ?? 25000))
+        );
+
         // その他設定
         $sanitized['showBubble'] = (bool)($config['showBubble'] ?? true);
-        $sanitized['glitterInterval'] = max(10000, intval($config['glitterInterval'] ?? 25000));
         $sanitized['respectReducedMotion'] = (bool)($config['respectReducedMotion'] ?? true);
+
+        // 後方互換：glitterInterval
+        if (isset($config['glitterInterval'])) {
+            $sanitized['glitter']['interval'] = max(10000, intval($config['glitterInterval']));
+        }
 
         return $sanitized;
     }

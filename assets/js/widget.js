@@ -41,7 +41,7 @@
             z-index: 120;
         }
 
-        .sf-wrap.open {
+        .sf-wrap.is-open {
             transform: translateX(0);
         }
 
@@ -50,7 +50,7 @@
             transform: translateY(-50%) translateX(var(--sf-drawerW));
         }
 
-        .sf-wrap.anchor-center.open {
+        .sf-wrap.anchor-center.is-open {
             transform: translateY(-50%) translateX(0);
         }
 
@@ -59,15 +59,13 @@
         }
 
         .sf-tab {
-            width: var(--sf-tabW);
-            height: 120px;
+            flex: 0 0 var(--sf-tabW);
+            display: flex;
+            align-items: stretch;
             background: linear-gradient(135deg, var(--sf-color-brand) 0%, color-mix(in srgb, var(--sf-color-brand) 80%, #764ba2 20%) 100%);
             border-radius: var(--sf-radius) 0 0 var(--sf-radius);
             border: none;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
             font-size: 14px;
             font-weight: 600;
@@ -77,7 +75,9 @@
             box-shadow: var(--sf-shadow);
             overflow: hidden;
             font-family: var(--sf-font);
-            flex-shrink: 0;
+            justify-content: center;
+            align-items: center;
+            position: relative;
         }
 
         .sf-tab:hover {
@@ -100,6 +100,8 @@
             background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.7), transparent);
             border-radius: inherit;
             animation: glitter 300ms ease-out;
+            z-index: 1;
+            pointer-events: none;
         }
 
         @keyframes glitter {
@@ -141,18 +143,18 @@
         }
 
         .sf-drawer {
-            width: var(--sf-drawerW);
+            flex: 0 0 var(--sf-drawerW);
+            overflow: auto;
             background: white;
             border-radius: 16px 0 0 16px;
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             height: auto;
             max-height: var(--max-height-px, 640px);
         }
 
-        .sf-drawer.auto-height .sf-content {
+        .sf-drawer .sf-content {
             overflow-y: auto;
         }
 
@@ -439,8 +441,12 @@
 
             .sf-tab {
                 width: 44px;
-                height: 100px;
                 font-size: 12px;
+            }
+
+            /* タブの高さ同期モードでない場合の固定高さ */
+            .sf-tab:not([style*="height"]) {
+                height: 100px;
             }
 
             .sf-button {
@@ -539,20 +545,30 @@
 
         // レスポンシブ対応
         setupResponsive();
+
+        // 高さ同期設定
+        setupHeightSync();
     }
 
     // UI作成
     async function createUI() {
         // 設定取得
-        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50 };
+        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50, heightMode: 'matchDrawer' };
         const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76 };
         const motionConfig = config.motion || { durationMs: 300, easing: 'cubic-bezier(0.2,0,0,1)' };
         const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
         const layoutConfig = config.layout || { maxHeightPx: 640 };
+        const uiConfig = config.ui || { startOpen: false };
 
         // CSS変数設定
         const container = document.createElement('div');
         container.className = 'sf-wrap';
+
+        // 初期開閉状態の設定
+        if (uiConfig.startOpen) {
+            container.classList.add('is-open');
+            isDrawerOpen = true;
+        }
 
         // CSS変数を設定
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
@@ -854,8 +870,8 @@
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
 
-        // wrapにopenクラスを追加してtransformで開く
-        wrap.classList.add('open');
+        // wrapにis-openクラスを追加してtransformで開く
+        wrap.classList.add('is-open');
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -877,8 +893,8 @@
         tab.setAttribute('aria-expanded', 'false');
         drawer.setAttribute('aria-hidden', 'true');
 
-        // wrapからopenクラスを削除してtransformで閉じる
-        wrap.classList.remove('open');
+        // wrapからis-openクラスを削除してtransformで閉じる
+        wrap.classList.remove('is-open');
 
         // フォーカストラップ解除
         removeFocusTrap();
@@ -1063,18 +1079,30 @@
 
     // 光沢エフェクト
     function startGlitterEffect() {
-        const tab = shadowRoot.querySelector('.sf-tab');
+        const glitterConfig = config.glitter || { enabled: true, target: 'tab', interval: 25000 };
 
-        function addGlitter() {
-            if (!isDrawerOpen) {
-                tab.classList.add('glitter');
-                setTimeout(() => {
-                    tab.classList.remove('glitter');
-                }, 300);
-            }
+        // キラッ演出が無効の場合は何もしない
+        if (!glitterConfig.enabled) {
+            return;
         }
 
-        setInterval(addGlitter, config.glitterInterval || 25000);
+        // タブ限定の場合のみ実装
+        if (glitterConfig.target === 'tab') {
+            const tab = shadowRoot.querySelector('.sf-tab');
+
+            function addGlitter() {
+                if (!isDrawerOpen && tab) {
+                    tab.classList.add('glitter');
+                    setTimeout(() => {
+                        tab.classList.remove('glitter');
+                    }, 300);
+                }
+            }
+
+            setInterval(addGlitter, glitterConfig.interval);
+        }
+
+        // 'all'や他のターゲットは実装しない（タブ限定化）
     }
 
     // Page Visibility API
@@ -1105,6 +1133,9 @@
             if (window.innerWidth <= 480) {
                 wrap.style.setProperty('--sf-drawerW', '85vw');
             }
+
+            // 高さ同期も再計算
+            updateTabHeight();
         }
 
         // 初回更新
@@ -1116,6 +1147,63 @@
         // visualViewport対応（iOS Safari等）
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', updateLayout);
+        }
+    }
+
+    // 高さ同期機能
+    function setupHeightSync() {
+        const tabConfig = config.tab || { heightMode: 'matchDrawer' };
+
+        if (tabConfig.heightMode !== 'matchDrawer') {
+            return;
+        }
+
+        const drawer = shadowRoot.querySelector('.sf-drawer');
+        const tab = shadowRoot.querySelector('.sf-tab');
+
+        if (!drawer || !tab) return;
+
+        // ResizeObserver でドロワー高さ変化を監視
+        if (window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(entries => {
+                updateTabHeight();
+            });
+            resizeObserver.observe(drawer);
+        }
+
+        // 画像読み込み完了時の高さ再計算
+        const images = drawer.querySelectorAll('img');
+        images.forEach(img => {
+            if (img.complete) {
+                setTimeout(updateTabHeight, 0);
+            } else {
+                img.addEventListener('load', updateTabHeight, { once: true });
+                img.addEventListener('error', updateTabHeight, { once: true });
+            }
+        });
+
+        // 初回更新
+        setTimeout(updateTabHeight, 0);
+    }
+
+    // タブ高さ更新
+    function updateTabHeight() {
+        const tabConfig = config.tab || { heightMode: 'matchDrawer' };
+
+        if (tabConfig.heightMode !== 'matchDrawer') {
+            return;
+        }
+
+        const drawer = shadowRoot.querySelector('.sf-drawer');
+        const tab = shadowRoot.querySelector('.sf-tab');
+
+        if (!drawer || !tab) return;
+
+        // ドロワーの実際の高さを取得
+        const drawerHeight = drawer.clientHeight;
+
+        if (drawerHeight > 0) {
+            tab.style.height = `${drawerHeight}px`;
         }
     }
 
