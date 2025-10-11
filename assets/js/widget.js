@@ -812,6 +812,7 @@
         const buttons = shadowRoot.querySelectorAll('.sf-button');
 
         // タブクリック
+        const tabConfig = config.tab || { action: 'drawer' };
         if (tabConfig.action === 'link' && tabConfig.linkUrl) {
             // リンクモードの場合はイベントリスナー不要（ネイティブリンク動作）
         } else {
