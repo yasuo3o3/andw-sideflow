@@ -54,6 +54,29 @@
             animation: slideInOvershootBottom var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards;
         }
 
+        .sf-wrap.anchor-center.is-opening-simple {
+            animation: slideInSimple var(--sf-duration, 300ms) ease-out forwards;
+        }
+
+        .sf-wrap.anchor-bottom.is-opening-simple {
+            animation: slideInSimpleBottom var(--sf-duration, 300ms) ease-out forwards;
+        }
+
+        /* アニメーション中はボタン非表示 */
+        .sf-wrap.is-opening .sf-close,
+        .sf-wrap.is-opening-simple .sf-close,
+        .sf-wrap.is-opening .sf-play-pause,
+        .sf-wrap.is-opening-simple .sf-play-pause {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sf-wrap.is-closing .sf-close,
+        .sf-wrap.is-closing .sf-play-pause {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .sf-wrap.anchor-center.is-closing {
             animation: slideOutSmooth var(--sf-duration, 300ms) ease-out forwards;
         }
@@ -149,6 +172,16 @@
             100% { transform: translateX(var(--sf-drawerW)); }
         }
 
+        @keyframes slideInSimple {
+            0% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
+            100% { transform: translateY(-50%) translateX(0); }
+        }
+
+        @keyframes slideInSimpleBottom {
+            0% { transform: translateX(var(--sf-drawerW)); }
+            100% { transform: translateX(0); }
+        }
+
         .andw-sideflow-bubble {
             position: absolute;
             top: 50%;
@@ -184,7 +217,7 @@
 
         .sf-drawer {
             flex: 0 0 var(--sf-drawerW);
-            max-width: 600px;
+            max-width: var(--sf-drawerMaxW, 600px);
             overflow: auto;
             background: white;
             border-radius: 16px 0 0 16px;
@@ -614,6 +647,7 @@
         // CSS変数を設定
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
         container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
+        container.style.setProperty('--sf-drawerMaxW', `${drawerConfig.maxWidthPx}px`);
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
         container.style.setProperty('--sf-ease', motionConfig.easing);
 
@@ -943,16 +977,21 @@
             }
         });
 
-        // アニメーションクラスを追加
+        // アニメーションクラスを追加（オーバーシュート設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
-        wrap.classList.add('is-opening');
+
+        if (motionConfig.overshoot !== false) {
+            wrap.classList.add('is-opening');
+        } else {
+            wrap.classList.add('is-opening-simple');
+        }
 
         // アニメーション完了後にis-openクラスを追加
         const motionConfig = config.motion || { durationMs: 300 };
         const animationDuration = motionConfig.durationMs || 300;
 
         setTimeout(() => {
-            wrap.classList.remove('is-opening');
+            wrap.classList.remove('is-opening', 'is-opening-simple');
             wrap.classList.add('is-open');
 
             // 最終位置を確実に設定

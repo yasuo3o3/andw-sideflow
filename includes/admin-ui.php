@@ -389,6 +389,14 @@ class ANDW_SideFlow_Admin_UI {
                     </td>
                 </tr>
                 <tr>
+                    <th scope="row"><?php esc_html_e('最大幅制限', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="number" id="drawer-max-width" value="<?php echo esc_attr($drawer['maxWidthPx'] ?? 600); ?>" min="300" max="1000" step="50">
+                        <span class="description">px</span>
+                        <p class="description"><?php esc_html_e('大画面での最大幅を制限します', 'andw-sideflow'); ?></p>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row"><?php esc_html_e('背景オーバーレイ', 'andw-sideflow'); ?></th>
                     <td>
                         <label>
@@ -528,6 +536,15 @@ class ANDW_SideFlow_Admin_UI {
                     <td>
                         <input type="number" id="glitter-interval" value="<?php echo esc_attr($config['glitterInterval'] ?? 25000); ?>" min="10000" max="60000">
                         <span class="description">ms</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('オーバーシュートアニメーション', 'andw-sideflow'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" id="overshoot-animation" <?php checked($config['motion']['overshoot'] ?? true); ?>>
+                            <?php esc_html_e('ドロワーを開く際にバウンス効果を使用する', 'andw-sideflow'); ?>
+                        </label>
                     </td>
                 </tr>
                 <tr>

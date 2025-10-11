@@ -305,7 +305,8 @@
             },
             drawer: {
                 backdrop: $('#drawer-backdrop').is(':checked'),
-                widthPercent: parseFloat($('#drawer-width-percent').val()) / 100 || 0.76
+                widthPercent: parseFloat($('#drawer-width-percent').val()) / 100 || 0.76,
+                maxWidthPx: parseInt($('#drawer-max-width').val()) || 600
             },
             slider: {
                 autoplay: $('#slider-autoplay').is(':checked'),
@@ -331,6 +332,11 @@
             layout: {
                 maxHeightPx: parseInt($('#layout-max-height').val()) || 640,
                 buttonRowHeight: parseInt($('#layout-button-row-height').val()) || 48
+            },
+            motion: {
+                durationMs: parseInt($('#token-duration').val()) || 300,
+                easing: $('#token-easing').val() || 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                overshoot: $('#overshoot-animation').is(':checked')
             },
             dev: {
                 previewMode: false,
@@ -502,6 +508,12 @@
         if (config.drawer) {
             $('#drawer-backdrop').prop('checked', config.drawer.backdrop || false);
             $('#drawer-width-percent').val((config.drawer.widthPercent || 0.76) * 100);
+            $('#drawer-max-width').val(config.drawer.maxWidthPx || 600);
+        }
+
+        // モーション設定
+        if (config.motion) {
+            $('#overshoot-animation').prop('checked', config.motion.overshoot !== false);
         }
 
         if (config.layout) {

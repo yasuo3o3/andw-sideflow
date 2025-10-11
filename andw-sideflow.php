@@ -483,14 +483,16 @@ class ANDW_SideFlow {
         $drawer = $config['drawer'] ?? array();
         $sanitized['drawer'] = array(
             'backdrop' => (bool)($drawer['backdrop'] ?? false),
-            'widthPercent' => max(0.5, min(0.95, floatval($drawer['widthPercent'] ?? 0.76)))
+            'widthPercent' => max(0.5, min(0.95, floatval($drawer['widthPercent'] ?? 0.76))),
+            'maxWidthPx' => max(300, min(1000, intval($drawer['maxWidthPx'] ?? 600)))
         );
 
         // モーション設定
         $motion = $config['motion'] ?? array();
         $sanitized['motion'] = array(
             'durationMs' => max(100, min(1000, intval($motion['durationMs'] ?? 300))),
-            'easing' => sanitize_text_field($motion['easing'] ?? 'cubic-bezier(0.2,0,0,1)')
+            'easing' => sanitize_text_field($motion['easing'] ?? 'cubic-bezier(0.2,0,0,1)'),
+            'overshoot' => (bool)($motion['overshoot'] ?? true)
         );
 
         // スライダー設定
@@ -729,7 +731,8 @@ class ANDW_SideFlow {
             ),
             'drawer' => array(
                 'backdrop' => false,
-                'widthPercent' => 0.76
+                'widthPercent' => 0.76,
+                'maxWidthPx' => 600
             ),
             'slider' => array(
                 'autoplay' => true,
@@ -766,7 +769,8 @@ class ANDW_SideFlow {
             ),
             'motion' => array(
                 'durationMs' => 300,
-                'easing' => 'cubic-bezier(0.2,0,0,1)'
+                'easing' => 'cubic-bezier(0.2,0,0,1)',
+                'overshoot' => true
             ),
             'ui' => array(
                 'startOpen' => false
