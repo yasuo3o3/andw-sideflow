@@ -46,6 +46,22 @@
             transform: translateY(-50%) translateX(var(--sf-drawerW));
         }
 
+        .sf-wrap.anchor-center.is-opening {
+            animation: slideInOvershoot var(--sf-duration, 300ms) cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .sf-wrap.anchor-bottom.is-opening {
+            animation: slideInOvershootBottom var(--sf-duration, 300ms) cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .sf-wrap.anchor-center.is-closing {
+            animation: slideOutSmooth var(--sf-duration, 300ms) ease-out forwards;
+        }
+
+        .sf-wrap.anchor-bottom.is-closing {
+            animation: slideOutSmoothBottom var(--sf-duration, 300ms) ease-out forwards;
+        }
+
         .sf-wrap.anchor-center.is-open {
             transform: translateY(-50%) translateX(0);
         }
@@ -107,6 +123,30 @@
         @keyframes glitter {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
+        }
+
+        @keyframes slideInOvershoot {
+            0% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
+            70% { transform: translateY(-50%) translateX(-25px); }
+            85% { transform: translateY(-50%) translateX(10px); }
+            100% { transform: translateY(-50%) translateX(0); }
+        }
+
+        @keyframes slideInOvershootBottom {
+            0% { transform: translateX(var(--sf-drawerW)); }
+            70% { transform: translateX(-25px); }
+            85% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes slideOutSmooth {
+            0% { transform: translateY(-50%) translateX(0); }
+            100% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
+        }
+
+        @keyframes slideOutSmoothBottom {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(var(--sf-drawerW)); }
         }
 
         .andw-sideflow-bubble {
@@ -902,22 +942,26 @@
             }
         });
 
-        // wrapにis-openクラスを追加してtransformで開く
-        wrap.classList.add('is-open');
+        // アニメーションクラスを追加
+        wrap.classList.remove('is-closing', 'is-open');
+        wrap.classList.add('is-opening');
 
-        // 直接スタイルを設定して確実にtransformを適用
-        const tabConfig = config.tab || { anchor: 'center' };
-        const targetTransform = tabConfig.anchor === 'center' ? 'translateY(-50%) translateX(0)' : 'translateX(0)';
+        // アニメーション完了後にis-openクラスを追加
+        const motionConfig = config.motion || { durationMs: 300 };
+        const animationDuration = motionConfig.durationMs || 300;
 
-        // transition を一時的に無効化してから transform を設定
-        wrap.style.transition = 'none';
-        wrap.style.setProperty('transform', targetTransform, 'important');
+        setTimeout(() => {
+            wrap.classList.remove('is-opening');
+            wrap.classList.add('is-open');
 
-        // 強制的にレンダリングを発生させる
-        wrap.offsetHeight;
-
-        // transition を元に戻す
-        wrap.style.transition = '';
+            // 最終位置を確実に設定
+            const tabConfig = config.tab || { anchor: 'center' };
+            if (tabConfig.anchor === 'center') {
+                wrap.style.transform = 'translateY(-50%) translateX(0)';
+            } else {
+                wrap.style.transform = 'translateX(0)';
+            }
+        }, animationDuration);
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -954,11 +998,18 @@
             element.setAttribute('tabindex', '-1');
         });
 
-        // wrapからis-openクラスを削除してtransformで閉じる
-        wrap.classList.remove('is-open');
+        // 閉じるアニメーションクラスを追加
+        wrap.classList.remove('is-opening', 'is-open');
+        wrap.classList.add('is-closing');
 
-        // 直接スタイルを削除してCSSに戻す
-        wrap.style.transform = '';
+        // アニメーション完了後にクラスとスタイルをクリア
+        const motionConfig = config.motion || { durationMs: 300 };
+        const animationDuration = motionConfig.durationMs || 300;
+
+        setTimeout(() => {
+            wrap.classList.remove('is-closing');
+            wrap.style.transform = '';
+        }, animationDuration);
 
         // フォーカストラップ解除
         removeFocusTrap();
