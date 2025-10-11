@@ -48,6 +48,9 @@ function andw_sideflow_delete_transients() {
     global $wpdb;
 
     // andw_sideflow_ プレフィックスのトランジェントを検索・削除
+    // WordPress.org ガイドラインに基づくアンインストール処理：
+    // トランジェント検索にはキャッシュAPIが存在せず、$wpdb->prepare() による安全な直接照会が必要
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
     $transient_keys = $wpdb->get_col(
         $wpdb->prepare(
             "SELECT option_name FROM {$wpdb->options}
