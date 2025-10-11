@@ -354,8 +354,15 @@ class ANDW_SideFlow_Admin_UI {
         $layout = $config['layout'] ?? array();
         ?>
         <div class="andw-sideflow-section">
-            <h3><?php esc_html_e('タブ位置', 'andw-sideflow'); ?></h3>
+            <h3><?php esc_html_e('タブ設定', 'andw-sideflow'); ?></h3>
             <table class="form-table">
+                <tr>
+                    <th scope="row"><?php esc_html_e('タブテキスト', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="text" id="tab-text" value="<?php echo esc_attr($tab['text'] ?? '求人'); ?>" maxlength="10">
+                        <span class="description">タブに表示するテキスト（10文字以内推奨）</span>
+                    </td>
+                </tr>
                 <tr>
                     <th scope="row"><?php esc_html_e('基準位置', 'andw-sideflow'); ?></th>
                     <td>

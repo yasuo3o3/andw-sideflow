@@ -301,7 +301,8 @@
             buttons: collectButtonsData(),
             tab: {
                 anchor: $('input[name="tab-anchor"]:checked').val() || 'center',
-                offsetPx: parseInt($('#tab-offset').val()) || 24
+                offsetPx: parseInt($('#tab-offset').val()) || 24,
+                text: $('#tab-text').val() || '求人'
             },
             drawer: {
                 backdrop: $('#drawer-backdrop').is(':checked'),
@@ -503,6 +504,7 @@
         if (config.tab) {
             $('input[name="tab-anchor"][value="' + (config.tab.anchor || 'center') + '"]').prop('checked', true);
             $('#tab-offset').val(config.tab.offsetPx || 24);
+            $('#tab-text').val(config.tab.text || '求人');
         }
 
         if (config.drawer) {

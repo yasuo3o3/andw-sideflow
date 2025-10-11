@@ -681,7 +681,7 @@
         // タブとドロワーを横並び配置
         container.innerHTML = `
             <button class="sf-tab" aria-expanded="false" aria-controls="sf-drawer">
-                求人
+                ${escapeHtml(tabConfig.text || '求人')}
             </button>
             <div class="andw-sideflow-bubble" style="display: none;">
                 タップして求人をチェック！
