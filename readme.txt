@@ -2,17 +2,17 @@
 Contributors: yasuo3o3
 Tags: sidebar, drawer, slider, mobile, recruitment
 Requires at least: 5.0
-Tested up to: 6.6
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.0.2
+Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
+右サイド追従タブから展開するドロワー型スライドショー&ボタン群プラグイン
 
 == Description ==
 
-andW SideFlowは、モバイルファーストで設計された軽量なサイドドロワープラグインです。右端の追従タブをタップすることで、求人スライドショーとアクションボタンを含むドロワーが展開されます。
+andW SideFlowは、モバイルファーストで設計された軽量なサイドドロワープラグインです。右端の追従タブをタップすることで、スライドショーとアクションボタンを含むドロワーが展開されます。
 
 = 主な機能 =
 
