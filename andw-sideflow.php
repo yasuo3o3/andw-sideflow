@@ -601,7 +601,8 @@ class ANDW_SideFlow {
      */
     public function ajax_clean_legacy() {
         // nonce確認
-        if (!wp_verify_nonce($_POST['nonce'], 'andw_sideflow_clean')) {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'andw_sideflow_clean')) {
             wp_die('セキュリティチェックに失敗しました。');
         }
 
@@ -649,7 +650,8 @@ class ANDW_SideFlow {
      */
     public function ajax_update_config() {
         // nonce確認
-        if (!wp_verify_nonce($_POST['nonce'], 'andw_sideflow_update')) {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'andw_sideflow_update')) {
             wp_die('セキュリティチェックに失敗しました。');
         }
 
