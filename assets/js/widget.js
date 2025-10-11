@@ -776,9 +776,14 @@
             });
         }
 
-        // 画面外クリックでの閉じる機能
+        // 画面外クリックでの閉じる機能 (一時的に無効化)
         document.addEventListener('click', function(e) {
+            console.log('Document click detected, target:', e.target);
+            console.log('isDrawerOpen:', isDrawerOpen);
+            console.log('wrap.contains(e.target):', wrap.contains(e.target));
+
             if (isDrawerOpen && !wrap.contains(e.target)) {
+                console.log('Closing drawer due to outside click');
                 closeDrawer();
             }
         });
@@ -906,11 +911,16 @@
 
         // 直接スタイルを設定して確実にtransformを適用
         const tabConfig = config.tab || { anchor: 'center' };
-        if (tabConfig.anchor === 'center') {
-            wrap.style.transform = 'translateY(-50%) translateX(0)';
-        } else {
-            wrap.style.transform = 'translateX(0)';
-        }
+        const targetTransform = tabConfig.anchor === 'center' ? 'translateY(-50%) translateX(0)' : 'translateX(0)';
+
+        console.log('Setting transform to:', targetTransform);
+        wrap.style.transform = targetTransform;
+        console.log('Style set. inline style:', wrap.style.transform);
+
+        // 少し待ってから再チェック
+        setTimeout(() => {
+            console.log('After timeout - computed transform:', window.getComputedStyle(wrap).transform);
+        }, 100);
 
         console.log('Added is-open class. Classes:', wrap.className);
         console.log('Transform value after direct style:', window.getComputedStyle(wrap).transform);
@@ -927,6 +937,8 @@
     }
 
     function closeDrawer() {
+        console.log('closeDrawer called - why?');
+        console.trace(); // スタックトレースを表示
         isDrawerOpen = false;
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
