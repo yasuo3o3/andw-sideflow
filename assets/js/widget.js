@@ -150,15 +150,15 @@
 
         @keyframes slideInOvershoot {
             0% { transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
-            60% { transform: translateY(-50%) translateX(var(--sf-overshoot, -25px)); }
-            80% { transform: translateY(-50%) translateX(0px); }
+            60% { transform: translateY(-50%) translateX(var(--sf-overshoot, -15px)); }
+            80% { transform: translateY(-50%) translateX(3px); }
             100% { transform: translateY(-50%) translateX(0); }
         }
 
         @keyframes slideInOvershootBottom {
             0% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
-            60% { transform: translateX(var(--sf-overshoot, -25px)); }
-            80% { transform: translateX(0px); }
+            60% { transform: translateX(var(--sf-overshoot, -15px)); }
+            80% { transform: translateX(3px); }
             100% { transform: translateX(0); }
         }
 
