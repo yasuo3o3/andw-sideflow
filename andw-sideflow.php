@@ -403,7 +403,6 @@ class ANDW_SideFlow {
                 }
             } else {
                 $error_msg = json_last_error_msg();
-                error_log('andW SideFlow: JSON decode error: ' . $error_msg);
                 add_settings_error(
                     'andw_sideflow_config',
                     'json_error',
@@ -412,7 +411,6 @@ class ANDW_SideFlow {
                 );
             }
         } else {
-            error_log('andW SideFlow: input is not string, type: ' . gettype($input));
             add_settings_error(
                 'andw_sideflow_config',
                 'input_error',
@@ -422,7 +420,6 @@ class ANDW_SideFlow {
         }
 
         $default = $this->get_default_config();
-        error_log('andW SideFlow: returning default config');
         return $default;
     }
 
