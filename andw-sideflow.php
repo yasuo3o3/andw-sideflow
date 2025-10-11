@@ -176,15 +176,20 @@ class ANDW_SideFlow {
             return;
         }
 
-        // 保存完了メッセージの表示
+
+        // 保存完了メッセージのカスタマイズ
         if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('設定を保存しました。', 'andw-sideflow') . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('andW SideFlow設定を保存しました。', 'andw-sideflow') . '</p></div>';
         }
 
         // 設定エラーの表示
         $errors = get_settings_errors('andw_sideflow_config');
         if (!empty($errors)) {
             foreach ($errors as $error) {
+                // 成功メッセージは上記で統一表示するためスキップ
+                if ($error['type'] === 'success') {
+                    continue;
+                }
                 echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($error['message']) . '</p></div>';
             }
         }
@@ -406,12 +411,6 @@ class ANDW_SideFlow {
                     // フックでDBへの保存確認
                     add_action('updated_option', array($this, 'debug_option_updated'), 10, 3);
 
-                    add_settings_error(
-                        'andw_sideflow_config',
-                        'save_success',
-                        __('設定を正常に保存しました。', 'andw-sideflow'),
-                        'success'
-                    );
                     return $sanitized;
                 } catch (Exception $e) {
                     error_log('andW SideFlow: sanitize error: ' . $e->getMessage());
