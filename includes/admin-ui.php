@@ -393,7 +393,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('最大高さ', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="number" id="layout-max-height" value="<?php echo esc_attr($layout['maxHeightPx'] ?? 640); ?>" min="400" max="1200">
+                        <input type="number" id="layout-max-height" value="<?php echo esc_attr($layout['maxHeightPx'] ?? 640); ?>" min="50" max="1200">
                         <span class="description">px</span>
                     </td>
                 </tr>

@@ -544,7 +544,7 @@ class ANDW_SideFlow {
         // レイアウト設定（新形式のみ、古い項目は除外）
         $layout = $config['layout'] ?? array();
         $sanitized['layout'] = array(
-            'maxHeightPx' => max(400, intval($layout['maxHeightPx'] ?? 640)),
+            'maxHeightPx' => max(50, intval($layout['maxHeightPx'] ?? 640)),
             'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48))
         );
 
