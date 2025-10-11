@@ -776,13 +776,30 @@
             });
         }
 
-        // 画面外クリックでの閉じる機能 (一時的に無効化)
+        // 画面外クリックでの閉じる機能 (Shadow DOM対応)
         document.addEventListener('click', function(e) {
-            console.log('Document click detected, target:', e.target);
-            console.log('isDrawerOpen:', isDrawerOpen);
-            console.log('wrap.contains(e.target):', wrap.contains(e.target));
+            if (!isDrawerOpen) return;
 
-            if (isDrawerOpen && !wrap.contains(e.target)) {
+            // Shadow DOM内のクリックかチェック
+            let target = e.target;
+            let isInsideShadow = false;
+
+            // Shadow DOM host要素かチェック
+            if (target === widget) {
+                isInsideShadow = true;
+            }
+
+            // Shadow DOM内の要素かチェック
+            if (target && target.getRootNode() === shadowRoot) {
+                isInsideShadow = true;
+            }
+
+            // wrapの子要素かチェック
+            if (wrap.contains(target)) {
+                isInsideShadow = true;
+            }
+
+            if (!isInsideShadow) {
                 console.log('Closing drawer due to outside click');
                 closeDrawer();
             }
@@ -914,7 +931,17 @@
         const targetTransform = tabConfig.anchor === 'center' ? 'translateY(-50%) translateX(0)' : 'translateX(0)';
 
         console.log('Setting transform to:', targetTransform);
-        wrap.style.transform = targetTransform;
+
+        // transition を一時的に無効化してから transform を設定
+        wrap.style.transition = 'none';
+        wrap.style.setProperty('transform', targetTransform, 'important');
+
+        // 強制的にレンダリングを発生させる
+        wrap.offsetHeight;
+
+        // transition を元に戻す
+        wrap.style.transition = '';
+
         console.log('Style set. inline style:', wrap.style.transform);
 
         // 少し待ってから再チェック
