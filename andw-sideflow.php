@@ -591,13 +591,6 @@ class ANDW_SideFlow {
      */
     public function debug_option_updated($option, $old_value, $value) {
         if ($option === 'andw_sideflow_config') {
-            error_log('andW SideFlow: Option updated in DB: ' . print_r($value, true));
-            error_log('andW SideFlow: Old value was: ' . print_r($old_value, true));
-
-            // 実際にDBから読み込んでみる
-            $stored_value = get_option('andw_sideflow_config');
-            error_log('andW SideFlow: Value retrieved from DB: ' . print_r($stored_value, true));
-
             // フックを削除（一度だけ実行）
             remove_action('updated_option', array($this, 'debug_option_updated'), 10);
         }
@@ -961,21 +954,13 @@ class ANDW_SideFlow {
         $default_config = $this->get_default_config();
         $existing_config = get_option('andw_sideflow_config');
 
-        error_log('andW SideFlow: Activation - existing config: ' . print_r($existing_config, true));
-
         if (!$existing_config) {
             $result = add_option('andw_sideflow_config', $default_config, '', 'no');
-            error_log('andW SideFlow: Activation - add_option result: ' . ($result ? 'true' : 'false'));
         } else {
             // 既存設定がある場合は新しい項目のみマージ（深いマージ）
             $merged_config = $this->deep_merge_config($default_config, $existing_config);
             $result = update_option('andw_sideflow_config', $merged_config);
-            error_log('andW SideFlow: Activation - update_option result: ' . ($result ? 'true' : 'false'));
         }
-
-        // 保存後の確認
-        $final_config = get_option('andw_sideflow_config');
-        error_log('andW SideFlow: Activation - final config: ' . print_r($final_config, true));
 
         // 画像がない場合はサンプル画像を追加（一回だけ）
         if (empty($final_config['slider']['items'])) {
@@ -987,7 +972,6 @@ class ANDW_SideFlow {
                 )
             );
             update_option('andw_sideflow_config', $final_config);
-            error_log('andW SideFlow: Added sample image to slider');
         }
 
         // 画像サイズを追加（削除済み - 既存のWordPress画像サイズを利用）
