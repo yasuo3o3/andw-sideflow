@@ -190,7 +190,7 @@
             background: #333;
             color: white;
             padding: 8px 12px;
-            border-radius: 16px;
+            border-radius: var(--sf-radius);
             font-size: 12px;
             white-space: nowrap;
             opacity: 0;
@@ -220,7 +220,7 @@
             max-width: var(--sf-drawerMaxW, 600px);
             overflow: auto;
             background: white;
-            border-radius: 16px 0 0 16px;
+            border-radius: 0;
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
             display: flex;
             flex-direction: column;
@@ -414,7 +414,7 @@
             flex: 1;
             min-height: 44px;
             border: 2px solid transparent;
-            border-radius: 8px;
+            border-radius: var(--sf-radius);
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -1394,7 +1394,7 @@
         const host = shadowRoot.host;
 
         host.style.setProperty('--andw-sf-color-brand', tokens.colorBrand || '#667eea');
-        host.style.setProperty('--andw-sf-radius', (tokens.radius || 8) + 'px');
+        host.style.setProperty('--andw-sf-radius', (tokens.radius !== undefined ? tokens.radius : 8) + 'px');
         host.style.setProperty('--andw-sf-shadow', tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
         host.style.setProperty('--andw-sf-spacing', (tokens.spacing || 16) + 'px');
         host.style.setProperty('--andw-sf-duration', (tokens.durationMs || 300) + 'ms');
