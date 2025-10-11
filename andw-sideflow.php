@@ -299,12 +299,12 @@ class ANDW_SideFlow {
                 btn.disabled = true;
                 btn.textContent = '処理中...';
 
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'action=andw_sideflow_clean_legacy&nonce=<?php echo wp_create_nonce('andw_sideflow_clean'); ?>'
+                    body: 'action=andw_sideflow_clean_legacy&nonce=<?php echo esc_attr(wp_create_nonce('andw_sideflow_clean')); ?>'
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -349,12 +349,12 @@ class ANDW_SideFlow {
                 btn.disabled = true;
                 btn.textContent = '処理中...';
 
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'action=andw_sideflow_update_config&nonce=<?php echo wp_create_nonce('andw_sideflow_update'); ?>'
+                    body: 'action=andw_sideflow_update_config&nonce=<?php echo esc_attr(wp_create_nonce('andw_sideflow_update')); ?>'
                 })
                 .then(response => response.json())
                 .then(data => {
