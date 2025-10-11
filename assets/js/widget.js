@@ -603,7 +603,7 @@
             <div class="andw-sideflow-bubble" style="display: none;">
                 タップして求人をチェック！
             </div>
-            <div class="sf-drawer auto-height" role="dialog" aria-labelledby="sf-title" aria-hidden="true" id="sf-drawer">
+            <div class="sf-drawer auto-height" role="dialog" aria-labelledby="sf-title" aria-hidden="true" inert id="sf-drawer">
                 <div class="sf-header">
                     <h2 id="sf-title" class="andw-sideflow-sr-only">求人情報</h2>
                     <div class="sf-slider auto-mode" aria-roledescription="carousel" aria-label="求人スライドショー">
@@ -854,7 +854,6 @@
 
     // ドロワー開閉
     function toggleDrawer() {
-        console.log('toggleDrawer called, isDrawerOpen:', isDrawerOpen);
         if (isDrawerOpen) {
             closeDrawer();
         } else {
@@ -863,16 +862,16 @@
     }
 
     function openDrawer() {
-        console.log('openDrawer called');
         isDrawerOpen = true;
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
         const drawer = shadowRoot.querySelector('.sf-drawer');
 
-        console.log('Elements found:', { wrap: !!wrap, tab: !!tab, drawer: !!drawer });
-
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
+
+        // inert属性を削除
+        drawer.removeAttribute('inert');
 
         // フォーカス可能な要素を有効化
         const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex="-1"]');
@@ -884,7 +883,6 @@
 
         // wrapにis-openクラスを追加してtransformで開く
         wrap.classList.add('is-open');
-        console.log('Added is-open class, wrap classes:', wrap.className);
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -903,8 +901,17 @@
         const tab = shadowRoot.querySelector('.sf-tab');
         const drawer = shadowRoot.querySelector('.sf-drawer');
 
+        // フォーカスをタブに戻す（aria-hiddenを設定する前に）
+        const activeElement = shadowRoot.activeElement || document.activeElement;
+        if (activeElement && drawer.contains(activeElement)) {
+            tab.focus();
+        }
+
         tab.setAttribute('aria-expanded', 'false');
         drawer.setAttribute('aria-hidden', 'true');
+
+        // inert属性も設定（モダンブラウザ対応）
+        drawer.setAttribute('inert', '');
 
         // フォーカス可能な要素を無効化
         const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea');
