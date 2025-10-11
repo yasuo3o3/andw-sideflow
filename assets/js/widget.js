@@ -64,15 +64,12 @@
 
         /* アニメーション中はボタン非表示 */
         .sf-wrap.is-opening .sf-close,
-        .sf-wrap.is-opening-simple .sf-close,
-        .sf-wrap.is-opening .sf-play-pause,
-        .sf-wrap.is-opening-simple .sf-play-pause {
+        .sf-wrap.is-opening-simple .sf-close {
             opacity: 0;
             pointer-events: none;
         }
 
-        .sf-wrap.is-closing .sf-close,
-        .sf-wrap.is-closing .sf-play-pause {
+        .sf-wrap.is-closing .sf-close {
             opacity: 0;
             pointer-events: none;
         }
@@ -228,9 +225,6 @@
             max-height: var(--max-height-px, 640px);
         }
 
-        .sf-drawer .sf-content {
-            overflow-y: auto;
-        }
 
         .sf-header {
             position: relative;
@@ -351,6 +345,9 @@
             background: rgba(255, 255, 255, 0.5);
             transition: all 0.3s ease;
             cursor: pointer;
+            border: none;
+            flex-shrink: 0;
+            display: block;
         }
 
         .sf-indicator.active {
@@ -358,35 +355,6 @@
             transform: scale(1.2);
         }
 
-        .sf-controls {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            z-index: 3;
-        }
-
-        .sf-play-pause {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .sf-play-pause:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .sf-play-pause:focus {
-            outline: 2px solid white;
-            outline-offset: 2px;
-        }
 
         .sf-buttons {
             padding: 12px;
@@ -395,7 +363,6 @@
             flex-shrink: 0;
             align-items: center;
             justify-content: center;
-            min-height: 48px;
         }
 
         .sf-buttons.single {
@@ -412,7 +379,6 @@
 
         .sf-button {
             flex: 1;
-            min-height: 44px;
             border: 2px solid transparent;
             border-radius: var(--sf-radius);
             cursor: pointer;
@@ -706,18 +672,6 @@
                                 <path d="M12.854 4.854a.5.5 0 0 0-.708-.708L8 8.293 3.854 4.146a.5.5 0 1 0-.708.708L7.293 9l-4.147 4.146a.5.5 0 0 0 .708.708L8 9.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 9l4.147-4.146z"/>
                             </svg>
                         </button>
-                        <div class="sf-controls">
-                            <button class="sf-play-pause" aria-label="再生/停止" tabindex="-1">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="play-icon">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M6.271 5.055a.5.5 0 0 1 .52.033L11 7.055a.5.5 0 0 1 0 .89L6.791 9.912a.5.5 0 0 1-.791-.39V5.478a.5.5 0 0 1 .271-.423z"/>
-                                </svg>
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="pause-icon" style="display: none;">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M5 6.25a1.25 1.25 0 1 1 2.5 0v3.5a1.25 1.25 0 1 1-2.5 0v-3.5zm3.5 0a1.25 1.25 0 1 1 2.5 0v3.5a1.25 1.25 0 1 1-2.5 0v-3.5z"/>
-                                </svg>
-                            </button>
-                        </div>
                         <div class="andw-sideflow-sr-only" aria-live="polite" aria-atomic="true" id="sf-slide-status"></div>
                     </div>
                 </div>
@@ -830,7 +784,6 @@
         const tab = shadowRoot.querySelector('.sf-tab');
         const closeBtn = shadowRoot.querySelector('.sf-close');
         const drawer = shadowRoot.querySelector('.sf-drawer');
-        const playPauseBtn = shadowRoot.querySelector('.sf-play-pause');
         const slides = shadowRoot.querySelector('.sf-slides');
         const indicators = shadowRoot.querySelectorAll('.sf-indicator');
         const buttons = shadowRoot.querySelectorAll('.sf-button');
@@ -845,9 +798,8 @@
         const sliderElement = shadowRoot.querySelector('.sf-slider');
         if (sliderElement) {
             sliderElement.addEventListener('click', function(e) {
-                // 閉じるボタン、再生/停止ボタン、インジケーター以外のクリックでは何もしない
+                // 閉じるボタン、インジケーター以外のクリックでは何もしない
                 if (!e.target.closest('.sf-close') &&
-                    !e.target.closest('.sf-play-pause') &&
                     !e.target.closest('.sf-indicator') &&
                     !e.target.closest('a')) {
                     e.stopPropagation();
@@ -886,8 +838,6 @@
         // キーボードイベント
         document.addEventListener('keydown', handleKeydown);
 
-        // 再生/停止ボタン
-        playPauseBtn.addEventListener('click', toggleSlider);
 
         // インジケーター
         indicators.forEach(indicator => {
@@ -1132,7 +1082,6 @@
         if (hasUserInteracted || !isPageVisible) return;
 
         isSliderPlaying = true;
-        updatePlayPauseButton();
 
         sliderInterval = setInterval(() => {
             if (isPageVisible && !hasUserInteracted) {
@@ -1143,7 +1092,6 @@
 
     function stopSlider() {
         isSliderPlaying = false;
-        updatePlayPauseButton();
 
         if (sliderInterval) {
             clearInterval(sliderInterval);
@@ -1157,13 +1105,6 @@
         trackEvent('slider_pause');
     }
 
-    function toggleSlider() {
-        if (isSliderPlaying) {
-            pauseSlider();
-        } else if (!hasUserInteracted) {
-            startSlider();
-        }
-    }
 
     function nextSlide() {
         if (!config.slider.items || config.slider.items.length <= 1) return;
@@ -1218,20 +1159,6 @@
         }
     }
 
-    function updatePlayPauseButton() {
-        const playIcon = shadowRoot.querySelector('.play-icon');
-        const pauseIcon = shadowRoot.querySelector('.pause-icon');
-
-        if (playIcon && pauseIcon) {
-            if (isSliderPlaying) {
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
-            } else {
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
-            }
-        }
-    }
 
     // 初回吹き出し表示
     function showBubbleIfFirstVisit() {
