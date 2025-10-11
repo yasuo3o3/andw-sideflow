@@ -12,6 +12,7 @@
         initializePreview();
         initializeFormHandling();
         initializeCustomValidation();
+        initializeAspectRatioControl();
     });
 
     // タブ切り替え
@@ -315,6 +316,8 @@
                 fit: $('#slider-fit').val() || 'cover',
                 heightMode: 'auto',
                 aspectRatio: $('#slider-aspect-ratio').val() || '16:9',
+                customAspectWidth: parseInt($('#aspect-width').val()) || 16,
+                customAspectHeight: parseInt($('#aspect-height').val()) || 9,
                 items: collectSlidesData()
             },
             styles: {
@@ -466,6 +469,8 @@
             $('#slider-interval').val(config.slider.interval || 3500);
             $('#slider-fit').val(config.slider.fit || 'cover');
             $('#slider-aspect-ratio').val(config.slider.aspectRatio || '16:9');
+            $('#aspect-width').val(config.slider.customAspectWidth || 16);
+            $('#aspect-height').val(config.slider.customAspectHeight || 9);
 
             // スライドアイテム
             if (config.slider.items && config.slider.items.length > 0) {
@@ -710,6 +715,20 @@
     function updateConfig() {
         const config = collectFormData();
         $('#andw_sideflow_config_textarea').val(JSON.stringify(config));
+    }
+
+    // アスペクト比制御
+    function initializeAspectRatioControl() {
+        function toggleCustomAspectRatio() {
+            const isCustom = $('#slider-aspect-ratio').val() === 'custom';
+            $('#custom-aspect-ratio').toggle(isCustom);
+        }
+
+        // 初期表示
+        toggleCustomAspectRatio();
+
+        // 選択変更時
+        $('#slider-aspect-ratio').on('change', toggleCustomAspectRatio);
     }
 
 })(jQuery);

@@ -68,8 +68,7 @@ class ANDW_SideFlow {
         // REST APIの初期化
         $this->rest_api_init();
 
-        // 画像サイズの追加
-        $this->add_image_sizes();
+        // 画像サイズの追加（削除済み - 既存のWordPress画像サイズを利用）
     }
 
     /**
@@ -99,17 +98,6 @@ class ANDW_SideFlow {
         add_action('rest_api_init', array($this, 'register_rest_routes'));
     }
 
-    /**
-     * 画像サイズ追加
-     */
-    private function add_image_sizes() {
-        // スライド用画像サイズ（16:9比率）
-        add_image_size('andw_sideflow_600', 600, 338, true);
-        add_image_size('andw_sideflow_720', 720, 405, true);
-        add_image_size('andw_sideflow_960', 960, 540, true);
-        add_image_size('andw_sideflow_1200', 1200, 675, true);
-        add_image_size('andw_sideflow_1440', 1440, 810, true);
-    }
 
     /**
      * 管理メニュー追加
@@ -504,6 +492,8 @@ class ANDW_SideFlow {
             'fit' => in_array($slider['fit'] ?? 'cover', array('cover', 'contain', 'blurExtend')) ? $slider['fit'] ?? 'cover' : 'cover',
             'heightMode' => in_array($slider['heightMode'] ?? 'auto', array('auto', 'vh')) ? $slider['heightMode'] ?? 'auto' : 'auto',
             'aspectRatio' => $this->validate_aspect_ratio($slider['aspectRatio'] ?? '16:9'),
+            'customAspectWidth' => max(1, min(50, intval($slider['customAspectWidth'] ?? 16))),
+            'customAspectHeight' => max(1, min(50, intval($slider['customAspectHeight'] ?? 9))),
             'items' => array()
         );
 
@@ -587,6 +577,13 @@ class ANDW_SideFlow {
      * アスペクト比の検証
      */
     private function validate_aspect_ratio($ratio) {
+        // 定義済みの比率またはカスタムを許可
+        $allowed_ratios = array('16:9', '4:3', '3:2', '1:1', 'custom');
+        if (in_array($ratio, $allowed_ratios)) {
+            return $ratio;
+        }
+
+        // フォールバック: 数値:数値形式の場合は有効とする
         if (preg_match('/^(\d+):(\d+)$/', $ratio, $matches)) {
             $width = intval($matches[1]);
             $height = intval($matches[2]);
@@ -742,6 +739,8 @@ class ANDW_SideFlow {
                 'fit' => 'cover',
                 'heightMode' => 'auto',
                 'aspectRatio' => '16:9',
+                'customAspectWidth' => 16,
+                'customAspectHeight' => 9,
                 'items' => array(
                     array(
                         'mediaId' => 0,
@@ -996,8 +995,7 @@ class ANDW_SideFlow {
             error_log('andW SideFlow: Added sample image to slider');
         }
 
-        // 画像サイズを追加
-        $this->add_image_sizes();
+        // 画像サイズを追加（削除済み - 既存のWordPress画像サイズを利用）
 
         // リライトルールをフラッシュ
         flush_rewrite_rules();

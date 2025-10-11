@@ -216,7 +216,15 @@ class ANDW_SideFlow_Admin_UI {
                             <option value="4:3" <?php selected($slider_config['aspectRatio'] ?? '16:9', '4:3'); ?>>4:3</option>
                             <option value="3:2" <?php selected($slider_config['aspectRatio'] ?? '16:9', '3:2'); ?>>3:2</option>
                             <option value="1:1" <?php selected($slider_config['aspectRatio'] ?? '16:9', '1:1'); ?>>1:1</option>
+                            <option value="custom" <?php selected($slider_config['aspectRatio'] ?? '16:9', 'custom'); ?>><?php esc_html_e('カスタム', 'andw-sideflow'); ?></option>
                         </select>
+                        <div id="custom-aspect-ratio" style="display: <?php echo ($slider_config['aspectRatio'] ?? '16:9') === 'custom' ? 'block' : 'none'; ?>; margin-top: 8px;">
+                            <input type="number" id="aspect-width" value="<?php echo esc_attr($slider_config['customAspectWidth'] ?? 16); ?>" min="1" max="50" style="width: 60px;">
+                            :
+                            <input type="number" id="aspect-height" value="<?php echo esc_attr($slider_config['customAspectHeight'] ?? 9); ?>" min="1" max="50" style="width: 60px;">
+                            <span class="description">幅:高さ</span>
+                        </div>
+                        <p class="description"><?php esc_html_e('画像の表示比率を設定します。object-fit: coverで自動調整されます。', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
             </table>

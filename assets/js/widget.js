@@ -664,8 +664,18 @@
         }
 
         if (sliderConfig.heightMode === 'auto' && sliderConfig.aspectRatio) {
-            const [width, height] = sliderConfig.aspectRatio.split(':').map(Number);
-            container.style.setProperty('--aspect-ratio', `${width}/${height}`);
+            let aspectRatio;
+            if (sliderConfig.aspectRatio === 'custom') {
+                // カスタムアスペクト比を使用
+                const width = sliderConfig.customAspectWidth || 16;
+                const height = sliderConfig.customAspectHeight || 9;
+                aspectRatio = `${width}/${height}`;
+            } else {
+                // 定義済みのアスペクト比を使用
+                const [width, height] = sliderConfig.aspectRatio.split(':').map(Number);
+                aspectRatio = `${width}/${height}`;
+            }
+            container.style.setProperty('--aspect-ratio', aspectRatio);
         }
 
         if (layoutConfig.maxHeightPx) {
@@ -1492,18 +1502,26 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
         }
     }
 
-    // srcset構築
+    // srcset構築（既存のWordPress画像サイズを利用）
     function buildSrcSet(sizes) {
-        const supportedSizes = ['andw_sideflow_600', 'andw_sideflow_720', 'andw_sideflow_960', 'andw_sideflow_1200', 'andw_sideflow_1440'];
         const srcsetParts = [];
 
-        supportedSizes.forEach(sizeName => {
-            if (sizes[sizeName]) {
-                srcsetParts.push(`${sizes[sizeName].source_url} ${sizes[sizeName].width}w`);
+        // 利用可能な全サイズを取得し、幅300-1500の範囲でフィルタリング
+        Object.keys(sizes).forEach(sizeName => {
+            const sizeData = sizes[sizeName];
+            if (sizeData && sizeData.width >= 300 && sizeData.width <= 1500) {
+                srcsetParts.push({
+                    url: sizeData.source_url,
+                    width: sizeData.width
+                });
             }
         });
 
-        return srcsetParts.join(', ');
+        // 幅順でソート
+        srcsetParts.sort((a, b) => a.width - b.width);
+
+        // srcset文字列を構築
+        return srcsetParts.map(part => `${part.url} ${part.width}w`).join(', ');
     }
 
     // イベント追跡（configVersionを含む）
