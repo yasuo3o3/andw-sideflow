@@ -664,7 +664,7 @@ class ANDW_SideFlow_Admin_UI {
             wp_die(__('権限がありません。', 'andw-sideflow'));
         }
 
-        $config_json = wp_unslash($_POST['config'] ?? '');
+        $config_json = sanitize_textarea_field(wp_unslash($_POST['config'] ?? ''));
         $config = json_decode($config_json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
