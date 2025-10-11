@@ -47,11 +47,11 @@
         }
 
         .sf-wrap.anchor-center.is-opening {
-            animation: slideInOvershoot var(--sf-duration, 300ms) cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            animation: slideInOvershoot var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards;
         }
 
         .sf-wrap.anchor-bottom.is-opening {
-            animation: slideInOvershootBottom var(--sf-duration, 300ms) cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            animation: slideInOvershootBottom var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards;
         }
 
         .sf-wrap.anchor-center.is-closing {
@@ -127,15 +127,15 @@
 
         @keyframes slideInOvershoot {
             0% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
-            70% { transform: translateY(-50%) translateX(-25px); }
-            85% { transform: translateY(-50%) translateX(10px); }
+            60% { transform: translateY(-50%) translateX(var(--sf-overshoot, -25px)); }
+            80% { transform: translateY(-50%) translateX(10px); }
             100% { transform: translateY(-50%) translateX(0); }
         }
 
         @keyframes slideInOvershootBottom {
             0% { transform: translateX(var(--sf-drawerW)); }
-            70% { transform: translateX(-25px); }
-            85% { transform: translateX(10px); }
+            60% { transform: translateX(var(--sf-overshoot, -25px)); }
+            80% { transform: translateX(10px); }
             100% { transform: translateX(0); }
         }
 
@@ -184,6 +184,7 @@
 
         .sf-drawer {
             flex: 0 0 var(--sf-drawerW);
+            max-width: 600px;
             overflow: auto;
             background: white;
             border-radius: 16px 0 0 16px;

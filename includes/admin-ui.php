@@ -381,6 +381,14 @@ class ANDW_SideFlow_Admin_UI {
             <h3><?php esc_html_e('ドロワー設定', 'andw-sideflow'); ?></h3>
             <table class="form-table">
                 <tr>
+                    <th scope="row"><?php esc_html_e('ドロワー幅', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="number" id="drawer-width-percent" value="<?php echo esc_attr(($drawer['widthPercent'] ?? 0.76) * 100); ?>" min="40" max="95" step="5">
+                        <span class="description">%（画面幅の割合）</span>
+                        <p class="description"><?php esc_html_e('PCで大きすぎる場合は小さめの値に調整してください', 'andw-sideflow'); ?></p>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row"><?php esc_html_e('背景オーバーレイ', 'andw-sideflow'); ?></th>
                     <td>
                         <label>

@@ -304,7 +304,8 @@
                 offsetPx: parseInt($('#tab-offset').val()) || 24
             },
             drawer: {
-                backdrop: $('#drawer-backdrop').is(':checked')
+                backdrop: $('#drawer-backdrop').is(':checked'),
+                widthPercent: parseFloat($('#drawer-width-percent').val()) / 100 || 0.76
             },
             slider: {
                 autoplay: $('#slider-autoplay').is(':checked'),
@@ -500,6 +501,7 @@
 
         if (config.drawer) {
             $('#drawer-backdrop').prop('checked', config.drawer.backdrop || false);
+            $('#drawer-width-percent').val((config.drawer.widthPercent || 0.76) * 100);
         }
 
         if (config.layout) {
