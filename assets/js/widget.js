@@ -36,14 +36,14 @@
             right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(var(--sf-drawerW));
+            transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW)));
             transition: transform var(--sf-duration) var(--sf-ease);
             z-index: 120;
         }
 
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(var(--sf-drawerW));
+            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW)));
         }
 
         .sf-wrap.anchor-center.is-opening {
@@ -149,14 +149,14 @@
         }
 
         @keyframes slideInOvershoot {
-            0% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
+            0% { transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
             60% { transform: translateY(-50%) translateX(var(--sf-overshoot, -25px)); }
             80% { transform: translateY(-50%) translateX(10px); }
             100% { transform: translateY(-50%) translateX(0); }
         }
 
         @keyframes slideInOvershootBottom {
-            0% { transform: translateX(var(--sf-drawerW)); }
+            0% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
             60% { transform: translateX(var(--sf-overshoot, -25px)); }
             80% { transform: translateX(10px); }
             100% { transform: translateX(0); }
@@ -164,21 +164,21 @@
 
         @keyframes slideOutSmooth {
             0% { transform: translateY(-50%) translateX(0); }
-            100% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
+            100% { transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
         }
 
         @keyframes slideOutSmoothBottom {
             0% { transform: translateX(0); }
-            100% { transform: translateX(var(--sf-drawerW)); }
+            100% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
         }
 
         @keyframes slideInSimple {
-            0% { transform: translateY(-50%) translateX(var(--sf-drawerW)); }
+            0% { transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
             100% { transform: translateY(-50%) translateX(0); }
         }
 
         @keyframes slideInSimpleBottom {
-            0% { transform: translateX(var(--sf-drawerW)); }
+            0% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
             100% { transform: translateX(0); }
         }
 
@@ -628,7 +628,7 @@
     async function createUI() {
         // 設定取得
         const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50, heightMode: 'matchDrawer' };
-        const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76 };
+        const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76, maxWidthPx: 600 };
         const motionConfig = config.motion || { durationMs: 300, easing: 'cubic-bezier(0.2,0,0,1)' };
         const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
         const layoutConfig = config.layout || { maxHeightPx: 640 };
@@ -646,8 +646,16 @@
 
         // CSS変数を設定
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
+
+        // 実際のドロワー幅を計算（max-width制限を考慮）
+        const viewportWidth = window.innerWidth;
+        const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+        const maxWidth = drawerConfig.maxWidthPx || 600;
+        const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
+
         container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-        container.style.setProperty('--sf-drawerMaxW', `${drawerConfig.maxWidthPx}px`);
+        container.style.setProperty('--sf-drawerMaxW', `${maxWidth}px`);
+        container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
         container.style.setProperty('--sf-ease', motionConfig.easing);
 
@@ -1279,15 +1287,23 @@
             const wrap = shadowRoot.querySelector('.sf-wrap');
             if (!wrap) return;
 
-            const drawerConfig = config.drawer || { widthPercent: 0.76 };
-            const newDrawerWidth = `${drawerConfig.widthPercent * 100}vw`;
+            const drawerConfig = config.drawer || { widthPercent: 0.76, maxWidthPx: 600 };
 
-            wrap.style.setProperty('--sf-drawerW', newDrawerWidth);
+            // 実際のドロワー幅を再計算（max-width制限を考慮）
+            const viewportWidth = window.innerWidth;
+            let drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
 
-            // mobile時の最大幅調整
-            if (window.innerWidth <= 480) {
+            // mobile時の調整
+            if (viewportWidth <= 480) {
+                drawerPercentWidth = 0.85 * viewportWidth;
                 wrap.style.setProperty('--sf-drawerW', '85vw');
+            } else {
+                wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
             }
+
+            const maxWidth = drawerConfig.maxWidthPx || 600;
+            const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
+            wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
             // 高さ同期も再計算
             updateTabHeight();
