@@ -16,17 +16,38 @@
 
     // タブ切り替え
     function initializeTabs() {
+        // URLハッシュをチェック
+        let initialTab = window.location.hash;
+
+        // URLハッシュがない場合は保存されたタブを使用
+        if (!initialTab) {
+            initialTab = localStorage.getItem('andw-sideflow-active-tab');
+        }
+
+        // 有効なタブかチェック
+        if (initialTab && $('.nav-tab[href="' + initialTab + '"]').length > 0) {
+            showTab(initialTab);
+        }
+
         $('.nav-tab').on('click', function(e) {
             e.preventDefault();
 
             const target = $(this).attr('href');
 
-            $('.nav-tab').removeClass('nav-tab-active');
-            $(this).addClass('nav-tab-active');
+            // タブ状態を保存
+            localStorage.setItem('andw-sideflow-active-tab', target);
 
-            $('.tab-content').hide();
-            $(target).show();
+            showTab(target);
         });
+    }
+
+    // タブ表示関数
+    function showTab(target) {
+        $('.nav-tab').removeClass('nav-tab-active');
+        $('.nav-tab[href="' + target + '"]').addClass('nav-tab-active');
+
+        $('.tab-content').hide();
+        $(target).show();
     }
 
     // カラーピッカー初期化
@@ -147,8 +168,15 @@
             // WordPressの設定APIに合わせたフィールドに設定
             $('#andw_sideflow_config_textarea').val(configJson);
 
+            // 現在のアクティブなタブを保存
+            const activeTab = $('.nav-tab-active').attr('href');
+            if (activeTab) {
+                localStorage.setItem('andw-sideflow-active-tab', activeTab);
+            }
+
             console.log('Form submission - config data:', config);
             console.log('Form submission - JSON length:', configJson.length);
+            console.log('Form submission - active tab saved:', activeTab);
         });
 
         // 初期設定の読み込み
