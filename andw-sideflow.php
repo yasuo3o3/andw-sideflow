@@ -494,6 +494,7 @@ class ANDW_SideFlow {
             'aspectRatio' => $this->validate_aspect_ratio($slider['aspectRatio'] ?? '16:9'),
             'customAspectWidth' => max(1, min(50, intval($slider['customAspectWidth'] ?? 16))),
             'customAspectHeight' => max(1, min(50, intval($slider['customAspectHeight'] ?? 9))),
+            'showArrows' => (bool)($slider['showArrows'] ?? true),
             'items' => array()
         );
 
@@ -741,6 +742,7 @@ class ANDW_SideFlow {
                 'aspectRatio' => '16:9',
                 'customAspectWidth' => 16,
                 'customAspectHeight' => 9,
+                'showArrows' => true,
                 'items' => array(
                     array(
                         'mediaId' => 0,

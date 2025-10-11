@@ -227,6 +227,16 @@ class ANDW_SideFlow_Admin_UI {
                         <p class="description"><?php esc_html_e('画像の表示比率を設定します。object-fit: coverで自動調整されます。', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('矢印ナビゲーション', 'andw-sideflow'); ?></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" id="slider-show-arrows" <?php checked($slider_config['showArrows'] ?? true); ?>>
+                            <?php esc_html_e('左右の矢印ボタンを表示する', 'andw-sideflow'); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e('無効にすると、矢印ナビゲーションが非表示になり、自動再生とスワイプ操作のみになります。', 'andw-sideflow'); ?></p>
+                    </td>
+                </tr>
             </table>
         </div>
         <?php

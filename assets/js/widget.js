@@ -748,7 +748,7 @@
 
         const slides = (await Promise.all(slidePromises)).filter(slide => slide).join('');
 
-        const navigation = config.slider.items.length > 1 ?
+        const navigation = (config.slider.items.length > 1 && config.slider.showArrows !== false) ?
             `<div class="sf-nav-arrows">
                 <button class="sf-nav-arrow sf-nav-prev" aria-label="前のスライド" type="button">
                     <svg width="20" height="60" viewBox="0 0 20 60" fill="none">

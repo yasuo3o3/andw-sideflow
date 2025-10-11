@@ -318,6 +318,7 @@
                 aspectRatio: $('#slider-aspect-ratio').val() || '16:9',
                 customAspectWidth: parseInt($('#aspect-width').val()) || 16,
                 customAspectHeight: parseInt($('#aspect-height').val()) || 9,
+                showArrows: $('#slider-show-arrows').is(':checked'),
                 items: collectSlidesData()
             },
             styles: {
@@ -471,6 +472,7 @@
             $('#slider-aspect-ratio').val(config.slider.aspectRatio || '16:9');
             $('#aspect-width').val(config.slider.customAspectWidth || 16);
             $('#aspect-height').val(config.slider.customAspectHeight || 9);
+            $('#slider-show-arrows').prop('checked', config.slider.showArrows !== false);
 
             // スライドアイテム
             if (config.slider.items && config.slider.items.length > 0) {
