@@ -342,37 +342,27 @@
         }
 
         .sf-nav-arrow {
-            width: 44px;
-            height: 44px;
-            background: rgba(0, 0, 0, 0.6);
+            width: 60px;
+            height: 100%;
+            background: transparent;
             border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
             pointer-events: auto;
-            margin: 0 12px;
-            backdrop-filter: blur(4px);
+            margin: 0;
         }
 
-        .sf-nav-arrow:hover {
-            background: rgba(0, 0, 0, 0.8);
-            transform: scale(1.1);
+        .sf-nav-arrow svg {
+            width: 20px;
+            height: 60px;
         }
 
         .sf-nav-arrow:focus {
             outline: 2px solid white;
             outline-offset: 2px;
-        }
-
-        .sf-nav-arrow:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
         }
 
 
@@ -760,8 +750,16 @@
 
         const navigation = config.slider.items.length > 1 ?
             `<div class="sf-nav-arrows">
-                <button class="sf-nav-arrow sf-nav-prev" aria-label="前のスライド" type="button">‹</button>
-                <button class="sf-nav-arrow sf-nav-next" aria-label="次のスライド" type="button">›</button>
+                <button class="sf-nav-arrow sf-nav-prev" aria-label="前のスライド" type="button">
+                    <svg width="20" height="60" viewBox="0 0 20 60" fill="none">
+                        <path d="M14 20 L6 30 L14 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="sf-nav-arrow sf-nav-next" aria-label="次のスライド" type="button">
+                    <svg width="20" height="60" viewBox="0 0 20 60" fill="none">
+                        <path d="M6 20 L14 30 L6 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             </div>` : '';
 
         return `
