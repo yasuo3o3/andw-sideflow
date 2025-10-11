@@ -985,6 +985,10 @@
             }
         });
 
+        // アニメーション完了後にis-openクラスを追加
+        const motionConfig = config.motion || { durationMs: 300 };
+        const animationDuration = motionConfig.durationMs || 300;
+
         // アニメーションクラスを追加（オーバーシュート設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
 
@@ -993,10 +997,6 @@
         } else {
             wrap.classList.add('is-opening-simple');
         }
-
-        // アニメーション完了後にis-openクラスを追加
-        const motionConfig = config.motion || { durationMs: 300 };
-        const animationDuration = motionConfig.durationMs || 300;
 
         setTimeout(() => {
             wrap.classList.remove('is-opening', 'is-opening-simple');
