@@ -41,10 +41,6 @@
             z-index: 120;
         }
 
-        .sf-wrap.is-open {
-            transform: translateX(0);
-        }
-
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
             transform: translateY(-50%) translateX(var(--sf-drawerW));
@@ -52,6 +48,10 @@
 
         .sf-wrap.anchor-center.is-open {
             transform: translateY(-50%) translateX(0);
+        }
+
+        .sf-wrap.anchor-bottom.is-open {
+            transform: translateX(0);
         }
 
         .sf-wrap.anchor-bottom {
@@ -903,6 +903,8 @@
 
         // wrapにis-openクラスを追加してtransformで開く
         wrap.classList.add('is-open');
+        console.log('Added is-open class. Classes:', wrap.className);
+        console.log('Transform value:', window.getComputedStyle(wrap).transform);
 
         // フォーカストラップ設定
         setupFocusTrap();
