@@ -55,11 +55,11 @@
         }
 
         .sf-wrap.anchor-center.is-opening-simple {
-            animation: slideInSimple var(--sf-duration, 300ms) ease-out forwards;
+            animation: slideInSimple var(--sf-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         .sf-wrap.anchor-bottom.is-opening-simple {
-            animation: slideInSimpleBottom var(--sf-duration, 300ms) ease-out forwards;
+            animation: slideInSimpleBottom var(--sf-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         /* アニメーション中はボタン非表示 */
