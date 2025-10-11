@@ -495,7 +495,10 @@ class ANDW_SideFlow_Admin_UI {
     private function render_button_item($button, $index) {
         ?>
         <div class="button-item" data-index="<?php echo esc_attr($index); ?>">
-            <h4><?php echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), absint($index) + 1); ?></h4>
+            <h4><?php
+                /* translators: %d: button number */
+                echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), absint($index) + 1);
+            ?></h4>
             <table class="form-table">
                 <tr>
                     <th scope="row"><?php esc_html_e('表示', 'andw-sideflow'); ?></th>
