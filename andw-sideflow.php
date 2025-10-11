@@ -79,6 +79,7 @@ class ANDW_SideFlow {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_settings_init'));
         add_action('wp_ajax_andw_sideflow_clean_legacy', array($this, 'ajax_clean_legacy'));
+        add_action('wp_ajax_andw_sideflow_update_config', array($this, 'ajax_update_config'));
 
         // 新しい管理UIを読み込み
         require_once ANDW_SIDEFLOW_PLUGIN_PATH . 'includes/admin-ui.php';
@@ -154,6 +155,14 @@ class ANDW_SideFlow {
             'clean_legacy',
             __('レガシー設定の削除', 'andw-sideflow'),
             array($this, 'clean_legacy_field'),
+            'andw_sideflow_settings',
+            'andw_sideflow_main'
+        );
+
+        add_settings_field(
+            'update_config',
+            __('設定の更新', 'andw-sideflow'),
+            array($this, 'update_config_field'),
             'andw_sideflow_settings',
             'andw_sideflow_main'
         );
@@ -323,6 +332,56 @@ class ANDW_SideFlow {
                 .finally(() => {
                     btn.disabled = false;
                     btn.textContent = '古い設定項目を削除';
+                });
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * 設定更新フィールド
+     */
+    public function update_config_field() {
+        ?>
+        <button type="button" id="update-config-btn" class="button button-primary">設定を最新版に更新</button>
+        <p class="description">
+            <?php esc_html_e('デフォルト設定に不足している項目を現在の設定に追加します。', 'andw-sideflow'); ?>
+        </p>
+        <div id="update-config-result" style="margin-top: 10px;"></div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('update-config-btn');
+            const result = document.getElementById('update-config-result');
+
+            btn.addEventListener('click', function() {
+                btn.disabled = true;
+                btn.textContent = '処理中...';
+
+                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=andw_sideflow_update_config&nonce=<?php echo wp_create_nonce('andw_sideflow_update'); ?>'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
+                        // ページをリロードして更新された設定を表示
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        result.innerHTML = '<div style="color: red;">✗ ' + data.data + '</div>';
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML = '<div style="color: red;">✗ エラーが発生しました</div>';
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = '設定を最新版に更新';
                 });
             });
         });
@@ -602,6 +661,43 @@ class ANDW_SideFlow {
     }
 
     /**
+     * 設定更新AJAX処理
+     */
+    public function ajax_update_config() {
+        // nonce確認
+        if (!wp_verify_nonce($_POST['nonce'], 'andw_sideflow_update')) {
+            wp_die('セキュリティチェックに失敗しました。');
+        }
+
+        // 権限確認
+        if (!current_user_can('manage_options')) {
+            wp_die('権限がありません。');
+        }
+
+        try {
+            // 現在の設定を取得
+            $existing_config = get_option('andw_sideflow_config', array());
+            $default_config = $this->get_default_config();
+
+            if (is_array($existing_config)) {
+                // デフォルト設定でマージ
+                $merged_config = $this->deep_merge_config($default_config, $existing_config);
+
+                // 設定を更新
+                update_option('andw_sideflow_config', $merged_config);
+
+                wp_send_json_success('設定を最新版に更新しました。不足していた項目が追加されました。');
+            } else {
+                // 既存設定がない場合はデフォルト設定をセット
+                update_option('andw_sideflow_config', $default_config);
+                wp_send_json_success('デフォルト設定を保存しました。');
+            }
+        } catch (Exception $e) {
+            wp_send_json_error('処理中にエラーが発生しました: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * デフォルト設定取得
      */
     public function get_default_config() {
@@ -628,10 +724,13 @@ class ANDW_SideFlow {
             ),
             'tab' => array(
                 'anchor' => 'center',
-                'offsetPx' => 24
+                'offsetPx' => 24,
+                'widthPx' => 50,
+                'heightMode' => 'matchDrawer'
             ),
             'drawer' => array(
-                'backdrop' => false
+                'backdrop' => false,
+                'widthPercent' => 0.76
             ),
             'slider' => array(
                 'autoplay' => true,
@@ -665,6 +764,13 @@ class ANDW_SideFlow {
             'layout' => array(
                 'maxHeightPx' => 640,
                 'buttonRowHeight' => 48
+            ),
+            'motion' => array(
+                'durationMs' => 300,
+                'easing' => 'cubic-bezier(0.2,0,0,1)'
+            ),
+            'ui' => array(
+                'startOpen' => false
             ),
             'dev' => array(
                 'previewMode' => false,
@@ -832,6 +938,23 @@ class ANDW_SideFlow {
     }
 
     /**
+     * 設定の深いマージ（デフォルト値を保持しつつ既存設定を優先）
+     */
+    private function deep_merge_config($default, $existing) {
+        $merged = $default;
+
+        foreach ($existing as $key => $value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->deep_merge_config($merged[$key], $value);
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
      * プラグイン有効化
      */
     public function activate() {
@@ -845,8 +968,8 @@ class ANDW_SideFlow {
             $result = add_option('andw_sideflow_config', $default_config, '', 'no');
             error_log('andW SideFlow: Activation - add_option result: ' . ($result ? 'true' : 'false'));
         } else {
-            // 既存設定がある場合は新しい項目のみマージ
-            $merged_config = array_merge($default_config, $existing_config);
+            // 既存設定がある場合は新しい項目のみマージ（深いマージ）
+            $merged_config = $this->deep_merge_config($default_config, $existing_config);
             $result = update_option('andw_sideflow_config', $merged_config);
             error_log('andW SideFlow: Activation - update_option result: ' . ($result ? 'true' : 'false'));
         }
