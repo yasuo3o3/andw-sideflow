@@ -267,9 +267,6 @@ class ANDW_SideFlow {
             $json = $config;
         }
 
-        error_log('andW SideFlow: config_json_field - loaded config: ' . print_r($config, true));
-        error_log('andW SideFlow: config_json_field - json output: ' . $json);
-
         ?>
         <textarea id="config_json" name="andw_sideflow_config" rows="20" cols="80" style="width: 100%; font-family: monospace; font-size: 13px;"><?php echo esc_textarea($json); ?></textarea>
         <p class="description">
@@ -386,22 +383,17 @@ class ANDW_SideFlow {
      * 設定のサニタイズ
      */
     public function sanitize_config($input) {
-        // デバッグ情報をログに記録
-        error_log('andW SideFlow: sanitize_config called with: ' . print_r($input, true));
-
         if (is_string($input)) {
             $decoded = json_decode($input, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 try {
                     $sanitized = $this->sanitize_config_array($decoded);
-                    error_log('andW SideFlow: sanitized config: ' . print_r($sanitized, true));
 
                     // フックでDBへの保存確認
                     add_action('updated_option', array($this, 'debug_option_updated'), 10, 3);
 
                     return $sanitized;
                 } catch (Exception $e) {
-                    error_log('andW SideFlow: sanitize error: ' . $e->getMessage());
                     add_settings_error(
                         'andw_sideflow_config',
                         'sanitize_error',
