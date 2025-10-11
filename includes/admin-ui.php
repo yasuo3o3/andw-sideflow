@@ -542,7 +542,10 @@ class ANDW_SideFlow_Admin_UI {
                     <th scope="row"><?php esc_html_e('オーバーシュートアニメーション', 'andw-sideflow'); ?></th>
                     <td>
                         <label>
-                            <input type="checkbox" id="overshoot-animation" <?php checked($config['motion']['overshoot'] ?? true); ?>>
+                            <input type="checkbox" id="overshoot-animation" <?php
+                                $overshoot = isset($config['motion']['overshoot']) ? $config['motion']['overshoot'] : true;
+                                checked($overshoot);
+                            ?>>
                             <?php esc_html_e('ドロワーを開く際にバウンス効果を使用する', 'andw-sideflow'); ?>
                         </label>
                     </td>
