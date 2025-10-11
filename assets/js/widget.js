@@ -903,8 +903,17 @@
 
         // wrapにis-openクラスを追加してtransformで開く
         wrap.classList.add('is-open');
+
+        // 直接スタイルを設定して確実にtransformを適用
+        const tabConfig = config.tab || { anchor: 'center' };
+        if (tabConfig.anchor === 'center') {
+            wrap.style.transform = 'translateY(-50%) translateX(0)';
+        } else {
+            wrap.style.transform = 'translateX(0)';
+        }
+
         console.log('Added is-open class. Classes:', wrap.className);
-        console.log('Transform value:', window.getComputedStyle(wrap).transform);
+        console.log('Transform value after direct style:', window.getComputedStyle(wrap).transform);
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -943,6 +952,9 @@
 
         // wrapからis-openクラスを削除してtransformで閉じる
         wrap.classList.remove('is-open');
+
+        // 直接スタイルを削除してCSSに戻す
+        wrap.style.transform = '';
 
         // フォーカストラップ解除
         removeFocusTrap();
