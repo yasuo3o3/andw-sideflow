@@ -495,7 +495,7 @@ class ANDW_SideFlow_Admin_UI {
     private function render_button_item($button, $index) {
         ?>
         <div class="button-item" data-index="<?php echo esc_attr($index); ?>">
-            <h4><?php echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), $index + 1); ?></h4>
+            <h4><?php echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), absint($index) + 1); ?></h4>
             <table class="form-table">
                 <tr>
                     <th scope="row"><?php esc_html_e('表示', 'andw-sideflow'); ?></th>
@@ -626,7 +626,7 @@ class ANDW_SideFlow_Admin_UI {
         check_ajax_referer('andw_sideflow_admin', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_die(__('権限がありません。', 'andw-sideflow'));
+            wp_die(esc_html__('権限がありません。', 'andw-sideflow'));
         }
 
         $query = sanitize_text_field(wp_unslash($_POST['query'] ?? ''));
@@ -661,7 +661,7 @@ class ANDW_SideFlow_Admin_UI {
         check_ajax_referer('andw_sideflow_admin', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_die(__('権限がありません。', 'andw-sideflow'));
+            wp_die(esc_html__('権限がありません。', 'andw-sideflow'));
         }
 
         $config_json = sanitize_textarea_field(wp_unslash($_POST['config'] ?? ''));
