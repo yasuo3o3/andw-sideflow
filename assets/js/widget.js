@@ -328,31 +328,51 @@
             z-index: 1;
         }
 
-        .sf-indicators {
+        .sf-nav-arrows {
             position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
-            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none;
             z-index: 2;
         }
 
-        .sf-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
-            cursor: pointer;
+        .sf-nav-arrow {
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.6);
             border: none;
-            flex-shrink: 0;
-            display: block;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            pointer-events: auto;
+            margin: 0 12px;
+            backdrop-filter: blur(4px);
         }
 
-        .sf-indicator.active {
-            background: white;
-            transform: scale(1.2);
+        .sf-nav-arrow:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .sf-nav-arrow:focus {
+            outline: 2px solid white;
+            outline-offset: 2px;
+        }
+
+        .sf-nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
 
 
@@ -738,18 +758,17 @@
 
         const slides = (await Promise.all(slidePromises)).filter(slide => slide).join('');
 
-        const indicators = config.slider.items.length > 1 ?
-            `<div class="sf-indicators">
-                ${config.slider.items.map((_, index) =>
-                    `<button class="sf-indicator ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="スライド ${index + 1}へ移動"></button>`
-                ).join('')}
+        const navigation = config.slider.items.length > 1 ?
+            `<div class="sf-nav-arrows">
+                <button class="sf-nav-arrow sf-nav-prev" aria-label="前のスライド" type="button">‹</button>
+                <button class="sf-nav-arrow sf-nav-next" aria-label="次のスライド" type="button">›</button>
             </div>` : '';
 
         return `
             <div class="sf-slides" style="transform: translateX(0%)">
                 ${slides}
             </div>
-            ${indicators}
+            ${navigation}
         `;
     }
 
@@ -785,7 +804,7 @@
         const closeBtn = shadowRoot.querySelector('.sf-close');
         const drawer = shadowRoot.querySelector('.sf-drawer');
         const slides = shadowRoot.querySelector('.sf-slides');
-        const indicators = shadowRoot.querySelectorAll('.sf-indicator');
+        const navArrows = shadowRoot.querySelectorAll('.sf-nav-arrow');
         const buttons = shadowRoot.querySelectorAll('.sf-button');
 
         // タブクリック
@@ -798,9 +817,9 @@
         const sliderElement = shadowRoot.querySelector('.sf-slider');
         if (sliderElement) {
             sliderElement.addEventListener('click', function(e) {
-                // 閉じるボタン、インジケーター以外のクリックでは何もしない
+                // 閉じるボタン、矢印ボタン以外のクリックでは何もしない
                 if (!e.target.closest('.sf-close') &&
-                    !e.target.closest('.sf-indicator') &&
+                    !e.target.closest('.sf-nav-arrow') &&
                     !e.target.closest('a')) {
                     e.stopPropagation();
                 }
@@ -839,11 +858,14 @@
         document.addEventListener('keydown', handleKeydown);
 
 
-        // インジケーター
-        indicators.forEach(indicator => {
-            indicator.addEventListener('click', () => {
-                const index = parseInt(indicator.dataset.index);
-                goToSlide(index);
+        // 矢印ナビゲーション
+        navArrows.forEach(arrow => {
+            arrow.addEventListener('click', () => {
+                if (arrow.classList.contains('sf-nav-prev')) {
+                    prevSlide();
+                } else if (arrow.classList.contains('sf-nav-next')) {
+                    nextSlide();
+                }
                 pauseSlider();
             });
         });
@@ -1111,7 +1133,6 @@
 
         currentSlideIndex = (currentSlideIndex + 1) % config.slider.items.length;
         updateSlidePosition();
-        updateIndicators();
         updateSlideStatus();
         trackEvent('slider_view', { index: currentSlideIndex });
     }
@@ -1122,7 +1143,6 @@
         currentSlideIndex = currentSlideIndex === 0 ?
             config.slider.items.length - 1 : currentSlideIndex - 1;
         updateSlidePosition();
-        updateIndicators();
         updateSlideStatus();
         trackEvent('slider_view', { index: currentSlideIndex });
     }
@@ -1132,7 +1152,6 @@
 
         currentSlideIndex = index;
         updateSlidePosition();
-        updateIndicators();
         updateSlideStatus();
         trackEvent('slider_view', { index: currentSlideIndex });
     }
@@ -1145,12 +1164,6 @@
         }
     }
 
-    function updateIndicators() {
-        const indicators = shadowRoot.querySelectorAll('.sf-indicator');
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === currentSlideIndex);
-        });
-    }
 
     function updateSlideStatus() {
         const statusElement = shadowRoot.querySelector('#sf-slide-status');
