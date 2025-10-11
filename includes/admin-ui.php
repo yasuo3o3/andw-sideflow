@@ -391,7 +391,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('最大幅制限', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="number" id="drawer-max-width" value="<?php echo esc_attr($drawer['maxWidthPx'] ?? 600); ?>" min="300" max="1000" step="50">
+                        <input type="number" id="drawer-max-width" value="<?php echo esc_attr($drawer['maxWidthPx'] ?? 600); ?>" min="300" max="1000">
                         <span class="description">px</span>
                         <p class="description"><?php esc_html_e('大画面での最大幅を制限します', 'andw-sideflow'); ?></p>
                     </td>
