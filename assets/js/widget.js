@@ -258,8 +258,8 @@
         }
 
         .sf-close:focus {
-            outline: 2px solid white;
-            outline-offset: 2px;
+            outline: none;
+            background: rgba(0, 0, 0, 0.7);
         }
 
         .sf-close svg {
