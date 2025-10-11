@@ -629,7 +629,7 @@ class ANDW_SideFlow_Admin_UI {
             wp_die(__('権限がありません。', 'andw-sideflow'));
         }
 
-        $query = sanitize_text_field($_POST['query'] ?? '');
+        $query = sanitize_text_field(wp_unslash($_POST['query'] ?? ''));
 
         $args = array(
             'post_type' => 'attachment',
