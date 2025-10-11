@@ -458,8 +458,6 @@
 
     // 初期化
     function init() {
-        console.log('andW SideFlow: init called');
-
         if (typeof andwSideFlowConfig === 'undefined') {
             console.warn('andW SideFlow: 設定が見つかりません');
             return;
@@ -735,8 +733,6 @@
 
     // イベントリスナー設定
     function setupEventListeners() {
-        console.log('Setting up event listeners');
-
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
         const closeBtn = shadowRoot.querySelector('.sf-close');
@@ -746,18 +742,8 @@
         const indicators = shadowRoot.querySelectorAll('.sf-indicator');
         const buttons = shadowRoot.querySelectorAll('.sf-button');
 
-        console.log('Event listener elements found:', {
-            wrap: !!wrap,
-            tab: !!tab,
-            closeBtn: !!closeBtn,
-            drawer: !!drawer
-        });
-
         // タブクリック
-        tab.addEventListener('click', function(e) {
-            console.log('Tab clicked!');
-            toggleDrawer();
-        });
+        tab.addEventListener('click', toggleDrawer);
 
         // 閉じるボタン
         closeBtn.addEventListener('click', closeDrawer);
@@ -800,7 +786,6 @@
             }
 
             if (!isInsideShadow) {
-                console.log('Closing drawer due to outside click');
                 closeDrawer();
             }
         });
@@ -890,24 +875,18 @@
 
     // ドロワー開閉
     function toggleDrawer() {
-        console.log('toggleDrawer called, isDrawerOpen:', isDrawerOpen);
         if (isDrawerOpen) {
-            console.log('Closing drawer');
             closeDrawer();
         } else {
-            console.log('Opening drawer');
             openDrawer();
         }
     }
 
     function openDrawer() {
-        console.log('openDrawer called');
         isDrawerOpen = true;
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
         const drawer = shadowRoot.querySelector('.sf-drawer');
-
-        console.log('Elements found:', { wrap: !!wrap, tab: !!tab, drawer: !!drawer });
 
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
@@ -930,8 +909,6 @@
         const tabConfig = config.tab || { anchor: 'center' };
         const targetTransform = tabConfig.anchor === 'center' ? 'translateY(-50%) translateX(0)' : 'translateX(0)';
 
-        console.log('Setting transform to:', targetTransform);
-
         // transition を一時的に無効化してから transform を設定
         wrap.style.transition = 'none';
         wrap.style.setProperty('transform', targetTransform, 'important');
@@ -941,16 +918,6 @@
 
         // transition を元に戻す
         wrap.style.transition = '';
-
-        console.log('Style set. inline style:', wrap.style.transform);
-
-        // 少し待ってから再チェック
-        setTimeout(() => {
-            console.log('After timeout - computed transform:', window.getComputedStyle(wrap).transform);
-        }, 100);
-
-        console.log('Added is-open class. Classes:', wrap.className);
-        console.log('Transform value after direct style:', window.getComputedStyle(wrap).transform);
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -964,8 +931,6 @@
     }
 
     function closeDrawer() {
-        console.log('closeDrawer called - why?');
-        console.trace(); // スタックトレースを表示
         isDrawerOpen = false;
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
