@@ -13,6 +13,7 @@
         initializeFormHandling();
         initializeCustomValidation();
         initializeAspectRatioControl();
+        initializeTabActionControl();
     });
 
     // タブ切り替え
@@ -303,7 +304,9 @@
             tab: {
                 anchor: $('input[name="tab-anchor"]:checked').val() || 'center',
                 offsetPx: parseInt($('#tab-offset').val()) || 24,
-                text: $('#tab-text').val() || '求人'
+                text: $('#tab-text').val() || '求人',
+                action: $('input[name="tab-action"]:checked').val() || 'drawer',
+                linkUrl: $('#tab-link-url-input').val() || ''
             },
             drawer: {
                 backdrop: $('#drawer-backdrop').is(':checked'),
@@ -512,6 +515,8 @@
             $('input[name="tab-anchor"][value="' + (config.tab.anchor || 'center') + '"]').prop('checked', true);
             $('#tab-offset').val(config.tab.offsetPx || 24);
             $('#tab-text').val(config.tab.text || '求人');
+            $('input[name="tab-action"][value="' + (config.tab.action || 'drawer') + '"]').prop('checked', true);
+            $('#tab-link-url-input').val(config.tab.linkUrl || '');
         }
 
         if (config.drawer) {
@@ -731,6 +736,23 @@
 
         // 選択変更時
         $('#slider-aspect-ratio').on('change', toggleCustomAspectRatio);
+    }
+
+    // タブアクション制御
+    function initializeTabActionControl() {
+        function toggleTabLinkUrl() {
+            const isLink = $('input[name="tab-action"]:checked').val() === 'link';
+            $('#tab-link-url-group').toggle(isLink);
+        }
+
+        // 初期表示
+        toggleTabLinkUrl();
+
+        // 選択変更時
+        $('input[name="tab-action"]').on('change', function() {
+            toggleTabLinkUrl();
+            updateConfig();
+        });
     }
 
 })(jQuery);

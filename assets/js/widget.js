@@ -665,10 +665,16 @@
         container.classList.add(`anchor-${tabConfig.anchor}`);
 
         // タブとドロワーを横並び配置
-        container.innerHTML = `
-            <button class="sf-tab" aria-expanded="false" aria-controls="sf-drawer">
+        const tabElement = tabConfig.action === 'link' && tabConfig.linkUrl ?
+            `<a href="${escapeHtml(tabConfig.linkUrl)}" class="sf-tab" target="_blank" rel="noopener">
                 ${escapeHtml(tabConfig.text || '求人')}
-            </button>
+            </a>` :
+            `<button class="sf-tab" aria-expanded="false" aria-controls="sf-drawer">
+                ${escapeHtml(tabConfig.text || '求人')}
+            </button>`;
+
+        container.innerHTML = `
+            ${tabElement}
             <div class="andw-sideflow-bubble" style="display: none;">
                 タップして求人をチェック！
             </div>
@@ -806,7 +812,12 @@
         const buttons = shadowRoot.querySelectorAll('.sf-button');
 
         // タブクリック
-        tab.addEventListener('click', toggleDrawer);
+        if (tabConfig.action === 'link' && tabConfig.linkUrl) {
+            // リンクモードの場合はイベントリスナー不要（ネイティブリンク動作）
+        } else {
+            // ドロワーモードの場合
+            tab.addEventListener('click', toggleDrawer);
+        }
 
         // 閉じるボタン
         closeBtn.addEventListener('click', closeDrawer);

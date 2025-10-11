@@ -382,6 +382,23 @@ class ANDW_SideFlow_Admin_UI {
                     </td>
                 </tr>
                 <tr>
+                    <th scope="row"><?php esc_html_e('タブ動作', 'andw-sideflow'); ?></th>
+                    <td>
+                        <label>
+                            <input type="radio" name="tab-action" value="drawer" <?php checked($tab['action'] ?? 'drawer', 'drawer'); ?>>
+                            <?php esc_html_e('ドロワーを開く', 'andw-sideflow'); ?>
+                        </label><br>
+                        <label>
+                            <input type="radio" name="tab-action" value="link" <?php checked($tab['action'] ?? 'drawer', 'link'); ?>>
+                            <?php esc_html_e('リンク先に移動する', 'andw-sideflow'); ?>
+                        </label>
+                        <div id="tab-link-url" style="display: <?php echo ($tab['action'] ?? 'drawer') === 'link' ? 'block' : 'none'; ?>; margin-top: 8px;">
+                            <input type="url" id="tab-link-url-input" value="<?php echo esc_attr($tab['linkUrl'] ?? ''); ?>" placeholder="https://example.com/jobs/" style="width: 100%; max-width: 400px;">
+                            <span class="description">リンク先URL</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row"><?php esc_html_e('基準位置', 'andw-sideflow'); ?></th>
                     <td>
                         <label>

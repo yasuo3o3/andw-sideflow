@@ -465,7 +465,9 @@ class ANDW_SideFlow {
             'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24)),
             'widthPx' => max(30, min(80, intval($tab['widthPx'] ?? 50))),
             'heightMode' => in_array($tab['heightMode'] ?? 'matchDrawer', array('fixed', 'matchDrawer')) ? $tab['heightMode'] ?? 'matchDrawer' : 'matchDrawer',
-            'text' => sanitize_text_field($tab['text'] ?? '求人')
+            'text' => sanitize_text_field($tab['text'] ?? '求人'),
+            'action' => in_array($tab['action'] ?? 'drawer', array('drawer', 'link')) ? $tab['action'] ?? 'drawer' : 'drawer',
+            'linkUrl' => esc_url_raw($tab['linkUrl'] ?? '')
         );
 
         // ドロワー設定
@@ -727,7 +729,9 @@ class ANDW_SideFlow {
                 'offsetPx' => 24,
                 'widthPx' => 50,
                 'heightMode' => 'matchDrawer',
-                'text' => '求人'
+                'text' => '求人',
+                'action' => 'drawer',
+                'linkUrl' => ''
             ),
             'drawer' => array(
                 'backdrop' => false,
