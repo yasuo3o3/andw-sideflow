@@ -608,13 +608,13 @@
                     <h2 id="sf-title" class="andw-sideflow-sr-only">求人情報</h2>
                     <div class="sf-slider auto-mode" aria-roledescription="carousel" aria-label="求人スライドショー">
                         ${sliderHTML}
-                        <button class="sf-close" aria-label="閉じる">
+                        <button class="sf-close" aria-label="閉じる" tabindex="-1">
                             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M12.854 4.854a.5.5 0 0 0-.708-.708L8 8.293 3.854 4.146a.5.5 0 1 0-.708.708L7.293 9l-4.147 4.146a.5.5 0 0 0 .708.708L8 9.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 9l4.147-4.146z"/>
                             </svg>
                         </button>
                         <div class="sf-controls">
-                            <button class="sf-play-pause" aria-label="再生/停止">
+                            <button class="sf-play-pause" aria-label="再生/停止" tabindex="-1">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="play-icon">
                                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                     <path d="M6.271 5.055a.5.5 0 0 1 .52.033L11 7.055a.5.5 0 0 1 0 .89L6.791 9.912a.5.5 0 0 1-.791-.39V5.478a.5.5 0 0 1 .271-.423z"/>
@@ -716,7 +716,7 @@
                 classes.push('line-branding');
             }
 
-            return `<a href="${escapeHtml(button.href)}" class="${classes.join(' ')}" data-tracking-id="${escapeHtml(button.trackingId)}" data-button-id="${escapeHtml(button.id)}">${escapeHtml(button.text)}</a>`;
+            return `<a href="${escapeHtml(button.href)}" class="${classes.join(' ')}" data-tracking-id="${escapeHtml(button.trackingId)}" data-button-id="${escapeHtml(button.id)}" tabindex="-1">${escapeHtml(button.text)}</a>`;
         }).join('');
     }
 
@@ -854,6 +854,7 @@
 
     // ドロワー開閉
     function toggleDrawer() {
+        console.log('toggleDrawer called, isDrawerOpen:', isDrawerOpen);
         if (isDrawerOpen) {
             closeDrawer();
         } else {
@@ -862,16 +863,28 @@
     }
 
     function openDrawer() {
+        console.log('openDrawer called');
         isDrawerOpen = true;
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
         const drawer = shadowRoot.querySelector('.sf-drawer');
 
+        console.log('Elements found:', { wrap: !!wrap, tab: !!tab, drawer: !!drawer });
+
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
 
+        // フォーカス可能な要素を有効化
+        const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex="-1"]');
+        focusableElements.forEach(element => {
+            if (element.getAttribute('tabindex') === '-1') {
+                element.removeAttribute('tabindex');
+            }
+        });
+
         // wrapにis-openクラスを追加してtransformで開く
         wrap.classList.add('is-open');
+        console.log('Added is-open class, wrap classes:', wrap.className);
 
         // フォーカストラップ設定
         setupFocusTrap();
@@ -892,6 +905,12 @@
 
         tab.setAttribute('aria-expanded', 'false');
         drawer.setAttribute('aria-hidden', 'true');
+
+        // フォーカス可能な要素を無効化
+        const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea');
+        focusableElements.forEach(element => {
+            element.setAttribute('tabindex', '-1');
+        });
 
         // wrapからis-openクラスを削除してtransformで閉じる
         wrap.classList.remove('is-open');
