@@ -361,8 +361,10 @@
         }
 
         .sf-nav-arrow:focus {
+        /*
             outline: 2px solid white;
             outline-offset: 2px;
+            */
         }
 
 
