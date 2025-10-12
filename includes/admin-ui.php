@@ -495,10 +495,13 @@ class ANDW_SideFlow_Admin_UI {
     private function render_button_item($button, $index) {
         ?>
         <div class="button-item" data-index="<?php echo esc_attr($index); ?>">
-            <h4><?php
-                /* translators: %d: button number */
-                echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), absint($index) + 1);
-            ?></h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0;"><?php
+                    /* translators: %d: button number */
+                    echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), absint($index) + 1);
+                ?></h4>
+                <button type="button" class="button-link-delete remove-button" style="color: #d63638; text-decoration: none; font-size: 13px;"><?php esc_html_e('削除', 'andw-sideflow'); ?></button>
+            </div>
             <table class="form-table">
                 <tr>
                     <th scope="row"><?php esc_html_e('表示', 'andw-sideflow'); ?></th>
@@ -604,7 +607,6 @@ class ANDW_SideFlow_Admin_UI {
                     </td>
                 </tr>
             </table>
-            <button type="button" class="button-link-delete remove-button"><?php esc_html_e('このボタンを削除', 'andw-sideflow'); ?></button>
         </div>
         <?php
     }
