@@ -545,7 +545,7 @@ class ANDW_SideFlow_Admin_UI {
                     </td>
                 </tr>
                 <!-- LINEスタイル選択（LINEバリアント時のみ表示） -->
-                <tr class="line-style-row" style="display: none;">
+                <tr class="line-style-row" style="display: <?php echo ($button['variant'] ?? 'solid') === 'line' ? 'table-row' : 'none'; ?>;">
                     <th scope="row"><?php esc_html_e('LINEスタイル', 'andw-sideflow'); ?></th>
                     <td>
                         <select class="button-line-style">
@@ -556,7 +556,7 @@ class ANDW_SideFlow_Admin_UI {
                 </tr>
 
                 <!-- 単色カラーピッカー -->
-                <tr class="solid-colors-row" style="display: none;">
+                <tr class="solid-colors-row" style="display: <?php echo ($button['variant'] ?? 'solid') === 'solid' ? 'table-row' : 'none'; ?>;">
                     <th scope="row"><?php esc_html_e('色設定', 'andw-sideflow'); ?></th>
                     <td>
                         <p>
@@ -571,7 +571,7 @@ class ANDW_SideFlow_Admin_UI {
                 </tr>
 
                 <!-- グラデーションカラーピッカー -->
-                <tr class="gradient-colors-row" style="display: none;">
+                <tr class="gradient-colors-row" style="display: <?php echo ($button['variant'] ?? 'solid') === 'gradient' ? 'table-row' : 'none'; ?>;">
                     <th scope="row"><?php esc_html_e('色設定', 'andw-sideflow'); ?></th>
                     <td>
                         <p>
@@ -590,7 +590,7 @@ class ANDW_SideFlow_Admin_UI {
                 </tr>
 
                 <!-- 枠線カラーピッカー -->
-                <tr class="outline-colors-row" style="display: none;">
+                <tr class="outline-colors-row" style="display: <?php echo ($button['variant'] ?? 'solid') === 'outline' ? 'table-row' : 'none'; ?>;">
                     <th scope="row"><?php esc_html_e('色設定', 'andw-sideflow'); ?></th>
                     <td>
                         <p>
