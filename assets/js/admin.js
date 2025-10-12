@@ -7,6 +7,7 @@
     $(document).ready(function() {
         initializeTabs();
         initializeColorPickers();
+        initializeButtonVariantControl();
         initializeSortables();
         initializeMediaSelection();
         initializePreview();
@@ -54,11 +55,69 @@
 
     // カラーピッカー初期化
     function initializeColorPickers() {
+        // 従来のカラーピッカー
         $('.color-picker').wpColorPicker({
             change: function() {
                 updateConfig();
             }
         });
+
+        // ボタン用カラーピッカー
+        $('.button-color-background, .button-color-text, .button-color-gradient-start, .button-color-gradient-end, .button-color-border').wpColorPicker({
+            change: function() {
+                updateConfig();
+            }
+        });
+    }
+
+    // ボタンバリアント制御
+    function initializeButtonVariantControl() {
+        // 初期状態の設定
+        $('.button-variant').each(function() {
+            const buttonContainer = $(this).closest('.button-item');
+            updateVariantDisplay(buttonContainer, $(this).val());
+        });
+
+        // バリアント変更時のイベントリスナー
+        $(document).on('change', '.button-variant', function() {
+            const buttonContainer = $(this).closest('.button-item');
+            updateVariantDisplay(buttonContainer, $(this).val());
+        });
+    }
+
+    // バリアント別表示制御
+    function updateVariantDisplay(container, variant) {
+        const lineStyleRow = container.find('.line-style-row');
+        const solidColorsRow = container.find('.solid-colors-row');
+        const gradientColorsRow = container.find('.gradient-colors-row');
+        const outlineColorsRow = container.find('.outline-colors-row');
+
+        // 全て非表示に
+        [lineStyleRow, solidColorsRow, gradientColorsRow, outlineColorsRow].forEach(function(row) {
+            if (row.length) row.hide();
+        });
+
+        // バリアント別の表示制御
+        switch (variant) {
+            case 'line':
+                if (lineStyleRow.length) lineStyleRow.show();
+                break;
+            case 'solid':
+                if (solidColorsRow.length) solidColorsRow.show();
+                // カラーピッカーを再初期化
+                container.find('.button-color-background, .button-color-text').wpColorPicker();
+                break;
+            case 'gradient':
+                if (gradientColorsRow.length) gradientColorsRow.show();
+                // カラーピッカーを再初期化
+                container.find('.button-color-gradient-start, .button-color-gradient-end, .button-color-text').wpColorPicker();
+                break;
+            case 'outline':
+                if (outlineColorsRow.length) outlineColorsRow.show();
+                // カラーピッカーを再初期化
+                container.find('.button-color-border, .button-color-text').wpColorPicker();
+                break;
+        }
     }
 
     // 並び替え初期化
@@ -257,9 +316,10 @@
                         <th scope="row">スタイル</th>
                         <td>
                             <select class="button-variant">
-                                <option value="default">デフォルト</option>
-                                <option value="accent">アクセント</option>
-                                <option value="line">ライン</option>
+                                <option value="solid">単色</option>
+                                <option value="gradient">グラデーション</option>
+                                <option value="outline">枠線</option>
+                                <option value="line">LINE</option>
                             </select>
                         </td>
                     </tr>
@@ -391,18 +451,43 @@
             const text = $(this).find('.button-text').val() || '';
             const href = $(this).find('.button-href').val() || '';
             const trackingId = $(this).find('.button-tracking-id').val() || '';
-            const variant = $(this).find('.button-variant').val() || 'default';
-            const lineBranding = $(this).find('.button-line-branding').is(':checked');
+            const variant = $(this).find('.button-variant').val() || 'solid';
 
-            buttons.push({
+            const button = {
                 id: id,
                 text: text,
                 href: href,
                 trackingId: trackingId,
                 variant: variant,
-                lineBranding: lineBranding,
                 visible: visible
-            });
+            };
+
+            // カラー設定を収集
+            if (variant !== 'line') {
+                button.colors = {};
+                switch (variant) {
+                    case 'solid':
+                        button.colors.background = $(this).find('.button-color-background').val() || '#f0f0f1';
+                        button.colors.text = $(this).find('.button-color-text').val() || '#2c3338';
+                        break;
+                    case 'gradient':
+                        button.colors.gradientStart = $(this).find('.button-color-gradient-start').val() || '#0073aa';
+                        button.colors.gradientEnd = $(this).find('.button-color-gradient-end').val() || '#005a87';
+                        button.colors.text = $(this).find('.button-color-text').val() || '#ffffff';
+                        break;
+                    case 'outline':
+                        button.colors.border = $(this).find('.button-color-border').val() || '#0073aa';
+                        button.colors.text = $(this).find('.button-color-text').val() || '#0073aa';
+                        break;
+                }
+            }
+
+            // LINEスタイル設定
+            if (variant === 'line') {
+                button.lineStyle = $(this).find('.button-line-style').val() || 'solid';
+            }
+
+            buttons.push(button);
         });
 
         return buttons;
@@ -624,9 +709,10 @@
                         <th scope="row">スタイル</th>
                         <td>
                             <select class="button-variant">
-                                <option value="default" ${button.variant === 'default' ? 'selected' : ''}>デフォルト</option>
-                                <option value="accent" ${button.variant === 'accent' ? 'selected' : ''}>アクセント</option>
-                                <option value="line" ${button.variant === 'line' ? 'selected' : ''}>ライン</option>
+                                <option value="solid" ${button.variant === 'solid' ? 'selected' : ''}>単色</option>
+                                <option value="gradient" ${button.variant === 'gradient' ? 'selected' : ''}>グラデーション</option>
+                                <option value="outline" ${button.variant === 'outline' ? 'selected' : ''}>枠線</option>
+                                <option value="line" ${button.variant === 'line' ? 'selected' : ''}>LINE</option>
                             </select>
                         </td>
                     </tr>
