@@ -166,7 +166,7 @@ class ANDW_SideFlow {
 
 
         // 保存完了メッセージのカスタマイズ
-        $settings_updated = isset($_GET['settings-updated']) ? sanitize_text_field($_GET['settings-updated']) : '';
+        $settings_updated = isset($_GET['settings-updated']) ? sanitize_text_field(wp_unslash($_GET['settings-updated'])) : '';
         if ($settings_updated === 'true') {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('andW SideFlow設定を保存しました。', 'andw-sideflow') . '</p></div>';
         }
@@ -184,7 +184,7 @@ class ANDW_SideFlow {
         }
 
         // 新しいUIモードかチェック
-        $ui_mode = isset($_GET['ui']) ? sanitize_text_field($_GET['ui']) : '';
+        $ui_mode = isset($_GET['ui']) ? sanitize_text_field(wp_unslash($_GET['ui'])) : '';
         $use_new_ui = $ui_mode === 'new';
 
         if ($use_new_ui) {
