@@ -377,7 +377,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('タブテキスト', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="text" id="tab-text" value="<?php echo esc_attr($tab['text'] ?? '求人'); ?>" maxlength="10">
+                        <input type="text" id="tab-text" name="tab_text" value="<?php echo esc_attr($tab['text'] ?? '求人'); ?>" maxlength="10">
                         <span class="description">タブに表示するテキスト（10文字以内推奨）</span>
                     </td>
                 </tr>
@@ -414,7 +414,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('オフセット', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="number" id="tab-offset" value="<?php echo esc_attr($tab['offsetPx'] ?? 24); ?>" min="0" max="200">
+                        <input type="number" id="tab-offset" name="tab_offset" value="<?php echo esc_attr($tab['offsetPx'] ?? 24); ?>" min="0" max="200">
                         <span class="description">px（中央: 下方向、下端: 上方向）</span>
                     </td>
                 </tr>
@@ -425,7 +425,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('ドロワー幅', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="number" id="drawer-width-percent" value="<?php echo esc_attr(($drawer['widthPercent'] ?? 0.76) * 100); ?>" min="40" max="95" step="5">
+                        <input type="number" id="drawer-width-percent" name="drawer_width_percent" value="<?php echo esc_attr(($drawer['widthPercent'] ?? 0.76) * 100); ?>" min="40" max="95" step="5">
                         <span class="description">%（画面幅の割合）</span>
                         <p class="description"><?php esc_html_e('PCで大きすぎる場合は小さめの値に調整してください', 'andw-sideflow'); ?></p>
                     </td>
@@ -433,7 +433,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('最大幅制限', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="number" id="drawer-max-width" value="<?php echo esc_attr($drawer['maxWidthPx'] ?? 600); ?>" min="300" max="1000">
+                        <input type="number" id="drawer-max-width" name="drawer_max_width" value="<?php echo esc_attr($drawer['maxWidthPx'] ?? 600); ?>" min="300" max="1000">
                         <span class="description">px</span>
                         <p class="description"><?php esc_html_e('大画面での最大幅を制限します', 'andw-sideflow'); ?></p>
                     </td>
