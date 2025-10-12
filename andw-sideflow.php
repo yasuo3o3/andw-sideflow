@@ -167,9 +167,12 @@ class ANDW_SideFlow {
 
         // 保存完了メッセージのカスタマイズ（権限と nonce を確認）
         if (current_user_can('manage_options')) {
-            $settings_updated = isset($_GET['settings-updated']) ? sanitize_text_field(wp_unslash($_GET['settings-updated'])) : '';
-            if ($settings_updated === 'true') {
-                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('andW SideFlow設定を保存しました。', 'andw-sideflow') . '</p></div>';
+            $nonce_valid = isset($_GET['andw_sideflow_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['andw_sideflow_nonce'])), 'andw_sideflow_action');
+            if ($nonce_valid) {
+                $settings_updated = isset($_GET['settings-updated']) ? sanitize_text_field(wp_unslash($_GET['settings-updated'])) : '';
+                if ($settings_updated === 'true') {
+                    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('andW SideFlow設定を保存しました。', 'andw-sideflow') . '</p></div>';
+                }
             }
         }
 
@@ -188,8 +191,11 @@ class ANDW_SideFlow {
         // 新しいUIモードかチェック（権限確認）
         $use_new_ui = false;
         if (current_user_can('manage_options')) {
-            $ui_mode = isset($_GET['ui']) ? sanitize_text_field(wp_unslash($_GET['ui'])) : '';
-            $use_new_ui = $ui_mode === 'new';
+            $nonce_valid = isset($_GET['andw_sideflow_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['andw_sideflow_nonce'])), 'andw_sideflow_action');
+            if ($nonce_valid) {
+                $ui_mode = isset($_GET['ui']) ? sanitize_text_field(wp_unslash($_GET['ui'])) : '';
+                $use_new_ui = $ui_mode === 'new';
+            }
         }
 
         if ($use_new_ui) {
@@ -207,7 +213,7 @@ class ANDW_SideFlow {
             <div style="margin: 15px 0; padding: 10px; background: #e7f3ff; border-left: 4px solid #007cba;">
                 <p><strong><?php esc_html_e('新しい管理画面が利用可能です！', 'andw-sideflow'); ?></strong></p>
                 <p>
-                    <a href="<?php echo esc_url(add_query_arg('ui', 'new')); ?>" class="button button-primary">
+                    <a href="<?php echo esc_url(add_query_arg(array('ui' => 'new', 'andw_sideflow_nonce' => wp_create_nonce('andw_sideflow_action')))); ?>" class="button button-primary">
                         <?php esc_html_e('新しい管理画面を試す', 'andw-sideflow'); ?>
                     </a>
                 </p>
@@ -216,6 +222,7 @@ class ANDW_SideFlow {
             <form action="options.php" method="post">
                 <?php
                 settings_fields('andw_sideflow_settings');
+                wp_nonce_field('andw_sideflow_action', 'andw_sideflow_nonce');
                 do_settings_sections('andw_sideflow_settings');
                 submit_button(__('設定を保存', 'andw-sideflow'));
                 ?>
