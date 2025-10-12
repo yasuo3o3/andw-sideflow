@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 5. WordPressカラーピッカー初期化
     initColorPickers();
+
+    // 6. タブ機能初期化
+    initTabNavigation();
 });
 
 /**
@@ -216,5 +219,55 @@ function initColorPickers() {
                 }
             });
         });
+    });
+}
+
+/**
+ * タブナビゲーション機能の初期化
+ */
+function initTabNavigation() {
+    // jQueryが利用可能かチェック
+    if (typeof jQuery === 'undefined') {
+        console.warn('タブ機能にはjQueryが必要です');
+        return;
+    }
+
+    jQuery(document).ready(function($) {
+        // 初期タブの表示
+        let initialTab = $('.nav-tab-active').attr('href');
+        if (!initialTab) {
+            initialTab = localStorage.getItem('andw-sideflow-active-tab');
+        }
+
+        // 有効なタブかチェック
+        if (initialTab && $('.nav-tab[href="' + initialTab + '"]').length > 0) {
+            showTab(initialTab);
+        } else {
+            // デフォルトで最初のタブを表示
+            const firstTab = $('.nav-tab').first().attr('href');
+            if (firstTab) {
+                showTab(firstTab);
+            }
+        }
+
+        // タブクリックイベント
+        $('.nav-tab').on('click', function(e) {
+            e.preventDefault();
+            const target = $(this).attr('href');
+
+            // タブ状態を保存
+            localStorage.setItem('andw-sideflow-active-tab', target);
+            showTab(target);
+        });
+
+        /**
+         * タブ表示関数
+         */
+        function showTab(target) {
+            $('.nav-tab').removeClass('nav-tab-active');
+            $('.nav-tab[href="' + target + '"]').addClass('nav-tab-active');
+            $('.tab-content').hide();
+            $(target).show();
+        }
     });
 }
