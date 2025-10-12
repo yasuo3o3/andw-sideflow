@@ -914,10 +914,20 @@ class ANDW_SideFlow {
             true
         );
 
+        // 現在の設定を取得
+        $current_config = get_option('andw_sideflow_config', $this->get_default_config());
+
         wp_localize_script('andw-sideflow-admin', 'andwSideFlowAdmin', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'clean_nonce' => wp_create_nonce('andw_sideflow_clean'),
-            'update_nonce' => wp_create_nonce('andw_sideflow_update')
+            'update_nonce' => wp_create_nonce('andw_sideflow_update'),
+            'currentConfig' => $current_config,
+            'strings' => array(
+                'selectMedia' => __('画像を選択', 'andw-sideflow'),
+                'selectFiles' => __('ファイルを選択', 'andw-sideflow'),
+                'useThis' => __('この画像を使用', 'andw-sideflow'),
+                'noImage' => __('画像なし', 'andw-sideflow')
+            )
         ));
     }
 

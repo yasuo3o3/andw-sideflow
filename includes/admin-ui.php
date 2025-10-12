@@ -34,49 +34,11 @@ class ANDW_SideFlow_Admin_UI {
     }
 
     /**
-     * 管理画面スクリプト読み込み
+     * 管理画面スクリプト読み込み（メインプラグインで処理するため無効化）
      */
     public function enqueue_admin_scripts($hook) {
-        if ($hook !== 'settings_page_andw-sideflow') {
-            return;
-        }
-
-        wp_enqueue_media();
-        wp_enqueue_script('wp-color-picker');
-        wp_enqueue_style('wp-color-picker');
-
-        wp_enqueue_script(
-            'andw-sideflow-admin',
-            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin.js',
-            array('jquery', 'wp-media-utils', 'wp-color-picker'),
-            ANDW_SIDEFLOW_VERSION,
-            true
-        );
-
-        wp_enqueue_style(
-            'andw-sideflow-admin',
-            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/css/admin.css',
-            array('wp-color-picker'),
-            ANDW_SIDEFLOW_VERSION
-        );
-
-        $main_instance = ANDW_SideFlow::get_instance();
-        $current_config = get_option('andw_sideflow_config', $main_instance->get_default_config());
-
-        wp_localize_script('andw-sideflow-admin', 'andwSideFlowAdmin', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('andw_sideflow_admin'),
-            'previewUrl' => rest_url('andw-sideflow/v1/preview'),
-            'currentConfig' => $current_config,
-            'strings' => array(
-                'selectMedia' => __('画像を選択', 'andw-sideflow'),
-                'selectFiles' => __('ファイルを選択', 'andw-sideflow'),
-                'useThis' => __('この画像を使用', 'andw-sideflow'),
-                'previewApplied' => __('プレビューを適用しました', 'andw-sideflow'),
-                'previewError' => __('プレビューの適用に失敗しました', 'andw-sideflow'),
-                'noImage' => __('画像なし', 'andw-sideflow')
-            )
-        ));
+        // スクリプト読み込みはメインプラグインファイル（andw-sideflow.php）で統一管理
+        return;
     }
 
     /**
