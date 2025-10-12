@@ -605,12 +605,12 @@ class ANDW_SideFlow {
         // nonce確認
         $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'andw_sideflow_clean')) {
-            wp_die('セキュリティチェックに失敗しました。');
+            wp_die(esc_html__('セキュリティチェックに失敗しました。', 'andw-sideflow'));
         }
 
         // 権限確認
         if (!current_user_can('manage_options')) {
-            wp_die('権限がありません。');
+            wp_die(esc_html__('権限がありません。', 'andw-sideflow'));
         }
 
         try {
@@ -654,12 +654,12 @@ class ANDW_SideFlow {
         // nonce確認
         $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'andw_sideflow_update')) {
-            wp_die('セキュリティチェックに失敗しました。');
+            wp_die(esc_html__('セキュリティチェックに失敗しました。', 'andw-sideflow'));
         }
 
         // 権限確認
         if (!current_user_can('manage_options')) {
-            wp_die('権限がありません。');
+            wp_die(esc_html__('権限がありません。', 'andw-sideflow'));
         }
 
         try {
