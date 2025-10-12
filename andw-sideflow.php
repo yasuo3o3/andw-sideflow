@@ -906,12 +906,30 @@ class ANDW_SideFlow {
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
 
+        // メインの管理画面機能（設定保存、タブ切り替えなど）
         wp_enqueue_script(
             'andw-sideflow-admin',
-            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin-scripts.js',
-            array('jquery', 'wp-color-picker'),
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin.js',
+            array('jquery', 'wp-media-utils', 'wp-color-picker'),
             ANDW_SIDEFLOW_VERSION,
             true
+        );
+
+        // 新しいカラーピッカー機能
+        wp_enqueue_script(
+            'andw-sideflow-admin-extra',
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin-scripts.js',
+            array('jquery', 'wp-color-picker', 'andw-sideflow-admin'),
+            ANDW_SIDEFLOW_VERSION,
+            true
+        );
+
+        // 管理画面CSS
+        wp_enqueue_style(
+            'andw-sideflow-admin',
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/css/admin.css',
+            array('wp-color-picker'),
+            ANDW_SIDEFLOW_VERSION
         );
 
         // 現在の設定を取得
