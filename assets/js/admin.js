@@ -349,13 +349,63 @@
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row">LINEブランディング</th>
+                    <!-- LINEスタイル選択（LINEバリアント時のみ表示） -->
+                    <tr class="line-style-row" style="display: none;">
+                        <th scope="row">LINEスタイル</th>
                         <td>
-                            <label>
-                                <input type="checkbox" class="button-line-branding">
-                                LINEカラーを使用（lineスタイル時のみ）
-                            </label>
+                            <select class="button-line-style">
+                                <option value="solid">単色</option>
+                                <option value="outline">枠線</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- 単色カラーピッカー -->
+                    <tr class="solid-colors-row" style="display: table-row;">
+                        <th scope="row">色設定</th>
+                        <td>
+                            <p>
+                                <label>背景色:</label>
+                                <input type="text" class="button-color-background" value="#f0f0f1" />
+                            </p>
+                            <p>
+                                <label>文字色:</label>
+                                <input type="text" class="button-color-text" value="#2c3338" />
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- グラデーションカラーピッカー -->
+                    <tr class="gradient-colors-row" style="display: none;">
+                        <th scope="row">色設定</th>
+                        <td>
+                            <p>
+                                <label>グラデーション開始色:</label>
+                                <input type="text" class="button-color-gradient-start" value="#0073aa" />
+                            </p>
+                            <p>
+                                <label>グラデーション終了色:</label>
+                                <input type="text" class="button-color-gradient-end" value="#005a87" />
+                            </p>
+                            <p>
+                                <label>文字色:</label>
+                                <input type="text" class="button-color-text" value="#ffffff" />
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- 枠線カラーピッカー -->
+                    <tr class="outline-colors-row" style="display: none;">
+                        <th scope="row">色設定</th>
+                        <td>
+                            <p>
+                                <label>枠線色:</label>
+                                <input type="text" class="button-color-border" value="#0073aa" />
+                            </p>
+                            <p>
+                                <label>文字色:</label>
+                                <input type="text" class="button-color-text" value="#0073aa" />
+                            </p>
                         </td>
                     </tr>
                 </table>
@@ -742,13 +792,63 @@
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row">LINEブランディング</th>
+                    <!-- LINEスタイル選択（LINEバリアント時のみ表示） -->
+                    <tr class="line-style-row" style="display: ${button.variant === 'line' ? 'table-row' : 'none'};">
+                        <th scope="row">LINEスタイル</th>
                         <td>
-                            <label>
-                                <input type="checkbox" class="button-line-branding" ${button.lineBranding ? 'checked' : ''}>
-                                LINEカラーを使用（lineスタイル時のみ）
-                            </label>
+                            <select class="button-line-style">
+                                <option value="solid" ${button.lineStyle === 'solid' ? 'selected' : ''}>単色</option>
+                                <option value="outline" ${button.lineStyle === 'outline' ? 'selected' : ''}>枠線</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- 単色カラーピッカー -->
+                    <tr class="solid-colors-row" style="display: ${button.variant === 'solid' ? 'table-row' : 'none'};">
+                        <th scope="row">色設定</th>
+                        <td>
+                            <p>
+                                <label>背景色:</label>
+                                <input type="text" class="button-color-background" value="${button.colors?.background || '#f0f0f1'}" />
+                            </p>
+                            <p>
+                                <label>文字色:</label>
+                                <input type="text" class="button-color-text" value="${button.colors?.text || '#2c3338'}" />
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- グラデーションカラーピッカー -->
+                    <tr class="gradient-colors-row" style="display: ${button.variant === 'gradient' ? 'table-row' : 'none'};">
+                        <th scope="row">色設定</th>
+                        <td>
+                            <p>
+                                <label>グラデーション開始色:</label>
+                                <input type="text" class="button-color-gradient-start" value="${button.colors?.gradientStart || '#0073aa'}" />
+                            </p>
+                            <p>
+                                <label>グラデーション終了色:</label>
+                                <input type="text" class="button-color-gradient-end" value="${button.colors?.gradientEnd || '#005a87'}" />
+                            </p>
+                            <p>
+                                <label>文字色:</label>
+                                <input type="text" class="button-color-text" value="${button.colors?.text || '#ffffff'}" />
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- 枠線カラーピッカー -->
+                    <tr class="outline-colors-row" style="display: ${button.variant === 'outline' ? 'table-row' : 'none'};">
+                        <th scope="row">色設定</th>
+                        <td>
+                            <p>
+                                <label>枠線色:</label>
+                                <input type="text" class="button-color-border" value="${button.colors?.border || '#0073aa'}" />
+                            </p>
+                            <p>
+                                <label>文字色:</label>
+                                <input type="text" class="button-color-text" value="${button.colors?.text || '#0073aa'}" />
+                            </p>
                         </td>
                     </tr>
                 </table>
