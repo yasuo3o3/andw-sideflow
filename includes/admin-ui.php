@@ -537,19 +537,70 @@ class ANDW_SideFlow_Admin_UI {
                     <th scope="row"><?php esc_html_e('スタイル', 'andw-sideflow'); ?></th>
                     <td>
                         <select class="button-variant">
-                            <option value="default" <?php selected($button['variant'] ?? 'default', 'default'); ?>><?php esc_html_e('デフォルト', 'andw-sideflow'); ?></option>
-                            <option value="accent" <?php selected($button['variant'] ?? 'default', 'accent'); ?>><?php esc_html_e('アクセント', 'andw-sideflow'); ?></option>
-                            <option value="line" <?php selected($button['variant'] ?? 'default', 'line'); ?>><?php esc_html_e('ライン', 'andw-sideflow'); ?></option>
+                            <option value="solid" <?php selected($button['variant'] ?? 'solid', 'solid'); ?>><?php esc_html_e('単色', 'andw-sideflow'); ?></option>
+                            <option value="gradient" <?php selected($button['variant'] ?? 'solid', 'gradient'); ?>><?php esc_html_e('グラデーション', 'andw-sideflow'); ?></option>
+                            <option value="outline" <?php selected($button['variant'] ?? 'solid', 'outline'); ?>><?php esc_html_e('枠線', 'andw-sideflow'); ?></option>
+                            <option value="line" <?php selected($button['variant'] ?? 'solid', 'line'); ?>><?php esc_html_e('LINE', 'andw-sideflow'); ?></option>
                         </select>
                     </td>
                 </tr>
-                <tr>
-                    <th scope="row"><?php esc_html_e('LINEブランディング', 'andw-sideflow'); ?></th>
+                <!-- LINEスタイル選択（LINEバリアント時のみ表示） -->
+                <tr class="line-style-row" style="display: none;">
+                    <th scope="row"><?php esc_html_e('LINEスタイル', 'andw-sideflow'); ?></th>
                     <td>
-                        <label>
-                            <input type="checkbox" class="button-line-branding" <?php checked($button['lineBranding'] ?? false); ?>>
-                            <?php esc_html_e('LINEカラーを使用（lineスタイル時のみ）', 'andw-sideflow'); ?>
-                        </label>
+                        <select class="button-line-style">
+                            <option value="solid" <?php selected($button['lineStyle'] ?? 'solid', 'solid'); ?>><?php esc_html_e('単色', 'andw-sideflow'); ?></option>
+                            <option value="outline" <?php selected($button['lineStyle'] ?? 'solid', 'outline'); ?>><?php esc_html_e('枠線', 'andw-sideflow'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+
+                <!-- 単色カラーピッカー -->
+                <tr class="solid-colors-row" style="display: none;">
+                    <th scope="row"><?php esc_html_e('色設定', 'andw-sideflow'); ?></th>
+                    <td>
+                        <p>
+                            <label><?php esc_html_e('背景色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-background" value="<?php echo esc_attr($button['colors']['background'] ?? '#f0f0f1'); ?>" />
+                        </p>
+                        <p>
+                            <label><?php esc_html_e('文字色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-text" value="<?php echo esc_attr($button['colors']['text'] ?? '#2c3338'); ?>" />
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- グラデーションカラーピッカー -->
+                <tr class="gradient-colors-row" style="display: none;">
+                    <th scope="row"><?php esc_html_e('色設定', 'andw-sideflow'); ?></th>
+                    <td>
+                        <p>
+                            <label><?php esc_html_e('グラデーション開始色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-gradient-start" value="<?php echo esc_attr($button['colors']['gradientStart'] ?? '#0073aa'); ?>" />
+                        </p>
+                        <p>
+                            <label><?php esc_html_e('グラデーション終了色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-gradient-end" value="<?php echo esc_attr($button['colors']['gradientEnd'] ?? '#005a87'); ?>" />
+                        </p>
+                        <p>
+                            <label><?php esc_html_e('文字色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-text" value="<?php echo esc_attr($button['colors']['text'] ?? '#ffffff'); ?>" />
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- 枠線カラーピッカー -->
+                <tr class="outline-colors-row" style="display: none;">
+                    <th scope="row"><?php esc_html_e('色設定', 'andw-sideflow'); ?></th>
+                    <td>
+                        <p>
+                            <label><?php esc_html_e('枠線色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-border" value="<?php echo esc_attr($button['colors']['border'] ?? '#0073aa'); ?>" />
+                        </p>
+                        <p>
+                            <label><?php esc_html_e('文字色:', 'andw-sideflow'); ?></label>
+                            <input type="text" class="button-color-text" value="<?php echo esc_attr($button['colors']['text'] ?? '#0073aa'); ?>" />
+                        </p>
                     </td>
                 </tr>
             </table>

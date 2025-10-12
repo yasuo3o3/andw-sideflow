@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 3. 設定更新ボタン
     initUpdateConfigButton();
+
+    // 4. ボタンvariant動的表示制御
+    initButtonVariantControl();
+
+    // 5. WordPressカラーピッカー初期化
+    initColorPickers();
 });
 
 /**
@@ -125,6 +131,90 @@ function initUpdateConfigButton() {
         .finally(() => {
             btn.disabled = false;
             btn.textContent = '設定を更新';
+        });
+    });
+}
+
+/**
+ * ボタンvariant変更時の動的表示制御
+ */
+function initButtonVariantControl() {
+    const variantSelects = document.querySelectorAll('.button-variant');
+
+    variantSelects.forEach(function(select) {
+        const buttonContainer = select.closest('.button-item');
+        if (!buttonContainer) return;
+
+        // 初期状態を設定
+        updateVariantDisplay(buttonContainer, select.value);
+
+        // 変更時のイベントリスナー
+        select.addEventListener('change', function() {
+            updateVariantDisplay(buttonContainer, this.value);
+        });
+    });
+}
+
+/**
+ * variant選択に応じて表示要素を制御
+ */
+function updateVariantDisplay(container, variant) {
+    const lineStyleRow = container.querySelector('.line-style-row');
+    const solidColorsRow = container.querySelector('.solid-colors-row');
+    const gradientColorsRow = container.querySelector('.gradient-colors-row');
+    const outlineColorsRow = container.querySelector('.outline-colors-row');
+
+    // 全て非表示に
+    [lineStyleRow, solidColorsRow, gradientColorsRow, outlineColorsRow].forEach(function(row) {
+        if (row) row.style.display = 'none';
+    });
+
+    // variant別の表示制御
+    switch (variant) {
+        case 'line':
+            if (lineStyleRow) lineStyleRow.style.display = 'table-row';
+            break;
+        case 'solid':
+            if (solidColorsRow) solidColorsRow.style.display = 'table-row';
+            break;
+        case 'gradient':
+            if (gradientColorsRow) gradientColorsRow.style.display = 'table-row';
+            break;
+        case 'outline':
+            if (outlineColorsRow) outlineColorsRow.style.display = 'table-row';
+            break;
+    }
+}
+
+/**
+ * WordPressカラーピッカーの初期化
+ */
+function initColorPickers() {
+    // WordPress のカラーピッカーが使用可能かチェック
+    if (typeof jQuery === 'undefined' || typeof jQuery.fn.wpColorPicker === 'undefined') {
+        console.warn('WordPress カラーピッカーが利用できません');
+        return;
+    }
+
+    jQuery(document).ready(function($) {
+        // カラーピッカー対象の入力フィールド
+        const colorInputs = [
+            '.button-color-background',
+            '.button-color-text',
+            '.button-color-gradient-start',
+            '.button-color-gradient-end',
+            '.button-color-border'
+        ];
+
+        colorInputs.forEach(function(selector) {
+            $(selector).wpColorPicker({
+                change: function(event, ui) {
+                    // カラー変更時の処理（必要に応じて追加）
+                },
+                clear: function() {
+                    // カラークリア時の処理（必要に応じて追加）
+                }
+            });
         });
     });
 }
