@@ -190,14 +190,8 @@ class ANDW_SideFlow {
         }
 
         // 新しいUIモードかチェック（権限確認）
-        $use_new_ui = false;
-        if (current_user_can('manage_options')) {
-            $nonce_valid = isset($_GET['andw_sideflow_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['andw_sideflow_nonce'])), 'andw_sideflow_action');
-            if ($nonce_valid) {
-                $ui_mode = isset($_GET['ui']) ? sanitize_text_field(wp_unslash($_GET['ui'])) : '';
-                $use_new_ui = $ui_mode === 'new';
-            }
-        }
+        // 常に新しいUIを使用（古い管理画面を非表示）
+        $use_new_ui = true;
 
         if ($use_new_ui) {
             // 新しい管理画面UI
