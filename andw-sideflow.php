@@ -190,14 +190,8 @@ class ANDW_SideFlow {
         }
 
         // 新しいUIモードかチェック（権限確認）
-        $use_new_ui = false;
-        if (current_user_can('manage_options')) {
-            $nonce_valid = isset($_GET['andw_sideflow_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['andw_sideflow_nonce'])), 'andw_sideflow_action');
-            if ($nonce_valid) {
-                $ui_mode = isset($_GET['ui']) ? sanitize_text_field(wp_unslash($_GET['ui'])) : '';
-                $use_new_ui = $ui_mode === 'new';
-            }
-        }
+        // 常に新しいUIを使用（古い管理画面を非表示）
+        $use_new_ui = true;
 
         if ($use_new_ui) {
             // 新しい管理画面UI
@@ -355,15 +349,52 @@ class ANDW_SideFlow {
             $sanitized['buttons'] = array();
             foreach ($config['buttons'] as $button) {
                 if (is_array($button)) {
-                    $sanitized['buttons'][] = array(
+                    $variant = $button['variant'] ?? 'solid';
+                    $validVariants = array('solid', 'gradient', 'outline', 'line');
+                    if (!in_array($variant, $validVariants)) {
+                        $variant = 'solid';
+                    }
+
+                    $sanitizedButton = array(
                         'id' => sanitize_key($button['id'] ?? ''),
                         'text' => sanitize_text_field($button['text'] ?? ''),
                         'href' => esc_url_raw($button['href'] ?? ''),
                         'trackingId' => sanitize_key($button['trackingId'] ?? ''),
-                        'variant' => in_array($button['variant'] ?? '', array('default', 'accent', 'line')) ? $button['variant'] : 'default',
-                        'lineBranding' => (bool)($button['lineBranding'] ?? false),
+                        'variant' => $variant,
                         'visible' => (bool)($button['visible'] ?? true)
                     );
+
+                    // colors設定のサニタイズ
+                    if (isset($button['colors']) && is_array($button['colors'])) {
+                        $colors = $button['colors'];
+                        $sanitizedButton['colors'] = array();
+
+                        // variant別の色設定
+                        switch ($variant) {
+                            case 'solid':
+                                $sanitizedButton['colors']['background'] = sanitize_hex_color($colors['background'] ?? '#f0f0f1');
+                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#2c3338');
+                                break;
+                            case 'gradient':
+                                $sanitizedButton['colors']['gradientStart'] = sanitize_hex_color($colors['gradientStart'] ?? '#0073aa');
+                                $sanitizedButton['colors']['gradientEnd'] = sanitize_hex_color($colors['gradientEnd'] ?? '#005a87');
+                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#ffffff');
+                                break;
+                            case 'outline':
+                                $sanitizedButton['colors']['border'] = sanitize_hex_color($colors['border'] ?? '#0073aa');
+                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#0073aa');
+                                break;
+                        }
+                    }
+
+                    // LINEスタイル設定（LINEバリアントの場合のみ）
+                    if ($variant === 'line') {
+                        $lineStyle = $button['lineStyle'] ?? 'solid';
+                        $validLineStyles = array('solid', 'outline');
+                        $sanitizedButton['lineStyle'] = in_array($lineStyle, $validLineStyles) ? $lineStyle : 'solid';
+                    }
+
+                    $sanitized['buttons'][] = $sanitizedButton;
                 }
             }
         }
@@ -615,8 +646,12 @@ class ANDW_SideFlow {
                     'text' => '求人を見る',
                     'href' => '/jobs/',
                     'trackingId' => 'job_list',
-                    'variant' => 'accent',
-                    'lineBranding' => false,
+                    'variant' => 'gradient',
+                    'colors' => array(
+                        'gradientStart' => '#0073aa',
+                        'gradientEnd' => '#005a87',
+                        'text' => '#ffffff'
+                    ),
                     'visible' => true
                 ),
                 array(
@@ -625,7 +660,7 @@ class ANDW_SideFlow {
                     'href' => '/contact/',
                     'trackingId' => 'contact',
                     'variant' => 'line',
-                    'lineBranding' => true,
+                    'lineStyle' => 'solid',
                     'visible' => true
                 )
             ),
@@ -861,19 +896,100 @@ class ANDW_SideFlow {
             return;
         }
 
+        // WordPressカラーピッカーを読み込み
+        wp_enqueue_style('wp-color-picker');
+        wp_enqueue_script('wp-color-picker');
+
+        // メインの管理画面機能（設定保存、タブ切り替えなど）
         wp_enqueue_script(
             'andw-sideflow-admin',
-            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin-scripts.js',
-            array(),
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin.js',
+            array('jquery', 'wp-media-utils', 'wp-color-picker'),
             ANDW_SIDEFLOW_VERSION,
             true
         );
 
+        // 新しいカラーピッカー機能
+        wp_enqueue_script(
+            'andw-sideflow-admin-extra',
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin-scripts.js',
+            array('jquery', 'wp-color-picker', 'andw-sideflow-admin'),
+            ANDW_SIDEFLOW_VERSION,
+            true
+        );
+
+        // 管理画面CSS
+        wp_enqueue_style(
+            'andw-sideflow-admin',
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/css/admin.css',
+            array('wp-color-picker'),
+            ANDW_SIDEFLOW_VERSION
+        );
+
+        // 現在の設定を取得
+        $current_config = get_option('andw_sideflow_config', $this->get_default_config());
+
         wp_localize_script('andw-sideflow-admin', 'andwSideFlowAdmin', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'clean_nonce' => wp_create_nonce('andw_sideflow_clean'),
-            'update_nonce' => wp_create_nonce('andw_sideflow_update')
+            'update_nonce' => wp_create_nonce('andw_sideflow_update'),
+            'currentConfig' => $current_config,
+            'strings' => array(
+                'selectMedia' => __('画像を選択', 'andw-sideflow'),
+                'selectFiles' => __('ファイルを選択', 'andw-sideflow'),
+                'useThis' => __('この画像を使用', 'andw-sideflow'),
+                'noImage' => __('画像なし', 'andw-sideflow')
+            )
         ));
+    }
+
+    /**
+     * 旧形式のbutton設定を新形式に変換
+     */
+    private function migrate_button_config($button) {
+        // 既に新形式の場合はそのまま返す
+        if (isset($button['colors']) || ($button['variant'] ?? '') === 'line') {
+            return $button;
+        }
+
+        $migrated = $button;
+        $variant = $button['variant'] ?? 'solid';
+        $lineBranding = $button['lineBranding'] ?? false;
+
+        // variant変換ルール
+        if ($lineBranding) {
+            $migrated['variant'] = 'line';
+            $migrated['lineStyle'] = ($variant === 'line') ? 'outline' : 'solid';
+            unset($migrated['lineBranding']);
+        } else {
+            switch ($variant) {
+                case 'accent':
+                    $migrated['variant'] = 'gradient';
+                    $migrated['colors'] = array(
+                        'gradientStart' => '#0073aa',
+                        'gradientEnd' => '#005a87',
+                        'text' => '#ffffff'
+                    );
+                    break;
+                case 'line':
+                    $migrated['variant'] = 'outline';
+                    $migrated['colors'] = array(
+                        'border' => '#0073aa',
+                        'text' => '#0073aa'
+                    );
+                    break;
+                default: // 'default'
+                    $migrated['variant'] = 'solid';
+                    $migrated['colors'] = array(
+                        'background' => '#f0f0f1',
+                        'text' => '#2c3338'
+                    );
+                    break;
+            }
+            unset($migrated['lineBranding']);
+        }
+
+        return $migrated;
     }
 
     /**
@@ -884,7 +1000,15 @@ class ANDW_SideFlow {
 
         foreach ($existing as $key => $value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
-                $merged[$key] = $this->deep_merge_config($merged[$key], $value);
+                // buttons配列の場合はマイグレーションを実行
+                if ($key === 'buttons') {
+                    $merged[$key] = array();
+                    foreach ($value as $button) {
+                        $merged[$key][] = $this->migrate_button_config($button);
+                    }
+                } else {
+                    $merged[$key] = $this->deep_merge_config($merged[$key], $value);
+                }
             } else {
                 $merged[$key] = $value;
             }
