@@ -77,6 +77,7 @@ class ANDW_SideFlow {
     private function admin_init() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_settings_init'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_andw_sideflow_clean_legacy', array($this, 'ajax_clean_legacy'));
         add_action('wp_ajax_andw_sideflow_update_config', array($this, 'ajax_update_config'));
 
@@ -240,30 +241,6 @@ class ANDW_SideFlow {
                 ?>
             </pre>
 
-            <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const textarea = document.getElementById('config_json');
-                const preview = document.getElementById('andw-sideflow-preview');
-
-                function updatePreview() {
-                    try {
-                        const config = JSON.parse(textarea.value);
-                        preview.textContent = JSON.stringify(config, null, 2);
-                        preview.style.color = '#333';
-                        preview.style.backgroundColor = '#f1f1f1';
-                    } catch (e) {
-                        preview.textContent = 'JSON形式エラー: ' + e.message;
-                        preview.style.color = '#d63638';
-                        preview.style.backgroundColor = '#fcf0f1';
-                    }
-                }
-
-                if (textarea) {
-                    textarea.addEventListener('input', updatePreview);
-                    updatePreview();
-                }
-            });
-            </script>
         </div>
         <?php
     }
@@ -304,42 +281,6 @@ class ANDW_SideFlow {
         </p>
         <div id="clean-legacy-result" style="margin-top: 10px;"></div>
 
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.getElementById('clean-legacy-btn');
-            const result = document.getElementById('clean-legacy-result');
-
-            btn.addEventListener('click', function() {
-                btn.disabled = true;
-                btn.textContent = '処理中...';
-
-                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=andw_sideflow_clean_legacy&nonce=<?php echo esc_attr(wp_create_nonce('andw_sideflow_clean')); ?>'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
-                        // ページをリロードして更新された設定を表示
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        result.innerHTML = '<div style="color: red;">✗ ' + data.data + '</div>';
-                    }
-                })
-                .catch(error => {
-                    result.innerHTML = '<div style="color: red;">✗ エラーが発生しました</div>';
-                })
-                .finally(() => {
-                    btn.disabled = false;
-                    btn.textContent = '古い設定項目を削除';
-                });
-            });
-        });
-        </script>
         <?php
     }
 
@@ -354,42 +295,6 @@ class ANDW_SideFlow {
         </p>
         <div id="update-config-result" style="margin-top: 10px;"></div>
 
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.getElementById('update-config-btn');
-            const result = document.getElementById('update-config-result');
-
-            btn.addEventListener('click', function() {
-                btn.disabled = true;
-                btn.textContent = '処理中...';
-
-                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=andw_sideflow_update_config&nonce=<?php echo esc_attr(wp_create_nonce('andw_sideflow_update')); ?>'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
-                        // ページをリロードして更新された設定を表示
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        result.innerHTML = '<div style="color: red;">✗ ' + data.data + '</div>';
-                    }
-                })
-                .catch(error => {
-                    result.innerHTML = '<div style="color: red;">✗ エラーが発生しました</div>';
-                })
-                .finally(() => {
-                    btn.disabled = false;
-                    btn.textContent = '設定を最新版に更新';
-                });
-            });
-        });
-        </script>
         <?php
     }
 
@@ -944,6 +849,30 @@ class ANDW_SideFlow {
         wp_localize_script('andw-sideflow-widget', 'andwSideFlowConfig', array(
             'apiUrl' => rest_url('andw-sideflow/v1/config'),
             'nonce' => wp_create_nonce('wp_rest')
+        ));
+    }
+
+    /**
+     * 管理画面スクリプトの読み込み
+     */
+    public function enqueue_admin_scripts($hook) {
+        // andW SideFlow設定ページでのみ読み込み
+        if ($hook !== 'settings_page_andw_sideflow') {
+            return;
+        }
+
+        wp_enqueue_script(
+            'andw-sideflow-admin',
+            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin-scripts.js',
+            array(),
+            ANDW_SIDEFLOW_VERSION,
+            true
+        );
+
+        wp_localize_script('andw-sideflow-admin', 'andwSideFlowAdmin', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'clean_nonce' => wp_create_nonce('andw_sideflow_clean'),
+            'update_nonce' => wp_create_nonce('andw_sideflow_update')
         ));
     }
 
