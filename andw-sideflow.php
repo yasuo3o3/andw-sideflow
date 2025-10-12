@@ -397,6 +397,7 @@ class ANDW_SideFlow {
                     add_settings_error(
                         'andw_sideflow_config',
                         'sanitize_error',
+                        /* translators: %s: error message */
                         sprintf(__('設定の処理中にエラーが発生しました: %s', 'andw-sideflow'), $e->getMessage()),
                         'error'
                     );
@@ -406,6 +407,7 @@ class ANDW_SideFlow {
                 add_settings_error(
                     'andw_sideflow_config',
                     'json_error',
+                    /* translators: %s: JSON error message */
                     sprintf(__('JSON形式エラー: %s', 'andw-sideflow'), $error_msg),
                     'error'
                 );
