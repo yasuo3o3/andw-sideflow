@@ -735,9 +735,23 @@
 
     // メディアサムネイル取得
     function fetchMediaThumbnail(mediaId, slideIndex) {
-        wp.media.attachment(mediaId).fetch().then(function(attachment) {
-            const thumbnail = attachment.get('sizes')?.thumbnail?.url || attachment.get('url');
-            $(`.slide-item[data-index="${slideIndex}"] .slide-preview`).html(`<img src="${thumbnail}" alt="">`);
+        if (!mediaId || !wp.media) {
+            return;
+        }
+
+        const attachment = wp.media.attachment(mediaId);
+        if (!attachment) {
+            return;
+        }
+
+        attachment.fetch().then(function() {
+            if (typeof attachment.get === 'function') {
+                const sizes = attachment.get('sizes');
+                const thumbnail = sizes?.thumbnail?.url || attachment.get('url');
+                $(`.slide-item[data-index="${slideIndex}"] .slide-preview`).html(`<img src="${thumbnail}" alt="">`);
+            }
+        }).catch(function(error) {
+            console.warn('メディア取得エラー:', error);
         });
     }
 
