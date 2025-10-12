@@ -72,11 +72,13 @@
 
     // ボタンバリアント制御
     function initializeButtonVariantControl() {
-        // 初期状態の設定
-        $('.button-variant').each(function() {
-            const buttonContainer = $(this).closest('.button-item');
-            updateVariantDisplay(buttonContainer, $(this).val());
-        });
+        // 初期状態の設定（遅延実行でDOM構築完了を待つ）
+        setTimeout(function() {
+            $('.button-variant').each(function() {
+                const buttonContainer = $(this).closest('.button-item');
+                updateVariantDisplay(buttonContainer, $(this).val());
+            });
+        }, 100);
 
         // バリアント変更時のイベントリスナー
         $(document).on('change', '.button-variant', function() {
@@ -857,6 +859,11 @@
         `;
 
         $('#buttons-list').append(template);
+
+        // 追加したボタン要素に対してバリアント制御を適用
+        const addedButtonItem = $('#buttons-list .button-item').last();
+        const variant = addedButtonItem.find('.button-variant').val();
+        updateVariantDisplay(addedButtonItem, variant);
     }
 
     // メディアサムネイル取得
