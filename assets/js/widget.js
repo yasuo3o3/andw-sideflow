@@ -540,6 +540,7 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             config = await response.json();
+            console.log('Fetched config:', config);
 
             // デバッグモード時は設定をログ出力
             if (debugMode === 'debug' && config.dev?.debug) {
@@ -780,7 +781,9 @@
 
     // ボタンHTML作成
     function createButtonsHTML() {
+        console.log('Creating buttons HTML, config.buttons:', config.buttons);
         const visibleButtons = config.buttons.filter(button => button.visible && button.text);
+        console.log('Visible buttons:', visibleButtons);
 
         return visibleButtons.map(button => {
             const classes = ['sf-button', button.variant || 'solid'];
