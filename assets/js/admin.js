@@ -103,21 +103,47 @@
                 if (lineStyleRow.length) lineStyleRow.show();
                 break;
             case 'solid':
-                if (solidColorsRow.length) solidColorsRow.show();
-                // カラーピッカーを再初期化
-                container.find('.button-color-background, .button-color-text').wpColorPicker();
+                if (solidColorsRow.length) {
+                    solidColorsRow.show();
+                    // カラーピッカーを初期化（既存のものは破棄してから再初期化）
+                    initializeColorPickersInContainer(container, ['.button-color-background', '.button-color-text']);
+                }
                 break;
             case 'gradient':
-                if (gradientColorsRow.length) gradientColorsRow.show();
-                // カラーピッカーを再初期化
-                container.find('.button-color-gradient-start, .button-color-gradient-end, .button-color-text').wpColorPicker();
+                if (gradientColorsRow.length) {
+                    gradientColorsRow.show();
+                    // カラーピッカーを初期化
+                    initializeColorPickersInContainer(container, ['.button-color-gradient-start', '.button-color-gradient-end', '.button-color-text']);
+                }
                 break;
             case 'outline':
-                if (outlineColorsRow.length) outlineColorsRow.show();
-                // カラーピッカーを再初期化
-                container.find('.button-color-border, .button-color-text').wpColorPicker();
+                if (outlineColorsRow.length) {
+                    outlineColorsRow.show();
+                    // カラーピッカーを初期化
+                    initializeColorPickersInContainer(container, ['.button-color-border', '.button-color-text']);
+                }
                 break;
         }
+    }
+
+    // コンテナ内の特定のカラーピッカーを初期化
+    function initializeColorPickersInContainer(container, selectors) {
+        selectors.forEach(function(selector) {
+            const colorInputs = container.find(selector);
+            colorInputs.each(function() {
+                const $this = $(this);
+                // 既存のカラーピッカーがあれば破棄
+                if ($this.hasClass('wp-color-picker')) {
+                    $this.wpColorPicker('destroy');
+                }
+                // 新しくカラーピッカーを初期化
+                $this.wpColorPicker({
+                    change: function() {
+                        updateConfig();
+                    }
+                });
+            });
+        });
     }
 
     // 並び替え初期化
