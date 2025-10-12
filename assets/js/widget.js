@@ -783,12 +783,39 @@
         const visibleButtons = config.buttons.filter(button => button.visible && button.text);
 
         return visibleButtons.map(button => {
-            const classes = ['sf-button', button.variant || 'default'];
-            if (button.variant === 'line' && button.lineBranding) {
-                classes.push('line-branding');
+            const classes = ['sf-button', button.variant || 'solid'];
+
+            // LINEバリアントの場合はlineStyleを追加
+            if (button.variant === 'line' && button.lineStyle) {
+                classes.push('line-' + button.lineStyle);
             }
 
-            return `<a href="${escapeHtml(button.href)}" class="${classes.join(' ')}" data-tracking-id="${escapeHtml(button.trackingId)}" data-button-id="${escapeHtml(button.id)}" tabindex="-1">${escapeHtml(button.text)}</a>`;
+            // カラー情報をstyle属性として追加
+            let styleAttr = '';
+            if (button.colors && button.variant !== 'line') {
+                const styles = [];
+                switch (button.variant) {
+                    case 'solid':
+                        if (button.colors.background) styles.push(`background-color: ${button.colors.background}`);
+                        if (button.colors.text) styles.push(`color: ${button.colors.text}`);
+                        break;
+                    case 'gradient':
+                        if (button.colors.gradientStart && button.colors.gradientEnd) {
+                            styles.push(`background: linear-gradient(135deg, ${button.colors.gradientStart}, ${button.colors.gradientEnd})`);
+                        }
+                        if (button.colors.text) styles.push(`color: ${button.colors.text}`);
+                        break;
+                    case 'outline':
+                        if (button.colors.border) styles.push(`border-color: ${button.colors.border}`);
+                        if (button.colors.text) styles.push(`color: ${button.colors.text}`);
+                        break;
+                }
+                if (styles.length > 0) {
+                    styleAttr = ` style="${styles.join('; ')}"`;
+                }
+            }
+
+            return `<a href="${escapeHtml(button.href)}" class="${classes.join(' ')}" data-tracking-id="${escapeHtml(button.trackingId)}" data-button-id="${escapeHtml(button.id)}" tabindex="-1"${styleAttr}>${escapeHtml(button.text)}</a>`;
         }).join('');
     }
 
