@@ -531,6 +531,8 @@
             const trackingId = $(this).find('.button-tracking-id').val() || '';
             const variant = $(this).find('.button-variant').val() || 'solid';
 
+            console.log('Collecting button data:', { visible, id, text, href, trackingId, variant });
+
             const button = {
                 id: id,
                 text: text,
