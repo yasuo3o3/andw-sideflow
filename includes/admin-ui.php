@@ -484,6 +484,13 @@ class ANDW_SideFlow_Admin_UI {
                         <span class="description">px</span>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('表示優先度 (z-index)', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="number" id="layout-z-index" value="<?php echo esc_attr($layout['zIndex'] ?? 10000); ?>" min="1" max="2147483647">
+                        <span class="description">他の要素との重なり順序（1-2147483647、推奨: 10000-50000）</span>
+                    </td>
+                </tr>
             </table>
         </div>
         <?php

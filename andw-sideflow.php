@@ -495,7 +495,8 @@ class ANDW_SideFlow {
         $layout = $config['layout'] ?? array();
         $sanitized['layout'] = array(
             'maxHeightPx' => max(50, intval($layout['maxHeightPx'] ?? 640)),
-            'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48))
+            'buttonRowHeight' => max(40, intval($layout['buttonRowHeight'] ?? 48)),
+            'zIndex' => max(1, min(2147483647, intval($layout['zIndex'] ?? 10000)))
         );
 
         // 開発・デバッグ設定（新規）
@@ -727,7 +728,8 @@ class ANDW_SideFlow {
             ),
             'layout' => array(
                 'maxHeightPx' => 640,
-                'buttonRowHeight' => 48
+                'buttonRowHeight' => 48,
+                'zIndex' => 10000
             ),
             'motion' => array(
                 'durationMs' => 300,

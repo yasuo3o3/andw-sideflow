@@ -526,7 +526,8 @@
             },
             layout: {
                 maxHeightPx: parseInt($('#layout-max-height').val()) || 640,
-                buttonRowHeight: parseInt($('#layout-button-row-height').val()) || 48
+                buttonRowHeight: parseInt($('#layout-button-row-height').val()) || 48,
+                zIndex: parseInt($('#layout-z-index').val()) || 10000
             },
             motion: {
                 durationMs: parseInt($('#token-duration').val()) || 300,
@@ -749,6 +750,7 @@
         if (config.layout) {
             $('#layout-max-height').val(config.layout.maxHeightPx || 640);
             $('#layout-button-row-height').val(config.layout.buttonRowHeight || 48);
+            $('#layout-z-index').val(config.layout.zIndex || 10000);
         }
 
         // その他設定

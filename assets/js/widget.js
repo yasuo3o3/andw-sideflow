@@ -46,7 +46,7 @@
             pointer-events: auto;
             transform: translateX(var(--sf-actualDrawerW, 400px));
             transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
-            z-index: 120;
+            z-index: var(--sf-z-index, 10000);
         }
 
         .sf-wrap.anchor-center {
@@ -765,6 +765,10 @@
         if (layoutConfig.maxHeightPx) {
             container.style.setProperty('--max-height-px', `${layoutConfig.maxHeightPx}px`);
         }
+
+        // z-indexを設定
+        const zIndex = layoutConfig.zIndex || 10000;
+        container.style.setProperty('--sf-z-index', zIndex);
 
         // 事前計算したサイズをCSS変数として設定（レイアウト安定化）
         if (calculatedDimensions) {
