@@ -418,7 +418,7 @@ class ANDW_SideFlow {
             'anchor' => in_array($tab['anchor'] ?? 'center', array('center', 'bottom')) ? $tab['anchor'] ?? 'center' : 'center',
             'offsetPx' => max(0, intval($tab['offsetPx'] ?? 24)),
             'widthPx' => max(30, min(80, intval($tab['widthPx'] ?? 50))),
-            'heightMode' => in_array($tab['heightMode'] ?? 'matchDrawer', array('fixed', 'matchDrawer')) ? $tab['heightMode'] ?? 'matchDrawer' : 'matchDrawer',
+            'heightMode' => in_array($tab['heightMode'] ?? 'full', array('full', 'short')) ? $tab['heightMode'] ?? 'full' : 'full',
             'text' => sanitize_text_field($tab['text'] ?? '求人'),
             'action' => in_array($tab['action'] ?? 'drawer', array('drawer', 'link')) ? $tab['action'] ?? 'drawer' : 'drawer',
             'linkUrl' => esc_url_raw($tab['linkUrl'] ?? '')
@@ -681,7 +681,7 @@ class ANDW_SideFlow {
                 'anchor' => 'center',
                 'offsetPx' => 24,
                 'widthPx' => 50,
-                'heightMode' => 'matchDrawer',
+                'heightMode' => 'full',
                 'text' => '求人',
                 'action' => 'drawer',
                 'linkUrl' => ''

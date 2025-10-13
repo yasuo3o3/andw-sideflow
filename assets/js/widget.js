@@ -1520,9 +1520,9 @@
 
     // 高さ同期機能
     function setupHeightSync() {
-        const tabConfig = config.tab || { heightMode: 'matchDrawer' };
+        const tabConfig = config.tab || { heightMode: 'full' };
 
-        if (tabConfig.heightMode !== 'matchDrawer') {
+        if (tabConfig.heightMode !== 'full') {
             return;
         }
 
@@ -1556,9 +1556,9 @@
 
     // タブ高さ更新
     function updateTabHeight() {
-        const tabConfig = config.tab || { heightMode: 'matchDrawer' };
+        const tabConfig = config.tab || { heightMode: 'full' };
 
-        if (tabConfig.heightMode !== 'matchDrawer') {
+        if (tabConfig.heightMode !== 'full') {
             return;
         }
 
