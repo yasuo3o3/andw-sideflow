@@ -571,6 +571,35 @@
             height: var(--calculated-slider-height, auto);
             min-height: var(--calculated-slider-height, 200px);
         }
+
+        /* タブ高さモード制御 */
+        .sf-wrap[data-tab-height="full"] .sf-tab {
+            /* フルタブ：ドロワー高さに合わせる（既存の動作） */
+            height: var(--calculated-total-height, auto);
+        }
+
+        .sf-wrap[data-tab-height="short"] .sf-tab {
+            /* ショートタブ：テキストサイズ基準 */
+            height: auto !important;
+            padding: 1rem 0.75rem;
+            min-height: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* レスポンシブ：モバイル対応 */
+        @media (max-width: 768px) {
+            .sf-wrap[data-tab-height="short"] .sf-tab {
+                padding: 0.75rem 0.5rem;
+                min-height: 2.5rem;
+                font-size: 0.9rem;
+            }
+        }
     `;
 
     // 初期化
@@ -680,7 +709,7 @@
     // タブのみ先行表示（同期処理）
     function createTabUI() {
         // 設定取得
-        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50 };
+        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50, heightMode: 'full' };
         const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76, maxWidthPx: 600 };
         const motionConfig = config.motion || { durationMs: 300, easing: 'cubic-bezier(0.2,0,0,1)' };
         const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
@@ -746,8 +775,18 @@
         // anchor設定をコンテナに追加
         container.classList.add(`anchor-${tabConfig.anchor}`);
 
+        // タブ高さモード属性を設定
+        const tabHeightMode = tabConfig.heightMode || 'full';
+        container.setAttribute('data-tab-height', tabHeightMode);
+
         // CSS変数を即座に適用（位置ずれ防止）
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
+
+        // ショートタブモードの場合は計算済み高さを無効化
+        if (tabHeightMode === 'short') {
+            // ショートタブでは事前計算サイズを使用しない
+            console.log('ショートタブモード: 事前計算サイズを無効化');
+        }
 
         // タブのみ表示（ドロワーはプレースホルダー）
         const tabElement = tabConfig.action === 'link' && tabConfig.linkUrl ?

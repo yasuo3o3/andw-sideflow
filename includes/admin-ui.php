@@ -419,6 +419,20 @@ class ANDW_SideFlow_Admin_UI {
                         <span class="description">px（中央: 下方向、下端: 上方向）</span>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('タブ高さモード', 'andw-sideflow'); ?></th>
+                    <td>
+                        <label>
+                            <input type="radio" name="tab-height-mode" value="full" <?php checked($tab['heightMode'] ?? 'full', 'full'); ?>>
+                            <?php esc_html_e('フルタブ（ドロワー高さに合わせる）', 'andw-sideflow'); ?>
+                        </label><br>
+                        <label>
+                            <input type="radio" name="tab-height-mode" value="short" <?php checked($tab['heightMode'] ?? 'full', 'short'); ?>>
+                            <?php esc_html_e('ショートタブ（テキストサイズ基準）', 'andw-sideflow'); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e('フルタブ：ドロワー全体の高さにタブを合わせます。ショートタブ：テキスト量に応じてコンパクトに表示します。', 'andw-sideflow'); ?></p>
+                    </td>
+                </tr>
             </table>
 
             <h3><?php esc_html_e('ドロワー設定', 'andw-sideflow'); ?></h3>

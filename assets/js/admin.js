@@ -491,7 +491,8 @@
                 offsetPx: parseInt($('#tab-offset').val()) || 24,
                 text: $('#tab-text').val() || '求人',
                 action: $('input[name="tab-action"]:checked').val() || 'drawer',
-                linkUrl: $('#tab-link-url-input').val() || ''
+                linkUrl: $('#tab-link-url-input').val() || '',
+                heightMode: $('input[name="tab-height-mode"]:checked').val() || 'full'
             },
             drawer: {
                 backdrop: $('#drawer-backdrop').is(':checked'),
@@ -729,6 +730,7 @@
             $('#tab-text').val(config.tab.text || '求人');
             $('input[name="tab-action"][value="' + (config.tab.action || 'drawer') + '"]').prop('checked', true);
             $('#tab-link-url-input').val(config.tab.linkUrl || '');
+            $('input[name="tab-height-mode"][value="' + (config.tab.heightMode || 'full') + '"]').prop('checked', true);
         }
 
         if (config.drawer) {
