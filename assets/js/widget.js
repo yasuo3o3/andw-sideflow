@@ -41,7 +41,7 @@
 
         .sf-wrap {
             position: fixed;
-            right: 0;
+            right: env(safe-area-inset-right, 0px);
             display: flex;
             pointer-events: auto;
             transform: translateX(var(--sf-actualDrawerW, 400px));
