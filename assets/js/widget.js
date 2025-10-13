@@ -115,6 +115,7 @@
             font-weight: 600;
             writing-mode: vertical-rl;
             text-orientation: mixed;
+            letter-spacing: var(--tab-letter-spacing, normal);
             transition: all 0.2s ease;
             box-shadow: var(--sf-shadow);
             overflow: hidden;
@@ -589,6 +590,7 @@
             text-align: center;
             writing-mode: vertical-rl;
             text-orientation: mixed;
+            letter-spacing: var(--tab-letter-spacing, normal);
         }
 
         /* レスポンシブ：モバイル対応 */
@@ -782,6 +784,10 @@
         if (tabHeightMode === 'short') {
             calculateCharBasedHeight(container, tabConfig.text || '求人');
         }
+
+        // レター間隔を設定
+        const letterSpacing = tabConfig.letterSpacing || 0;
+        container.style.setProperty('--tab-letter-spacing', `${letterSpacing}px`);
 
         // CSS変数を即座に適用（位置ずれ防止）
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);

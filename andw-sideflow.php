@@ -421,7 +421,8 @@ class ANDW_SideFlow {
             'heightMode' => in_array($tab['heightMode'] ?? 'full', array('full', 'short')) ? $tab['heightMode'] ?? 'full' : 'full',
             'text' => sanitize_text_field($tab['text'] ?? '求人'),
             'action' => in_array($tab['action'] ?? 'drawer', array('drawer', 'link')) ? $tab['action'] ?? 'drawer' : 'drawer',
-            'linkUrl' => esc_url_raw($tab['linkUrl'] ?? '')
+            'linkUrl' => esc_url_raw($tab['linkUrl'] ?? ''),
+            'letterSpacing' => max(0, min(20, floatval($tab['letterSpacing'] ?? 0)))
         );
 
         // ドロワー設定
@@ -684,7 +685,8 @@ class ANDW_SideFlow {
                 'heightMode' => 'full',
                 'text' => '求人',
                 'action' => 'drawer',
-                'linkUrl' => ''
+                'linkUrl' => '',
+                'letterSpacing' => 0
             ),
             'drawer' => array(
                 'backdrop' => false,

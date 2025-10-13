@@ -492,7 +492,8 @@
                 text: $('#tab-text').val() || '求人',
                 action: $('input[name="tab-action"]:checked').val() || 'drawer',
                 linkUrl: $('#tab-link-url-input').val() || '',
-                heightMode: $('input[name="tab-height-mode"]:checked').val() || 'full'
+                heightMode: $('input[name="tab-height-mode"]:checked').val() || 'full',
+                letterSpacing: parseFloat($('#tab-letter-spacing').val()) || 0
             },
             drawer: {
                 backdrop: $('#drawer-backdrop').is(':checked'),
@@ -731,6 +732,7 @@
             $('input[name="tab-action"][value="' + (config.tab.action || 'drawer') + '"]').prop('checked', true);
             $('#tab-link-url-input').val(config.tab.linkUrl || '');
             $('input[name="tab-height-mode"][value="' + (config.tab.heightMode || 'full') + '"]').prop('checked', true);
+            $('#tab-letter-spacing').val(config.tab.letterSpacing || 0);
         }
 
         if (config.drawer) {

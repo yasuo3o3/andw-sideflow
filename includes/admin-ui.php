@@ -433,6 +433,13 @@ class ANDW_SideFlow_Admin_UI {
                         <p class="description"><?php esc_html_e('フルタブ：ドロワー全体の高さにタブを合わせます。ショートタブ：テキスト量に応じてコンパクトに表示します。', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('文字間隔', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="number" id="tab-letter-spacing" value="<?php echo esc_attr($tab['letterSpacing'] ?? 0); ?>" min="0" max="20" step="0.1">
+                        <span class="description">px（0-20の範囲で文字間隔を調整）</span>
+                    </td>
+                </tr>
             </table>
 
             <h3><?php esc_html_e('ドロワー設定', 'andw-sideflow'); ?></h3>
