@@ -47,22 +47,11 @@ class ANDW_SideFlow {
      * コンストラクタ
      */
     private function __construct() {
-        add_action('plugins_loaded', array($this, 'load_textdomain'));
         add_action('init', array($this, 'init'));
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
     }
 
-    /**
-     * テキストドメインの読み込み
-     */
-    public function load_textdomain() {
-        load_plugin_textdomain(
-            'andw-sideflow',
-            false,
-            dirname(plugin_basename(__FILE__)) . '/languages'
-        );
-    }
 
     /**
      * 初期化
