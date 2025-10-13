@@ -212,6 +212,7 @@ class ANDW_SideFlow_Admin_UI {
                     <th scope="row"><?php esc_html_e('アスペクト比', 'andw-sideflow'); ?></th>
                     <td>
                         <select id="slider-aspect-ratio">
+                            <option value="2:1" <?php selected($slider_config['aspectRatio'] ?? '16:9', '2:1'); ?>>2:1</option>
                             <option value="16:9" <?php selected($slider_config['aspectRatio'] ?? '16:9', '16:9'); ?>>16:9</option>
                             <option value="4:3" <?php selected($slider_config['aspectRatio'] ?? '16:9', '4:3'); ?>>4:3</option>
                             <option value="3:2" <?php selected($slider_config['aspectRatio'] ?? '16:9', '3:2'); ?>>3:2</option>
