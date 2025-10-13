@@ -653,15 +653,6 @@ class ANDW_SideFlow_Admin_UI {
             <h3><?php esc_html_e('その他設定', 'andw-sideflow'); ?></h3>
             <table class="form-table">
                 <tr>
-                    <th scope="row"><?php esc_html_e('初回吹き出し', 'andw-sideflow'); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" id="show-bubble" <?php checked($config['showBubble'] ?? true); ?>>
-                            <?php esc_html_e('初回訪問時に吹き出しを表示', 'andw-sideflow'); ?>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
                     <th scope="row"><?php esc_html_e('光沢エフェクト間隔', 'andw-sideflow'); ?></th>
                     <td>
                         <input type="number" id="glitter-interval" value="<?php echo esc_attr($config['glitterInterval'] ?? 25000); ?>" min="10000" max="60000">

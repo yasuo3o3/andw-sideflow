@@ -188,38 +188,6 @@
             100% { transform: translateX(0); }
         }
 
-        .andw-sideflow-bubble {
-            position: absolute;
-            top: 50%;
-            right: 60px;
-            transform: translateY(-50%);
-            background: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: var(--sf-radius);
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            animation: bubbleAppear 0.5s ease-out forwards;
-            pointer-events: none;
-        }
-
-        .andw-sideflow-bubble::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: -4px;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border: 4px solid transparent;
-            border-left-color: #333;
-        }
-
-        @keyframes bubbleAppear {
-            0% { opacity: 0; transform: translateY(-50%) translateX(10px); }
-            100% { opacity: 1; transform: translateY(-50%) translateX(0); }
-        }
 
         .sf-drawer {
             flex: 0 0 var(--sf-drawerW);
@@ -489,10 +457,6 @@
                 animation: none;
             }
 
-            .andw-sideflow-bubble {
-                animation: none;
-                opacity: 1;
-            }
         }
 
         @media (max-width: 480px) {
@@ -687,9 +651,6 @@
                 // イベントリスナー設定
                 setupEventListeners();
 
-                // 初回吹き出し表示
-                showBubbleIfFirstVisit();
-
                 // 光沢エフェクト開始
                 startGlitterEffect();
 
@@ -813,9 +774,6 @@
 
         container.innerHTML = `
             ${tabElement}
-            <div class="andw-sideflow-bubble" style="display: none;">
-                タップして求人をチェック！
-            </div>
             <div class="sf-drawer auto-height sf-loading" role="dialog" aria-labelledby="sf-title" aria-hidden="true" inert id="sf-drawer">
                 <div class="sf-header">
                     <h2 id="sf-title" class="andw-sideflow-sr-only">求人情報</h2>
@@ -1429,22 +1387,6 @@
     }
 
 
-    // 初回吹き出し表示
-    function showBubbleIfFirstVisit() {
-        if (!config.showBubble) return;
-
-        const hasVisited = localStorage.getItem('andw_sideflow_visited');
-        if (!hasVisited) {
-            const bubble = shadowRoot.querySelector('.andw-sideflow-bubble');
-            if (bubble) {
-                bubble.style.display = 'block';
-                setTimeout(() => {
-                    bubble.style.display = 'none';
-                }, 4000);
-            }
-            localStorage.setItem('andw_sideflow_visited', 'true');
-        }
-    }
 
     // 光沢エフェクト
     function startGlitterEffect() {

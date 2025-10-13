@@ -521,7 +521,6 @@ class ANDW_SideFlow {
         );
 
         // その他設定
-        $sanitized['showBubble'] = (bool)($config['showBubble'] ?? true);
         $sanitized['respectReducedMotion'] = (bool)($config['respectReducedMotion'] ?? true);
 
         // 後方互換：glitterInterval
@@ -743,7 +742,6 @@ class ANDW_SideFlow {
                 'previewMode' => false,
                 'debug' => false
             ),
-            'showBubble' => true,
             'glitterInterval' => 25000,
             'respectReducedMotion' => true
         );

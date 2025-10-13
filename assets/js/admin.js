@@ -538,7 +538,6 @@
                 previewMode: false,
                 debug: $('#dev-debug').is(':checked')
             },
-            showBubble: $('#show-bubble').is(':checked'),
             glitterInterval: parseInt($('#glitter-interval').val()) || 25000,
             respectReducedMotion: $('#respect-reduced-motion').is(':checked')
         };
@@ -754,7 +753,6 @@
         }
 
         // その他設定
-        $('#show-bubble').prop('checked', config.showBubble !== false);
         $('#glitter-interval').val(config.glitterInterval || 25000);
         $('#respect-reduced-motion').prop('checked', config.respectReducedMotion !== false);
 
