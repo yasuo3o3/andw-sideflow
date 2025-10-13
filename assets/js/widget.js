@@ -580,9 +580,8 @@
 
         .sf-wrap[data-tab-height="short"] .sf-tab {
             /* ショートタブ：文字数ベース高さ計算 */
-            height: var(--char-based-height, auto) !important;
+            height: var(--char-based-height, 5rem) !important;
             padding: 1rem 0.75rem;
-            min-height: 3rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -1893,9 +1892,7 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 文字数ベース高さ計算
     function calculateCharBasedHeight(container, tabText) {
         const charCount = tabText ? tabText.length : 0;
-        const baseHeight = 3; // 基本高さ（rem）
-        const extraHeight = charCount + 3; // 文字数 + 3
-        const totalHeight = baseHeight + (extraHeight * 0.15); // 0.15rem per extra unit
+        const totalHeight = charCount + 3; // 文字数 + 3 = 直接rem値
 
         container.style.setProperty('--char-based-height', `${totalHeight}rem`);
     }
