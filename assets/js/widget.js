@@ -554,6 +554,23 @@
         .sf-drawer:not(.sf-loading) .sf-placeholder {
             display: none;
         }
+
+        /* 事前計算サイズ適用 */
+        .sf-slider {
+            width: var(--calculated-slider-width, 100%);
+            height: var(--calculated-slider-height, auto);
+        }
+
+        .sf-drawer {
+            height: var(--calculated-total-height, auto);
+        }
+
+        /* プレースホルダーも同じサイズを使用 */
+        .sf-loading .sf-placeholder-slide {
+            width: var(--calculated-slider-width, 100%);
+            height: var(--calculated-slider-height, auto);
+            min-height: var(--calculated-slider-height, 200px);
+        }
     `;
 
     // 初期化
@@ -670,6 +687,9 @@
         const layoutConfig = config.layout || { maxHeightPx: 640 };
         const uiConfig = config.ui || { startOpen: false };
 
+        // 事前サイズ計算を実行
+        const calculatedDimensions = calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig);
+
         // CSS変数設定
         const container = document.createElement('div');
         container.className = 'sf-wrap';
@@ -714,6 +734,13 @@
 
         if (layoutConfig.maxHeightPx) {
             container.style.setProperty('--max-height-px', `${layoutConfig.maxHeightPx}px`);
+        }
+
+        // 事前計算したサイズをCSS変数として設定（レイアウト安定化）
+        if (calculatedDimensions) {
+            container.style.setProperty('--calculated-slider-width', `${calculatedDimensions.sliderWidth}px`);
+            container.style.setProperty('--calculated-slider-height', `${calculatedDimensions.sliderHeight}px`);
+            container.style.setProperty('--calculated-total-height', `${calculatedDimensions.totalHeight}px`);
         }
 
         // anchor設定をコンテナに追加
@@ -1689,6 +1716,85 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
 
         await Promise.allSettled(preloadPromises);
         console.log('画像プリロード完了');
+    }
+
+    // 最適サイズ事前計算
+    function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
+        try {
+            // ビューポートサイズ取得
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // ドロワー幅計算
+            const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+            const maxDrawerWidth = drawerConfig.maxWidthPx || 600;
+            const actualDrawerWidth = Math.min(drawerPercentWidth, maxDrawerWidth);
+
+            // スライダー幅（ドロワー幅と同じ）
+            const sliderWidth = actualDrawerWidth;
+
+            // アスペクト比取得
+            let aspectRatio = '16:9'; // デフォルト
+            if (sliderConfig.aspectRatio === 'custom') {
+                const width = sliderConfig.customAspectWidth || 16;
+                const height = sliderConfig.customAspectHeight || 9;
+                aspectRatio = `${width}:${height}`;
+            } else if (sliderConfig.aspectRatio) {
+                aspectRatio = sliderConfig.aspectRatio;
+            }
+
+            // アスペクト比から高さ計算
+            const [aspectWidth, aspectHeight] = aspectRatio.split(':').map(Number);
+            const aspectRatioValue = aspectWidth / aspectHeight;
+            let sliderHeight = sliderWidth / aspectRatioValue;
+
+            // 画像メタデータがある場合はより正確な計算
+            if (config.slider.items && config.slider.items.length > 0) {
+                const firstItem = config.slider.items[0];
+                if (firstItem.mediaId && firstItem.mediaId > 0) {
+                    // 注意: この時点ではmediaInfoは未取得なので、
+                    // アスペクト比ベースの計算のみ行う
+                    console.log('画像メタデータベースの計算は後で最適化予定');
+                }
+            }
+
+            // 最大高さ制限を適用
+            const maxHeight = layoutConfig.maxHeightPx || 640;
+            if (sliderHeight > maxHeight) {
+                sliderHeight = maxHeight;
+                // 高さ制限時は幅も調整
+                const adjustedWidth = sliderHeight * aspectRatioValue;
+                if (adjustedWidth < sliderWidth) {
+                    // 幅の調整は行わない（レイアウト安定性優先）
+                }
+            }
+
+            // ボタン領域高さ（概算）
+            const buttonRowHeight = layoutConfig.buttonRowHeight || 48;
+            const buttonAreaHeight = config.buttons && config.buttons.length > 0 ? buttonRowHeight : 0;
+
+            // 総高さ計算
+            const totalHeight = sliderHeight + buttonAreaHeight;
+
+            console.log('事前サイズ計算結果:', {
+                sliderWidth,
+                sliderHeight: Math.round(sliderHeight),
+                totalHeight: Math.round(totalHeight),
+                aspectRatio,
+                maxHeight
+            });
+
+            return {
+                sliderWidth: Math.round(sliderWidth),
+                sliderHeight: Math.round(sliderHeight),
+                totalHeight: Math.round(totalHeight),
+                aspectRatio
+            };
+
+        } catch (error) {
+            console.warn('サイズ事前計算エラー:', error);
+            return null;
+        }
     }
 
     // HTMLエスケープ
