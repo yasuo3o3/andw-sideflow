@@ -795,7 +795,27 @@
 
             // カラー情報をstyle属性として追加
             let styleAttr = '';
-            if (button.colors && button.variant !== 'line') {
+            if (button.variant === 'line') {
+                // LINEバリアント用の固定色設定
+                const lineColor = '#06C755'; // LINEコーポレートカラー
+                const styles = [];
+
+                if (button.lineStyle === 'solid') {
+                    // 単色：背景をLINEカラーで塗りつぶし、文字色を白
+                    styles.push(`background-color: ${lineColor}`);
+                    styles.push(`color: #ffffff`);
+                    styles.push(`border: 2px solid ${lineColor}`);
+                } else if (button.lineStyle === 'outline') {
+                    // 枠線：背景を白、文字色と枠線をLINEカラー
+                    styles.push(`background-color: #ffffff`);
+                    styles.push(`color: ${lineColor}`);
+                    styles.push(`border: 2px solid ${lineColor}`);
+                }
+
+                if (styles.length > 0) {
+                    styleAttr = ` style="${styles.join('; ')}"`;
+                }
+            } else if (button.colors) {
                 const styles = [];
                 switch (button.variant) {
                     case 'solid':
