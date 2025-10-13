@@ -23,12 +23,19 @@
             pointer-events: none;
             font-family: var(--sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
 
+            /* 初期化完了まで非表示（フリッカー防止） */
+            visibility: hidden;
+
             /* CSS変数API */
             --sf-color-brand: var(--andw-sf-color-brand, #667eea);
             --sf-radius: var(--andw-sf-radius, 8px);
             --sf-shadow: var(--andw-sf-shadow, 0 4px 12px rgba(0,0,0,0.15));
             --sf-spacing: var(--andw-sf-spacing, 16px);
             --sf-font: var(--andw-sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+        }
+
+        :host(.sf-initialized) {
+            visibility: visible;
         }
 
         .sf-wrap {
@@ -506,6 +513,46 @@
                 padding: 6px 8px;
             }
         }
+
+        /* プレースホルダースタイル */
+        .sf-placeholder-slide {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sf-placeholder-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255,255,255,0.4) 50%,
+                transparent 100%);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .sf-loading .sf-placeholder-slide {
+            aspect-ratio: var(--aspect-ratio, 16/9);
+        }
+
+        /* ローディング完了後はプレースホルダーを非表示 */
+        .sf-drawer:not(.sf-loading) .sf-placeholder {
+            display: none;
+        }
     `;
 
     // 初期化
@@ -578,35 +625,44 @@
         // カスタムCSS読み込み
         loadCustomCSS();
 
-        // UI作成
-        await createUI();
+        // タブのみ先に表示（同期処理）
+        createTabUI();
 
-        // イベントリスナー設定
-        setupEventListeners();
-
-        // ドキュメントに追加
+        // ドキュメントに追加（タブを即座に表示）
         document.body.appendChild(widget);
 
-        // 初回吹き出し表示
-        showBubbleIfFirstVisit();
+        // ドロワー内容を非同期で作成
+        setTimeout(async () => {
+            try {
+                await createDrawerContent();
 
-        // 光沢エフェクト開始
-        startGlitterEffect();
+                // イベントリスナー設定
+                setupEventListeners();
 
-        // Page Visibility API対応
-        setupPageVisibility();
+                // 初回吹き出し表示
+                showBubbleIfFirstVisit();
 
-        // レスポンシブ対応
-        setupResponsive();
+                // 光沢エフェクト開始
+                startGlitterEffect();
 
-        // 高さ同期設定
-        setupHeightSync();
+                // Page Visibility API対応
+                setupPageVisibility();
+
+                // レスポンシブ対応
+                setupResponsive();
+
+                // 高さ同期設定
+                setupHeightSync();
+            } catch (error) {
+                console.error('andW SideFlow: ドロワー初期化エラー:', error);
+            }
+        }, 0);
     }
 
-    // UI作成
-    async function createUI() {
+    // タブのみ先行表示（同期処理）
+    function createTabUI() {
         // 設定取得
-        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50, heightMode: 'matchDrawer' };
+        const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50 };
         const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76, maxWidthPx: 600 };
         const motionConfig = config.motion || { durationMs: 300, easing: 'cubic-bezier(0.2,0,0,1)' };
         const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
@@ -623,7 +679,7 @@
             isDrawerOpen = true;
         }
 
-        // CSS変数を設定
+        // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
         // 実際のドロワー幅を計算（max-width制限を考慮）
@@ -645,12 +701,10 @@
         if (sliderConfig.heightMode === 'auto' && sliderConfig.aspectRatio) {
             let aspectRatio;
             if (sliderConfig.aspectRatio === 'custom') {
-                // カスタムアスペクト比を使用
                 const width = sliderConfig.customAspectWidth || 16;
                 const height = sliderConfig.customAspectHeight || 9;
                 aspectRatio = `${width}/${height}`;
             } else {
-                // 定義済みのアスペクト比を使用
                 const [width, height] = sliderConfig.aspectRatio.split(':').map(Number);
                 aspectRatio = `${width}/${height}`;
             }
@@ -661,13 +715,10 @@
             container.style.setProperty('--max-height-px', `${layoutConfig.maxHeightPx}px`);
         }
 
-        // スライダーHTMLを非同期で生成
-        const sliderHTML = await createSliderHTML();
-
         // anchor設定をコンテナに追加
         container.classList.add(`anchor-${tabConfig.anchor}`);
 
-        // タブとドロワーを横並び配置
+        // タブのみ表示（ドロワーはプレースホルダー）
         const tabElement = tabConfig.action === 'link' && tabConfig.linkUrl ?
             `<a href="${escapeHtml(tabConfig.linkUrl)}" class="sf-tab" target="_blank" rel="noopener">
                 ${escapeHtml(tabConfig.text || '求人')}
@@ -681,11 +732,14 @@
             <div class="andw-sideflow-bubble" style="display: none;">
                 タップして求人をチェック！
             </div>
-            <div class="sf-drawer auto-height" role="dialog" aria-labelledby="sf-title" aria-hidden="true" inert id="sf-drawer">
+            <div class="sf-drawer auto-height sf-loading" role="dialog" aria-labelledby="sf-title" aria-hidden="true" inert id="sf-drawer">
                 <div class="sf-header">
                     <h2 id="sf-title" class="andw-sideflow-sr-only">求人情報</h2>
                     <div class="sf-slider auto-mode" aria-roledescription="carousel" aria-label="求人スライドショー">
-                        ${sliderHTML}
+                        <!-- プレースホルダー: 固定サイズ確保 -->
+                        <div class="sf-slides sf-placeholder">
+                            <div class="sf-slide sf-placeholder-slide"></div>
+                        </div>
                         <button class="sf-close" aria-label="閉じる" tabindex="-1">
                             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M12.854 4.854a.5.5 0 0 0-.708-.708L8 8.293 3.854 4.146a.5.5 0 1 0-.708.708L7.293 9l-4.147 4.146a.5.5 0 0 0 .708.708L8 9.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 9l4.147-4.146z"/>
@@ -695,14 +749,52 @@
                     </div>
                 </div>
                 <div class="sf-content">
-                    <div class="sf-buttons ${getButtonsClass()}">
-                        ${createButtonsHTML()}
+                    <div class="sf-buttons">
+                        <!-- ボタンプレースホルダー -->
                     </div>
                 </div>
             </div>
         `;
 
         shadowRoot.appendChild(container);
+
+        // 初期化完了を通知（フリッカー防止解除）
+        setTimeout(() => {
+            widget.classList.add('sf-initialized');
+        }, 0);
+    }
+
+    // ドロワー内容を非同期で作成
+    async function createDrawerContent() {
+        const container = shadowRoot.querySelector('.sf-wrap');
+        if (!container) return;
+
+        // スライダーHTMLを非同期で生成
+        const sliderHTML = await createSliderHTML();
+
+        // ドロワー内のスライダー部分を更新
+        const sliderElement = container.querySelector('.sf-slider');
+        if (sliderElement) {
+            // 閉じるボタンを保持
+            const closeButton = sliderElement.querySelector('.sf-close');
+            const statusElement = sliderElement.querySelector('#sf-slide-status');
+
+            sliderElement.innerHTML = `
+                ${sliderHTML}
+                ${closeButton ? closeButton.outerHTML : ''}
+                ${statusElement ? statusElement.outerHTML : ''}
+            `;
+        }
+
+        // ボタン部分を更新
+        const buttonsElement = container.querySelector('.sf-buttons');
+        if (buttonsElement) {
+            buttonsElement.className = `sf-buttons ${getButtonsClass()}`;
+            buttonsElement.innerHTML = createButtonsHTML();
+        }
+
+        // ローディング状態を解除
+        container.querySelector('.sf-drawer')?.classList.remove('sf-loading');
     }
 
     // スライダーHTML作成
@@ -870,6 +962,17 @@
         } else {
             // ドロワーモードの場合
             tab.addEventListener('click', toggleDrawer);
+
+            // タブホバー時の画像プリロード（デスクトップのみ）
+            if (!('ontouchstart' in window)) {
+                let preloadStarted = false;
+                tab.addEventListener('mouseenter', () => {
+                    if (!preloadStarted) {
+                        preloadStarted = true;
+                        preloadImages();
+                    }
+                });
+            }
         }
 
         // 閉じるボタン
@@ -1542,6 +1645,44 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
         if (config?.dev?.debug) {
             console.log('andW SideFlow Event:', eventData);
         }
+    }
+
+    // 画像プリロード（タブホバー時）
+    async function preloadImages() {
+        if (!config.slider.items || config.slider.items.length === 0) return;
+
+        console.log('画像プリロード開始');
+
+        // 最初の2枚の画像のみプリロード（ユーザー体験優先）
+        const imagesToPreload = config.slider.items.slice(0, 2);
+
+        const preloadPromises = imagesToPreload.map(async (item) => {
+            try {
+                if (item.mediaId && item.mediaId > 0) {
+                    const mediaInfo = await getMediaInfo(item.mediaId);
+                    if (mediaInfo?.src) {
+                        const img = new Image();
+                        img.src = mediaInfo.src;
+                        return new Promise((resolve) => {
+                            img.onload = () => resolve();
+                            img.onerror = () => resolve(); // エラーでも続行
+                        });
+                    }
+                } else if (item.src) {
+                    const img = new Image();
+                    img.src = item.src;
+                    return new Promise((resolve) => {
+                        img.onload = () => resolve();
+                        img.onerror = () => resolve(); // エラーでも続行
+                    });
+                }
+            } catch (error) {
+                console.warn('画像プリロードエラー:', error);
+            }
+        });
+
+        await Promise.allSettled(preloadPromises);
+        console.log('画像プリロード完了');
     }
 
     // HTMLエスケープ
