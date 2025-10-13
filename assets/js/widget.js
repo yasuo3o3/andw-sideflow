@@ -703,7 +703,13 @@
 
         // 実際のドロワー幅を計算（max-width制限を考慮）
         const viewportWidth = window.innerWidth;
-        const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+        let drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+
+        // mobile時の調整（レスポンシブ更新と同じロジック）
+        if (viewportWidth <= 480) {
+            drawerPercentWidth = 0.85 * viewportWidth;
+        }
+
         const maxWidth = drawerConfig.maxWidthPx || 600;
         const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
 
@@ -724,7 +730,12 @@
             console.log('🔍 andW SideFlow iOS Debug:', debugInfo);
         }
 
-        container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
+        // CSS変数設定（mobile調整を反映）
+        if (viewportWidth <= 480) {
+            container.style.setProperty('--sf-drawerW', '85vw');
+        } else {
+            container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
+        }
         container.style.setProperty('--sf-drawerMaxW', `${maxWidth}px`);
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
@@ -1465,8 +1476,13 @@
             const viewportWidth = window.innerWidth;
             let drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
 
-            // mobile時の調整は初期表示と統一
-            wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
+            // mobile時の調整
+            if (viewportWidth <= 480) {
+                drawerPercentWidth = 0.85 * viewportWidth;
+                wrap.style.setProperty('--sf-drawerW', '85vw');
+            } else {
+                wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
+            }
 
             const maxWidth = drawerConfig.maxWidthPx || 600;
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
