@@ -24,7 +24,8 @@
             font-family: var(--sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
 
             /* 初期化完了まで非表示（フリッカー防止） */
-            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.1s ease-out;
 
             /* CSS変数API */
             --sf-color-brand: var(--andw-sf-color-brand, #667eea);
@@ -35,7 +36,7 @@
         }
 
         :host(.sf-initialized) {
-            visibility: visible;
+            opacity: 1;
         }
 
         .sf-wrap {
@@ -43,14 +44,14 @@
             right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW)));
-            transition: transform var(--sf-duration) var(--sf-ease);
+            transform: translateX(var(--sf-actualDrawerW, 400px));
+            transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             z-index: 120;
         }
 
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW)));
+            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, 400px));
         }
 
         .sf-wrap.anchor-center.is-opening {
@@ -718,6 +719,9 @@
         // anchor設定をコンテナに追加
         container.classList.add(`anchor-${tabConfig.anchor}`);
 
+        // CSS変数を即座に適用（位置ずれ防止）
+        container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
+
         // タブのみ表示（ドロワーはプレースホルダー）
         const tabElement = tabConfig.action === 'link' && tabConfig.linkUrl ?
             `<a href="${escapeHtml(tabConfig.linkUrl)}" class="sf-tab" target="_blank" rel="noopener">
@@ -758,10 +762,12 @@
 
         shadowRoot.appendChild(container);
 
-        // 初期化完了を通知（フリッカー防止解除）
-        setTimeout(() => {
-            widget.classList.add('sf-initialized');
-        }, 0);
+        // 初期化完了を通知（レンダリング確定後に表示）
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                widget.classList.add('sf-initialized');
+            });
+        });
     }
 
     // ドロワー内容を非同期で作成
