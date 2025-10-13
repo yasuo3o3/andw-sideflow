@@ -495,8 +495,8 @@ class ANDW_SideFlow_Admin_UI {
     private function render_button_item($button, $index) {
         ?>
         <div class="button-item" data-index="<?php echo esc_attr($index); ?>">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h4 style="margin: 0;"><?php
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                <h4 style="margin: 0; border-bottom: none;"><?php
                     /* translators: %d: button number */
                     echo sprintf(esc_html__('ボタン %d', 'andw-sideflow'), absint($index) + 1);
                 ?></h4>

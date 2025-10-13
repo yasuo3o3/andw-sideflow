@@ -305,8 +305,8 @@
         const index = $('#buttons-list .button-item').length;
         const template = `
             <div class="button-item" data-index="${index}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h4 style="margin: 0;">ボタン ${index + 1}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                    <h4 style="margin: 0; border-bottom: none;">ボタン ${index + 1}</h4>
                     <button type="button" class="button-link-delete remove-button" style="color: #d63638; text-decoration: none; font-size: 13px;">削除</button>
                 </div>
                 <table class="form-table">
@@ -752,8 +752,8 @@
     function addButtonItemWithData(button, index) {
         const template = `
             <div class="button-item" data-index="${index}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h4 style="margin: 0;">ボタン ${index + 1}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                    <h4 style="margin: 0; border-bottom: none;">ボタン ${index + 1}</h4>
                     <button type="button" class="button-link-delete remove-button" style="color: #d63638; text-decoration: none; font-size: 13px;">削除</button>
                 </div>
                 <table class="form-table">
