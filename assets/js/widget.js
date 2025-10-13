@@ -579,8 +579,8 @@
         }
 
         .sf-wrap[data-tab-height="short"] .sf-tab {
-            /* ショートタブ：テキストサイズ基準 */
-            height: auto !important;
+            /* ショートタブ：文字数ベース高さ計算 */
+            height: var(--char-based-height, auto) !important;
             padding: 1rem 0.75rem;
             min-height: 3rem;
             display: flex;
@@ -778,6 +778,11 @@
         // タブ高さモード属性を設定
         const tabHeightMode = tabConfig.heightMode || 'full';
         container.setAttribute('data-tab-height', tabHeightMode);
+
+        // ショートタブモードの場合、文字数ベース高さを計算
+        if (tabHeightMode === 'short') {
+            calculateCharBasedHeight(container, tabConfig.text || '求人');
+        }
 
         // CSS変数を即座に適用（位置ずれ防止）
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
@@ -1883,6 +1888,16 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
             console.warn('サイズ事前計算エラー:', error);
             return null;
         }
+    }
+
+    // 文字数ベース高さ計算
+    function calculateCharBasedHeight(container, tabText) {
+        const charCount = tabText ? tabText.length : 0;
+        const baseHeight = 3; // 基本高さ（rem）
+        const extraHeight = charCount + 3; // 文字数 + 3
+        const totalHeight = baseHeight + (extraHeight * 0.15); // 0.15rem per extra unit
+
+        container.style.setProperty('--char-based-height', `${totalHeight}rem`);
     }
 
     // HTMLエスケープ
