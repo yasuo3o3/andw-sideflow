@@ -1,0 +1,63 @@
+andW SideFlow - Changelog
+===========================
+
+This file documents all notable changes to the andW SideFlow WordPress plugin.
+
+Format based on Keep a Changelog (https://keepachangelog.com/en/1.0.0/)
+This project adheres to Semantic Versioning (https://semver.org/spec/v2.0.0.html)
+
+[0.3.1] - 2025-10-14
+--------------------
+
+### CRITICAL FIXES
+* Fixed plugin activation destroying existing configuration options
+* Fixed REST API sanitize callback argument count error causing 500 errors
+
+### MAJOR IMPROVEMENTS
+* Fixed frontend scripts unnecessarily loading in admin area (performance)
+* Enhanced numeric validation for configuration data
+* Improved internationalization support for hardcoded Japanese strings
+
+### SECURITY ENHANCEMENTS
+* Strengthened input validation and data type checking
+* Enhanced REST API parameter validation
+
+### TECHNICAL CHANGES
+* Refactored enqueue_frontend_scripts() with admin area check
+* Added is_numeric() validation for interval and aspect ratio values
+* Converted hardcoded Japanese strings to translatable functions
+* Updated sanitize_config_array() to support REST API 3-argument signature
+
+[0.3.0] - 2025-10-12
+--------------------
+
+### INITIAL STABLE RELEASE
+* Right-side floating tab with drawer-style UI implementation
+* Automatic slideshow with swipe controls and arrow navigation
+* Responsive design with mobile-first approach
+* Shadow DOM implementation for complete style isolation
+* Accessibility support (screen readers, keyboard navigation)
+* Performance optimized with zero dependencies
+* REST API endpoints for configuration management
+* Comprehensive admin interface with real-time preview
+* Multi-language support (i18n) with Japanese and English
+* Secure implementation with nonce validation and capability checks
+
+### TECHNICAL FEATURES
+* WordPress 5.0+ and PHP 7.4+ compatibility
+* Plugin Directory compliance (WPCS, Plugin Check passed)
+* Proper uninstall cleanup procedures
+* Transient-based preview system
+* Media library integration for image management
+* Custom post type and taxonomy support (andw_ prefixed)
+
+### BROWSER SUPPORT
+* Modern browsers with Shadow DOM support
+* iOS Safari with Visual Viewport API support
+* Android Chrome with Intersection Observer
+* Desktop browsers with prefers-reduced-motion respect
+
+---
+
+For detailed technical documentation and development guidelines,
+see README.md and DEVELOPER.md files.

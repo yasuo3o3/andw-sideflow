@@ -1,25 +1,38 @@
 # andW SideFlow
 
-右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群WordPressプラグイン
+A floating drawer-style slideshow and button plugin for WordPress, designed for mobile-first recruitment displays.
 
-## 概要
+**📋 Status**: Ready for WordPress.org submission | **🌐 Text Domain**: `andw-sideflow` | **⚡ Version**: 0.3.1
 
-andW SideFlowは、サイト右側に固定表示されるタブから展開するドロワー型のスライドショー＆ボタン群を表示するWordPressプラグインです。求人情報の表示に特化した設計となっており、美しいアニメーションとレスポンシブデザインを提供します。
+## Overview
 
-## 主な機能
+andW SideFlow is a lightweight WordPress plugin that provides a right-side floating tab that expands into a drawer containing a slideshow and action buttons. Designed with mobile-first approach and optimized for recruitment content with beautiful animations and responsive design.
 
-- **ドロワー型UI**: 右サイド固定タブからスライドアウトする美しいドロワー
-- **スライドショー**: 自動再生・矢印ナビゲーション対応の画像スライダー
-- **カスタムボタン**: 4種類のスタイル（単色・グラデーション・枠線・LINE）
-- **レスポンシブ対応**: デスクトップ・タブレット・スマートフォン最適化
-- **アクセシビリティ**: ARIA属性・キーボードナビゲーション対応
-- **パフォーマンス最適化**: 遅延読み込み・プリロード機能
+## Key Features
 
-## インストール
+- **🎯 Drawer UI**: Beautiful slide-out drawer from right-side fixed tab
+- **🖼️ Slideshow**: Auto-playing image slider with arrow navigation and swipe support
+- **🎨 Custom Buttons**: 4 styles (solid, gradient, outline, LINE-style) with customizable colors
+- **📱 Responsive**: Optimized for desktop, tablet, and mobile devices
+- **♿ Accessibility**: ARIA attributes and keyboard navigation support
+- **⚡ Performance**: Lazy loading, zero dependencies, Shadow DOM isolation
+- **🛡️ Security**: Comprehensive nonce validation and permission checks
 
-1. プラグインファイルを `/wp-content/plugins/andw-sideflow/` にアップロード
-2. WordPress管理画面でプラグインを有効化
-3. 「andW SideFlow」設定ページで初期設定を実行
+## Quick Start
+
+1. Upload plugin files to `/wp-content/plugins/andw-sideflow/`
+2. Activate the plugin through WordPress admin
+3. Configure settings in **andW SideFlow** settings page
+4. Customize your slideshow and buttons
+
+## WordPress.org Submission
+
+This plugin is prepared for **WordPress.org Plugin Directory** submission with:
+- ✅ Full WPCS compliance
+- ✅ Plugin Check validation passed
+- ✅ Security best practices implemented
+- ✅ Internationalization ready (i18n)
+- ✅ Uninstall cleanup procedures
 
 ## 多言語対応 (i18n)
 
@@ -96,10 +109,10 @@ andW SideFlowは、サイト右側に固定表示されるタブから展開す�
 - WordPress 5.0以上
 - PHP 7.4以上
 
-### バージョン履歴
-- **0.2.3**: パフォーマンス最適化、国際化対応
-- **0.2.0**: 遅延ロード実装、表示安定化
-- **0.1.0**: 初期リリース
+### Version History
+- **0.3.1**: Bug fixes and code quality improvements (current)
+- **0.3.0**: Initial stable release with complete feature set
+- **0.2.x**: Development versions (beta testing)
 
 ### ライセンス
 GPLv2 or later

@@ -72,17 +72,23 @@ iOS SafeAreaに対応済みです。設定のlayout.topSafeOffset, bottomSafeOff
 
 == Changelog ==
 
-= 0.0.2 =
-* タブ位置をanchor（center/bottom）+offsetPxで制御可能に変更
-* ドロワー展開時の背景（backdrop）を設定で無効化可能に変更
-* スライド領域の高さを成り行き高さ（aspectRatio基準）に変更
-* 新設定JSON仕様への対応（下位互換性維持）
+= 0.3.1 =
+* Fixed: Plugin activation destroying existing configuration options
+* Fixed: REST API sanitize callback argument count error causing 500 errors
+* Fixed: Frontend scripts unnecessarily loading in admin area (performance improvement)
+* Enhanced: Improved numeric validation for configuration data
+* Enhanced: Internationalization support for hardcoded Japanese strings
+* Security: Strengthened input validation and data type checking
 
-= 0.0.1 =
-* 初回リリース
-* 基本機能の実装
-* Shadow DOM対応
-* アクセシビリティ対応
+= 0.3.0 =
+* Initial stable release
+* Right-side floating tab with drawer-style UI
+* Automatic slideshow with swipe controls
+* Responsive design with mobile-first approach
+* Shadow DOM implementation for style isolation
+* Accessibility support (screen readers, keyboard navigation)
+* Performance optimized with zero dependencies
+* REST API endpoints for configuration management
 
 == Technical Notes ==
 
