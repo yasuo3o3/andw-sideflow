@@ -140,34 +140,52 @@
 
     // コンテナ内の特定のカラーピッカーを初期化
     function initializeColorPickersInContainer(container, selectors) {
+        // 既存のカラーピッカーを完全に削除
+        container.find('.wp-picker-container').each(function() {
+            const $pickerContainer = $(this);
+            const $originalInput = $pickerContainer.find('input').first();
+
+            if ($originalInput.length > 0) {
+                // 元の値と属性を保存
+                const originalValue = $originalInput.val();
+                const originalClasses = $originalInput.attr('class') || '';
+                const originalId = $originalInput.attr('id') || '';
+                const originalName = $originalInput.attr('name') || '';
+
+                // wp-color-pickerクラスを除去したクラス
+                const cleanClasses = originalClasses.replace(/\bwp-color-picker\b/g, '').trim();
+
+                // 新しいinput要素を作成
+                const $newInput = $('<input type="text">');
+                $newInput.val(originalValue);
+                $newInput.attr('class', cleanClasses);
+                if (originalId) $newInput.attr('id', originalId);
+                if (originalName) $newInput.attr('name', originalName);
+
+                // 元のwp-picker-containerの直前に新しいinputを挿入
+                $pickerContainer.before($newInput);
+
+                // wp-picker-containerを完全に削除
+                $pickerContainer.remove();
+            }
+        });
+
+        // セレクタで指定された要素に対してカラーピッカーを初期化
         selectors.forEach(function(selector) {
             const colorInputs = container.find(selector);
             colorInputs.each(function() {
                 const $this = $(this);
 
-                // 既に初期化済みかチェック（複数の方法でチェック）
-                if ($this.hasClass('wp-color-picker') ||
-                    $this.parent().hasClass('wp-picker-input-wrap') ||
-                    $this.closest('.wp-picker-container').length > 0) {
+                // 既に初期化済みでないことを確認
+                if (!$this.hasClass('wp-color-picker') &&
+                    $this.closest('.wp-picker-container').length === 0) {
 
-                    // 完全に破棄してから再初期化
-                    try {
-                        $this.wpColorPicker('destroy');
-                        // DOMからピッカー要素を削除
-                        $this.parent('.wp-picker-input-wrap').siblings('.wp-picker-holder').remove();
-                        $this.unwrap('.wp-picker-input-wrap').unwrap('.wp-picker-container');
-                    } catch (e) {
-                        // 破棄に失敗した場合は続行
-                        console.warn('カラーピッカー破棄時のエラー:', e);
-                    }
+                    $this.wpColorPicker({
+                        change: function() {
+                            updateConfig();
+                        }
+                    });
                 }
-
-                // 新しくカラーピッカーを初期化
-                $this.wpColorPicker({
-                    change: function() {
-                        updateConfig();
-                    }
-                });
             });
         });
     }
