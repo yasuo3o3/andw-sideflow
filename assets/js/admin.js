@@ -414,6 +414,9 @@
                         </td>
                     </tr>
                 </table>
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="submit" class="button button-primary" style="min-width: 120px;">このボタンを保存</button>
+                </div>
             </div>
         `;
 
@@ -861,6 +864,9 @@
                         </td>
                     </tr>
                 </table>
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="submit" class="button button-primary" style="min-width: 120px;">このボタンを保存</button>
+                </div>
             </div>
         `;
 
