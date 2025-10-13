@@ -607,7 +607,7 @@ class ANDW_SideFlow_Admin_UI {
                     </td>
                 </tr>
             </table>
-            <div style="margin-top: 15px; text-align: center;">
+            <div style="margin-top: 15px; text-align: left;">
                 <button type="submit" class="button button-primary" style="min-width: 120px;"><?php esc_html_e('このボタンを保存', 'andw-sideflow'); ?></button>
             </div>
         </div>
