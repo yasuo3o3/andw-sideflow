@@ -49,6 +49,13 @@
             z-index: var(--sf-z-index, 10000);
         }
 
+        /* iOS固有の修正 */
+        @supports (-webkit-touch-callout: none) {
+            .sf-wrap {
+                right: max(env(safe-area-inset-right, 0px), 0px);
+            }
+        }
+
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
             transform: translateY(-50%) translateX(var(--sf-actualDrawerW, 400px));
@@ -699,6 +706,23 @@
         const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
         const maxWidth = drawerConfig.maxWidthPx || 600;
         const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
+
+        // iOS デバッグ情報（問題特定のため）
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            const debugInfo = {
+                userAgent: navigator.userAgent,
+                viewportWidth: viewportWidth,
+                drawerPercentWidth: drawerPercentWidth,
+                maxWidth: maxWidth,
+                actualDrawerWidth: actualDrawerWidth,
+                safeAreaInsetRight: getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)'),
+                windowInnerWidth: window.innerWidth,
+                windowOuterWidth: window.outerWidth,
+                screenWidth: screen.width,
+                devicePixelRatio: window.devicePixelRatio
+            };
+            console.log('🔍 andW SideFlow iOS Debug:', debugInfo);
+        }
 
         container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
         container.style.setProperty('--sf-drawerMaxW', `${maxWidth}px`);
@@ -1452,6 +1476,17 @@
             const maxWidth = drawerConfig.maxWidthPx || 600;
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
+
+            // iOS レスポンシブ デバッグ情報
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                console.log('🔄 andW SideFlow iOS Responsive Update:', {
+                    trigger: 'layout update',
+                    viewportWidth: viewportWidth,
+                    drawerPercentWidth: drawerPercentWidth,
+                    actualDrawerWidth: actualDrawerWidth,
+                    safeAreaInsetRight: getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)')
+                });
+            }
 
             // 高さ同期も再計算
             updateTabHeight();
