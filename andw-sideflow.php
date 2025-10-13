@@ -2,11 +2,12 @@
 /**
  * Plugin Name: andW SideFlow
  * Description: 右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
- * Version: 0.2.3
+ * Version: 0.3.0
  * Author: yasuo3o3
  * Author URI: https://yasuo-o.xyz/
  * License: GPLv2 or later
  * Text Domain: andw-sideflow
+ * Domain Path: /languages
  * Requires at least: 5.0
  * Requires PHP: 7.4
  */
@@ -17,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('ANDW_SIDEFLOW_VERSION', '0.2.3');
+define('ANDW_SIDEFLOW_VERSION', '0.3.0');
 define('ANDW_SIDEFLOW_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -46,9 +47,21 @@ class ANDW_SideFlow {
      * コンストラクタ
      */
     private function __construct() {
+        add_action('plugins_loaded', array($this, 'load_textdomain'));
         add_action('init', array($this, 'init'));
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+    }
+
+    /**
+     * テキストドメインの読み込み
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain(
+            'andw-sideflow',
+            false,
+            dirname(plugin_basename(__FILE__)) . '/languages'
+        );
     }
 
     /**

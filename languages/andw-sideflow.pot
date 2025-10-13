@@ -1,0 +1,275 @@
+# Copyright (C) 2024 andW SideFlow
+# This file is distributed under the same license as the andW SideFlow package.
+msgid ""
+msgstr ""
+"Project-Id-Version: andW SideFlow 0.2.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/andw-sideflow\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-10-13T12:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: andW SideFlow\n"
+"X-Domain: andw-sideflow\n"
+
+#: andw-sideflow.php:176
+msgid "andW SideFlow設定を保存しました。"
+msgstr ""
+
+#: includes/admin-ui.php:45
+msgid "andW SideFlow 設定"
+msgstr ""
+
+#: includes/admin-ui.php:62
+msgid "スライドショー設定"
+msgstr ""
+
+#: includes/admin-ui.php:67
+msgid "自動再生"
+msgstr ""
+
+#: includes/admin-ui.php:69
+msgid "自動でスライドを切り替える"
+msgstr ""
+
+#: includes/admin-ui.php:75
+msgid "再生間隔（ミリ秒）"
+msgstr ""
+
+#: includes/admin-ui.php:81
+msgid "画像の表示方法"
+msgstr ""
+
+#: includes/admin-ui.php:84
+msgid "カバー"
+msgstr ""
+
+#: includes/admin-ui.php:85
+msgid "全体表示"
+msgstr ""
+
+#: includes/admin-ui.php:88
+msgid "画像をどのように表示するかを設定します。"
+msgstr ""
+
+#: includes/admin-ui.php:92
+msgid "アスペクト比"
+msgstr ""
+
+#: includes/admin-ui.php:100
+msgid "カスタム"
+msgstr ""
+
+#: includes/admin-ui.php:103
+msgid "画像の表示比率を設定します。object-fit: coverで自動調整されます。"
+msgstr ""
+
+#: includes/admin-ui.php:107
+msgid "矢印ナビゲーション"
+msgstr ""
+
+#: includes/admin-ui.php:110
+msgid "左右の矢印ボタンを表示する"
+msgstr ""
+
+#: includes/admin-ui.php:113
+msgid "無効にすると、矢印ナビゲーションが非表示になり、自動再生とスワイプ操作のみになります。"
+msgstr ""
+
+#: includes/admin-ui.php:119
+msgid "スライド一覧"
+msgstr ""
+
+#: includes/admin-ui.php:128
+msgid "スライドを追加"
+msgstr ""
+
+#: includes/admin-ui.php:133
+msgid "ボタン設定"
+msgstr ""
+
+#: includes/admin-ui.php:142
+msgid "ボタンを追加"
+msgstr ""
+
+#: includes/admin-ui.php:147
+msgid "タブ・レイアウト設定"
+msgstr ""
+
+#: includes/admin-ui.php:152
+msgid "タブ位置"
+msgstr ""
+
+#: includes/admin-ui.php:155
+msgid "中央"
+msgstr ""
+
+#: includes/admin-ui.php:156
+msgid "下部"
+msgstr ""
+
+#: includes/admin-ui.php:161
+msgid "タブオフセット（px）"
+msgstr ""
+
+#: includes/admin-ui.php:167
+msgid "タブテキスト"
+msgstr ""
+
+#: includes/admin-ui.php:173
+msgid "タブアクション"
+msgstr ""
+
+#: includes/admin-ui.php:176
+msgid "ドロワーを開く"
+msgstr ""
+
+#: includes/admin-ui.php:177
+msgid "リンクに移動"
+msgstr ""
+
+#: includes/admin-ui.php:185
+msgid "リンクURL"
+msgstr ""
+
+#: includes/admin-ui.php:191
+msgid "ドロワー設定"
+msgstr ""
+
+#: includes/admin-ui.php:196
+msgid "背景オーバーレイ"
+msgstr ""
+
+#: includes/admin-ui.php:198
+msgid "ドロワー表示時に背景を暗くする"
+msgstr ""
+
+#: includes/admin-ui.php:204
+msgid "ドロワー幅（%）"
+msgstr ""
+
+#: includes/admin-ui.php:210
+msgid "最大幅（px）"
+msgstr ""
+
+#: includes/admin-ui.php:216
+msgid "スタイル・デザイン設定"
+msgstr ""
+
+#: includes/admin-ui.php:221
+msgid "プリセット"
+msgstr ""
+
+#: includes/admin-ui.php:224
+msgid "ライト"
+msgstr ""
+
+#: includes/admin-ui.php:225
+msgid "ダーク"
+msgstr ""
+
+#: includes/admin-ui.php:230
+msgid "カスタムCSS URL"
+msgstr ""
+
+#: includes/admin-ui.php:236
+msgid "ブランドカラー"
+msgstr ""
+
+#: includes/admin-ui.php:242
+msgid "角丸（px）"
+msgstr ""
+
+#: includes/admin-ui.php:248
+msgid "影"
+msgstr ""
+
+#: includes/admin-ui.php:254
+msgid "余白（px）"
+msgstr ""
+
+#: includes/admin-ui.php:260
+msgid "アニメーション時間（ms）"
+msgstr ""
+
+#: includes/admin-ui.php:266
+msgid "イージング"
+msgstr ""
+
+#: includes/admin-ui.php:272
+msgid "フォント"
+msgstr ""
+
+#: includes/admin-ui.php:278
+msgid "レイアウト詳細設定"
+msgstr ""
+
+#: includes/admin-ui.php:283
+msgid "最大高さ（px）"
+msgstr ""
+
+#: includes/admin-ui.php:289
+msgid "ボタン行の高さ（px）"
+msgstr ""
+
+#: includes/admin-ui.php:295
+msgid "アニメーション・動作設定"
+msgstr ""
+
+#: includes/admin-ui.php:300
+msgid "オーバーシュートアニメーション"
+msgstr ""
+
+#: includes/admin-ui.php:302
+msgid "弾むようなアニメーション効果を有効にする"
+msgstr ""
+
+#: includes/admin-ui.php:308
+msgid "その他設定"
+msgstr ""
+
+#: includes/admin-ui.php:313
+msgid "吹き出し表示"
+msgstr ""
+
+#: includes/admin-ui.php:315
+msgid "初回訪問時に吹き出しを表示する"
+msgstr ""
+
+#: includes/admin-ui.php:321
+msgid "光沢効果間隔（ms）"
+msgstr ""
+
+#: includes/admin-ui.php:327
+msgid "モーション削減対応"
+msgstr ""
+
+#: includes/admin-ui.php:329
+msgid "アクセシビリティ: prefers-reduced-motionに対応する"
+msgstr ""
+
+#: includes/admin-ui.php:335
+msgid "開発・デバッグ設定"
+msgstr ""
+
+#: includes/admin-ui.php:340
+msgid "デバッグモード"
+msgstr ""
+
+#: includes/admin-ui.php:342
+msgid "コンソールにデバッグ情報を出力する"
+msgstr ""
+
+#: includes/admin-ui.php:348
+msgid "プレビュー"
+msgstr ""
+
+#: includes/admin-ui.php:353
+msgid "プレビュー適用"
+msgstr ""
+
+#: includes/admin-ui.php:361
+msgid "設定を保存"
+msgstr ""
