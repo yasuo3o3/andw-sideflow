@@ -343,7 +343,7 @@ class ANDW_SideFlow {
     /**
      * 設定配列のサニタイズ
      */
-    public function sanitize_config_array($config) {
+    public function sanitize_config_array($config, $request = null, $param = '') {
         $sanitized = array();
 
         // ボタン設定
@@ -1038,15 +1038,16 @@ class ANDW_SideFlow {
         }
 
         // 画像がない場合はサンプル画像を追加（一回だけ）
-        if (empty($final_config['slider']['items'])) {
-            $final_config['slider']['items'] = array(
+        $current_config = get_option('andw_sideflow_config');
+        if ($current_config && empty($current_config['slider']['items'])) {
+            $current_config['slider']['items'] = array(
                 array(
                     'src' => '/wp-content/uploads/2025/10/名称未設定のデザイン.jpg',
                     'alt' => '求人募集の画像',
                     'href' => ''
                 )
             );
-            update_option('andw_sideflow_config', $final_config);
+            update_option('andw_sideflow_config', $current_config);
         }
 
         // 画像サイズを追加（削除済み - 既存のWordPress画像サイズを利用）
