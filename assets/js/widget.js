@@ -828,6 +828,11 @@
 
         // ローディング状態を解除
         container.querySelector('.sf-drawer')?.classList.remove('sf-loading');
+
+        // 実際のサイズと計算値の差異を検証・調整
+        setTimeout(() => {
+            adjustCalculatedSize(container);
+        }, 100);
     }
 
     // スライダーHTML作成
@@ -1718,6 +1723,34 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
         console.log('画像プリロード完了');
     }
 
+    // 実際のサイズ測定による調整
+    function adjustCalculatedSize(container) {
+        try {
+            const drawer = container.querySelector('.sf-drawer');
+            if (!drawer) return;
+
+            // 実際の高さを測定
+            const actualHeight = drawer.offsetHeight;
+            const calculatedHeight = parseInt(container.style.getPropertyValue('--calculated-total-height'));
+
+            if (calculatedHeight && Math.abs(actualHeight - calculatedHeight) > 5) {
+                console.log('サイズ差異検出:', {
+                    calculated: calculatedHeight,
+                    actual: actualHeight,
+                    diff: actualHeight - calculatedHeight
+                });
+
+                // 実測値でCSS変数を更新
+                container.style.setProperty('--calculated-total-height', `${actualHeight}px`);
+
+                // 次回のための調整値を学習
+                window.andwSideFlowSizeAdjustment = actualHeight - calculatedHeight;
+            }
+        } catch (error) {
+            console.warn('サイズ調整エラー:', error);
+        }
+    }
+
     // 最適サイズ事前計算
     function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
         try {
@@ -1769,9 +1802,25 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
                 }
             }
 
-            // ボタン領域高さ（概算）
-            const buttonRowHeight = layoutConfig.buttonRowHeight || 48;
-            const buttonAreaHeight = config.buttons && config.buttons.length > 0 ? buttonRowHeight : 0;
+            // ボタン領域高さ（より正確な計算）
+            let buttonAreaHeight = 0;
+            if (config.buttons && config.buttons.length > 0) {
+                const buttonRowHeight = layoutConfig.buttonRowHeight || 48;
+                const buttonsPadding = 24; // .sf-buttons の padding: 12px (上下 12px ずつ)
+
+                // 実測値との差を考慮した調整値（学習済み値または経験値）
+                const learnedAdjustment = window.andwSideFlowSizeAdjustment || 0;
+                const renderingAdjustment = learnedAdjustment || -10; // デフォルト調整値
+
+                buttonAreaHeight = buttonRowHeight + buttonsPadding + renderingAdjustment;
+
+                console.log('ボタン領域計算:', {
+                    buttonRowHeight,
+                    buttonsPadding,
+                    renderingAdjustment,
+                    buttonAreaHeight
+                });
+            }
 
             // 総高さ計算
             const totalHeight = sliderHeight + buttonAreaHeight;
