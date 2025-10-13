@@ -1465,13 +1465,8 @@
             const viewportWidth = window.innerWidth;
             let drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
 
-            // mobile時の調整
-            if (viewportWidth <= 480) {
-                drawerPercentWidth = 0.85 * viewportWidth;
-                wrap.style.setProperty('--sf-drawerW', '85vw');
-            } else {
-                wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-            }
+            // mobile時の調整は初期表示と統一
+            wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
 
             const maxWidth = drawerConfig.maxWidthPx || 600;
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
@@ -1492,15 +1487,19 @@
             updateTabHeight();
         }
 
-        // 初回更新
-        updateLayout();
+        // 初回更新（遅延実行で位置ずれ防止）
+        setTimeout(updateLayout, 100);
 
         // ウィンドウリサイズ
         window.addEventListener('resize', updateLayout);
 
-        // visualViewport対応（iOS Safari等）
+        // visualViewport対応（iOS Safari等）- デバウンス処理追加
         if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', updateLayout);
+            let visualViewportTimer;
+            window.visualViewport.addEventListener('resize', () => {
+                clearTimeout(visualViewportTimer);
+                visualViewportTimer = setTimeout(updateLayout, 150);
+            });
         }
     }
 
