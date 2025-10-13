@@ -271,7 +271,7 @@ class ANDW_SideFlow {
      */
     public function clean_legacy_field() {
         ?>
-        <button type="button" id="clean-legacy-btn" class="button button-secondary">古い設定項目を削除</button>
+        <button type="button" id="clean-legacy-btn" class="button button-secondary"><?php esc_html_e('古い設定項目を削除', 'andw-sideflow'); ?></button>
         <p class="description">
             <?php esc_html_e('topSafeOffset等の古い設定項目をDBから完全に削除します。', 'andw-sideflow'); ?>
         </p>
@@ -285,7 +285,7 @@ class ANDW_SideFlow {
      */
     public function update_config_field() {
         ?>
-        <button type="button" id="update-config-btn" class="button button-primary">設定を最新版に更新</button>
+        <button type="button" id="update-config-btn" class="button button-primary"><?php esc_html_e('設定を最新版に更新', 'andw-sideflow'); ?></button>
         <p class="description">
             <?php esc_html_e('デフォルト設定に不足している項目を現在の設定に追加します。', 'andw-sideflow'); ?>
         </p>
@@ -434,12 +434,12 @@ class ANDW_SideFlow {
         $slider = $config['slider'] ?? array();
         $sanitized['slider'] = array(
             'autoplay' => (bool)($slider['autoplay'] ?? true),
-            'interval' => max(1000, intval($slider['interval'] ?? 3500)),
+            'interval' => is_numeric($slider['interval'] ?? 3500) ? max(1000, intval($slider['interval'] ?? 3500)) : 3500,
             'fit' => in_array($slider['fit'] ?? 'cover', array('cover', 'contain', 'blurExtend')) ? $slider['fit'] ?? 'cover' : 'cover',
             'heightMode' => in_array($slider['heightMode'] ?? 'auto', array('auto', 'vh')) ? $slider['heightMode'] ?? 'auto' : 'auto',
             'aspectRatio' => $this->validate_aspect_ratio($slider['aspectRatio'] ?? '16:9'),
-            'customAspectWidth' => max(1, min(50, intval($slider['customAspectWidth'] ?? 16))),
-            'customAspectHeight' => max(1, min(50, intval($slider['customAspectHeight'] ?? 9))),
+            'customAspectWidth' => is_numeric($slider['customAspectWidth'] ?? 16) ? max(1, min(50, intval($slider['customAspectWidth'] ?? 16))) : 16,
+            'customAspectHeight' => is_numeric($slider['customAspectHeight'] ?? 9) ? max(1, min(50, intval($slider['customAspectHeight'] ?? 9))) : 9,
             'showArrows' => (bool)($slider['showArrows'] ?? true),
             'items' => array()
         );
@@ -514,7 +514,8 @@ class ANDW_SideFlow {
 
         // 後方互換：glitterInterval
         if (isset($config['glitterInterval'])) {
-            $sanitized['glitter']['interval'] = max(10000, intval($config['glitterInterval']));
+            $interval = $config['glitterInterval'];
+            $sanitized['glitter']['interval'] = is_numeric($interval) ? max(1000, intval($interval)) : 25000;
         }
 
         return $sanitized;
@@ -646,7 +647,7 @@ class ANDW_SideFlow {
             'buttons' => array(
                 array(
                     'id' => 'btn1',
-                    'text' => '求人を見る',
+                    'text' => __('求人を見る', 'andw-sideflow'),
                     'href' => '/jobs/',
                     'trackingId' => 'job_list',
                     'variant' => 'gradient',
@@ -659,7 +660,7 @@ class ANDW_SideFlow {
                 ),
                 array(
                     'id' => 'btn2',
-                    'text' => 'お問い合わせ',
+                    'text' => __('お問い合わせ', 'andw-sideflow'),
                     'href' => '/contact/',
                     'trackingId' => 'contact',
                     'variant' => 'line',
@@ -695,7 +696,7 @@ class ANDW_SideFlow {
                     array(
                         'mediaId' => 0,
                         'src' => '/wp-content/uploads/2025/10/名称未設定のデザイン.jpg',
-                        'alt' => '求人募集の画像',
+                        'alt' => __('求人募集の画像', 'andw-sideflow'),
                         'href' => '',
                         'fit' => 'inherit'
                     )
@@ -877,6 +878,11 @@ class ANDW_SideFlow {
      * フロントエンドスクリプト読み込み
      */
     public function enqueue_frontend_scripts() {
+        // 管理画面では読み込まない
+        if (is_admin()) {
+            return;
+        }
+
         wp_enqueue_script(
             'andw-sideflow-widget',
             ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/widget.js',
@@ -1043,7 +1049,7 @@ class ANDW_SideFlow {
             $current_config['slider']['items'] = array(
                 array(
                     'src' => '/wp-content/uploads/2025/10/名称未設定のデザイン.jpg',
-                    'alt' => '求人募集の画像',
+                    'alt' => __('求人募集の画像', 'andw-sideflow'),
                     'href' => ''
                 )
             );
