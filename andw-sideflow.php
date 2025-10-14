@@ -1114,10 +1114,13 @@ class ANDW_SideFlow {
             return;
         }
 
-        // WordPressカラーピッカーを読み込み
+        // 新しいUIが使用されている場合は、admin-ui.phpでスクリプトを読み込むため、ここでは何もしない
+        // WordPressカラーピッカーを読み込み（共通で必要）
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
 
+        // 古いスクリプト読み込みを無効化（admin-ui.phpで新しいUIのスクリプトを読み込むため）
+        /*
         // メインの管理画面機能（設定保存、タブ切り替えなど）
         wp_enqueue_script(
             'andw-sideflow-admin',
@@ -1135,6 +1138,7 @@ class ANDW_SideFlow {
             ANDW_SIDEFLOW_VERSION,
             true
         );
+        */
 
         // 管理画面CSS
         wp_enqueue_style(
