@@ -765,17 +765,17 @@
                 const $container = $(this);
                 switch (variant) {
                     case 'solid':
-                        button.colors.background = getColorPickerValueInContainer($container, '.button-color-background') || '#f0f0f1';
-                        button.colors.text = getColorPickerValueInContainer($container, '.button-color-text') || '#2c3338';
+                        button.colors.background = getColorPickerValueInContainer($container, '.solid-colors-row .button-color-background') || '#f0f0f1';
+                        button.colors.text = getColorPickerValueInContainer($container, '.solid-colors-row .button-color-text') || '#2c3338';
                         break;
                     case 'gradient':
-                        button.colors.gradientStart = getColorPickerValueInContainer($container, '.button-color-gradient-start') || '#0073aa';
-                        button.colors.gradientEnd = getColorPickerValueInContainer($container, '.button-color-gradient-end') || '#005a87';
-                        button.colors.text = getColorPickerValueInContainer($container, '.button-color-text') || '#ffffff';
+                        button.colors.gradientStart = getColorPickerValueInContainer($container, '.gradient-colors-row .button-color-gradient-start') || '#0073aa';
+                        button.colors.gradientEnd = getColorPickerValueInContainer($container, '.gradient-colors-row .button-color-gradient-end') || '#005a87';
+                        button.colors.text = getColorPickerValueInContainer($container, '.gradient-colors-row .button-color-text') || '#ffffff';
                         break;
                     case 'outline':
-                        button.colors.border = getColorPickerValueInContainer($container, '.button-color-border') || '#0073aa';
-                        button.colors.text = getColorPickerValueInContainer($container, '.button-color-text') || '#0073aa';
+                        button.colors.border = getColorPickerValueInContainer($container, '.outline-colors-row .button-color-border') || '#0073aa';
+                        button.colors.text = getColorPickerValueInContainer($container, '.outline-colors-row .button-color-text') || '#0073aa';
                         break;
                 }
             }
