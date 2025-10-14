@@ -553,7 +553,8 @@
 
         .sf-wrap[data-tab-height="short"] .sf-tab {
             /* ショートタブ：文字数ベース高さ計算 */
-            height: var(--char-based-height, 5rem) !important;
+            min-height: var(--char-based-height, 5rem);
+            height: auto;
             padding: 1rem 0.75rem;
             display: flex;
             flex-direction: column;
@@ -564,7 +565,6 @@
             text-orientation: mixed;
             letter-spacing: var(--tab-letter-spacing, normal);
             white-space: nowrap;
-            overflow: hidden;
         }
 
         /* レスポンシブ：モバイル対応 */
