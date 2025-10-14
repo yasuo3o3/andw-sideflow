@@ -81,6 +81,7 @@ class ANDW_SideFlow {
         add_action('admin_init', array($this, 'admin_settings_init'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_andw_sideflow_clean_legacy', array($this, 'ajax_clean_legacy'));
+        add_action('wp_ajax_andw_sideflow_reset_all_config', array($this, 'ajax_reset_all_config'));
         add_action('wp_ajax_andw_sideflow_update_config', array($this, 'ajax_update_config'));
 
         // 新しい管理UIを読み込み
@@ -272,8 +273,10 @@ class ANDW_SideFlow {
     public function clean_legacy_field() {
         ?>
         <button type="button" id="clean-legacy-btn" class="button button-secondary"><?php esc_html_e('古い設定項目を削除', 'andw-sideflow'); ?></button>
+        <button type="button" id="reset-all-config-btn" class="button button-secondary" style="margin-left: 10px;"><?php esc_html_e('全設定をリセット', 'andw-sideflow'); ?></button>
         <p class="description">
-            <?php esc_html_e('topSafeOffset等の古い設定項目をDBから完全に削除します。', 'andw-sideflow'); ?>
+            <?php esc_html_e('「古い設定項目を削除」: topSafeOffset等の古い設定項目をDBから削除します。', 'andw-sideflow'); ?><br>
+            <?php esc_html_e('「全設定をリセット」: 全ての設定を完全に削除してデフォルト状態に戻します。', 'andw-sideflow'); ?>
         </p>
         <div id="clean-legacy-result" style="margin-top: 10px;"></div>
 
@@ -702,6 +705,47 @@ class ANDW_SideFlow {
             } else {
                 wp_send_json_error('設定データが見つかりません。');
             }
+        } catch (Exception $e) {
+            wp_send_json_error('処理中にエラーが発生しました: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 全設定リセットAJAX処理
+     */
+    public function ajax_reset_all_config() {
+        // nonce確認
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'andw_sideflow_reset')) {
+            wp_die(esc_html__('セキュリティチェックに失敗しました。', 'andw-sideflow'));
+        }
+
+        // 権限確認
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('権限がありません。', 'andw-sideflow'));
+        }
+
+        try {
+            // メイン設定を削除
+            delete_option('andw_sideflow_config');
+
+            // プレビュー用の一時設定も削除
+            delete_transient('andw_sideflow_preview_config');
+
+            // 古い設定項目も同時に削除
+            $legacy_keys = array('topSafeOffset', 'bottomSafeOffset', 'maxVh', 'sliderMinVh', 'sliderMaxVh');
+            $removed_legacy = array();
+            $config = get_option('andw_sideflow_config', array());
+
+            foreach ($legacy_keys as $key) {
+                if (isset($config[$key])) {
+                    unset($config[$key]);
+                    $removed_legacy[] = $key;
+                }
+            }
+
+            wp_send_json_success('全ての設定を削除しました。ページをリロードしてデフォルト設定を確認してください。');
+
         } catch (Exception $e) {
             wp_send_json_error('処理中にエラーが発生しました: ' . $e->getMessage());
         }

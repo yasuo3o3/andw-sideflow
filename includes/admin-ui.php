@@ -66,6 +66,8 @@ class ANDW_SideFlow_Admin_UI {
         wp_localize_script('andw-sideflow-admin', 'andwSideFlowAdmin', array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('andw_sideflow_admin'),
+            'clean_nonce' => wp_create_nonce('andw_sideflow_clean'),
+            'reset_nonce' => wp_create_nonce('andw_sideflow_reset'),
             'previewUrl' => rest_url('andw-sideflow/v1/preview'),
             'currentConfig' => $current_config,
             'strings' => array(

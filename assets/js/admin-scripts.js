@@ -62,16 +62,18 @@ function initConfigPreview() {
  * レガシー設定削除ボタンの初期化
  */
 function initCleanLegacyButton() {
-    const btn = document.getElementById('clean-legacy-btn');
+    const cleanBtn = document.getElementById('clean-legacy-btn');
+    const resetBtn = document.getElementById('reset-all-config-btn');
     const result = document.getElementById('clean-legacy-result');
 
-    if (!btn || !result || typeof andwSideFlowAdmin === 'undefined') {
+    if (!cleanBtn || !result || typeof andwSideFlowAdmin === 'undefined') {
         return;
     }
 
-    btn.addEventListener('click', function() {
-        btn.disabled = true;
-        btn.textContent = '処理中...';
+    // 古い設定削除ボタン
+    cleanBtn.addEventListener('click', function() {
+        cleanBtn.disabled = true;
+        cleanBtn.textContent = '処理中...';
 
         fetch(andwSideFlowAdmin.ajaxurl, {
             method: 'POST',
@@ -95,10 +97,48 @@ function initCleanLegacyButton() {
             console.error('Error:', error);
         })
         .finally(() => {
-            btn.disabled = false;
-            btn.textContent = 'レガシー設定を削除';
+            cleanBtn.disabled = false;
+            cleanBtn.textContent = '古い設定項目を削除';
         });
     });
+
+    // 全設定リセットボタン
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (!confirm('全ての設定を削除します。この操作は元に戻せません。続行しますか？')) {
+                return;
+            }
+
+            resetBtn.disabled = true;
+            resetBtn.textContent = '処理中...';
+
+            fetch(andwSideFlowAdmin.ajaxurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=andw_sideflow_reset_all_config&nonce=' + andwSideFlowAdmin.reset_nonce
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
+                    // ページをリロードして更新された設定を表示
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    result.innerHTML = '<div style="color: red;">✗ ' + (data.data || 'エラーが発生しました') + '</div>';
+                }
+            })
+            .catch(error => {
+                result.innerHTML = '<div style="color: red;">✗ 通信エラーが発生しました</div>';
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                resetBtn.disabled = false;
+                resetBtn.textContent = '全設定をリセット';
+            });
+        });
+    }
 }
 
 /**
