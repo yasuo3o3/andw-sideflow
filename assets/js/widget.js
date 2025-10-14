@@ -555,7 +555,10 @@
             /* ショートタブ：文字数ベース高さ計算 */
             height: var(--char-based-height, 5rem);
             max-height: none;
-            padding: 1rem 0.75rem;
+            padding-top: calc(1rem + var(--tab-letter-spacing-padding, 0px));
+            padding-right: 0.75rem;
+            padding-bottom: 1rem;
+            padding-left: 0.75rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -1914,9 +1917,11 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 文字数ベース高さ計算
     function calculateCharBasedHeight(container, tabText, letterSpacing = 0) {
         const charCount = tabText ? tabText.length : 0;
-        const totalHeight = charCount + 3; // 文字数 + 3 (文字間隔補正を削除、white-space: nowrapで対応)
+        const totalHeight = charCount + 3 + (letterSpacing * (charCount - 1)) / 16; // 文字数 + 3 + 文字間隔補正
 
         container.style.setProperty('--char-based-height', `${totalHeight}rem`);
+        // 文字間隔による視覚バランス調整用のpadding-top
+        container.style.setProperty('--tab-letter-spacing-padding', `${letterSpacing}px`);
     }
 
     // HTMLエスケープ
