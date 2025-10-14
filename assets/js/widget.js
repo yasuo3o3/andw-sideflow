@@ -790,14 +790,14 @@
         const tabHeightMode = tabConfig.heightMode || 'full';
         container.setAttribute('data-tab-height', tabHeightMode);
 
-        // ショートタブモードの場合、文字数ベース高さを計算
-        if (tabHeightMode === 'short') {
-            calculateCharBasedHeight(container, tabConfig.text || '求人');
-        }
-
         // レター間隔を設定
         const letterSpacing = tabConfig.letterSpacing || 0;
         container.style.setProperty('--tab-letter-spacing', `${letterSpacing}px`);
+
+        // ショートタブモードの場合、文字数ベース高さを計算
+        if (tabHeightMode === 'short') {
+            calculateCharBasedHeight(container, tabConfig.text || '求人', letterSpacing);
+        }
 
         // CSS変数を即座に適用（位置ずれ防止）
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
@@ -1910,9 +1910,9 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     }
 
     // 文字数ベース高さ計算
-    function calculateCharBasedHeight(container, tabText) {
+    function calculateCharBasedHeight(container, tabText, letterSpacing = 0) {
         const charCount = tabText ? tabText.length : 0;
-        const totalHeight = charCount + 3; // 文字数 + 3 = 直接rem値
+        const totalHeight = charCount + 3 + (letterSpacing * (charCount - 1)) / 16; // 文字数 + 3 + 文字間隔補正
 
         container.style.setProperty('--char-based-height', `${totalHeight}rem`);
     }
