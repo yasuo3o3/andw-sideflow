@@ -15,6 +15,8 @@
         initializeCustomValidation();
         initializeAspectRatioControl();
         initializeTabActionControl();
+        initializeVisibilityControl();
+        populateFormWithCurrentConfig();
     });
 
     // タブ切り替え
@@ -539,7 +541,21 @@
                 debug: $('#dev-debug').is(':checked')
             },
             glitterInterval: parseInt($('#glitter-interval').val()) || 25000,
-            respectReducedMotion: $('#respect-reduced-motion').is(':checked')
+            respectReducedMotion: $('#respect-reduced-motion').is(':checked'),
+            visibility: {
+                mode: $('input[name="visibility_mode"]:checked').val() || 'all',
+                exclude: {
+                    pages: $('select[name="visibility_exclude_pages[]"]').val() || [],
+                    post_types: $('input[name="visibility_exclude_post_types[]"]:checked').map(function() {
+                        return $(this).val();
+                    }).get(),
+                    tax_terms: {},
+                    url_prefixes: $('textarea[name="visibility_exclude_url_prefixes"]').val().split('\n').filter(line => line.trim() !== ''),
+                    special: $('input[name="visibility_exclude_special[]"]:checked').map(function() {
+                        return $(this).val();
+                    }).get()
+                }
+            }
         };
 
         return config;
@@ -1044,6 +1060,75 @@
             toggleTabLinkUrl();
             updateConfig();
         });
+    }
+
+    // 表示制御
+    function initializeVisibilityControl() {
+        function toggleManualExcludeSettings() {
+            const isManualExclude = $('input[name="visibility_mode"]:checked').val() === 'manual_exclude';
+            $('#manual-exclude-settings').toggle(isManualExclude);
+        }
+
+        // 初期表示
+        toggleManualExcludeSettings();
+
+        // 選択変更時
+        $('input[name="visibility_mode"]').on('change', function() {
+            toggleManualExcludeSettings();
+            updateConfig();
+        });
+    }
+
+    // 設定データでフォームを初期化
+    function populateFormWithCurrentConfig() {
+        if (typeof andwSideFlowAdmin === 'undefined' || !andwSideFlowAdmin.currentConfig) {
+            return;
+        }
+
+        const config = andwSideFlowAdmin.currentConfig;
+        const visibility = config.visibility || {};
+
+        // 表示モードの設定
+        if (visibility.mode) {
+            $(`input[name="visibility_mode"][value="${visibility.mode}"]`).prop('checked', true);
+        }
+
+        // 除外設定
+        const exclude = visibility.exclude || {};
+
+        // ページ除外
+        if (exclude.pages && Array.isArray(exclude.pages)) {
+            exclude.pages.forEach(function(pageId) {
+                $(`select[name="visibility_exclude_pages[]"] option[value="${pageId}"]`).prop('selected', true);
+            });
+        }
+
+        // 投稿タイプ除外
+        if (exclude.post_types && Array.isArray(exclude.post_types)) {
+            exclude.post_types.forEach(function(postType) {
+                $(`input[name="visibility_exclude_post_types[]"][value="${postType}"]`).prop('checked', true);
+            });
+        }
+
+        // URL前方一致除外
+        if (exclude.url_prefixes && Array.isArray(exclude.url_prefixes)) {
+            $('textarea[name="visibility_exclude_url_prefixes"]').val(exclude.url_prefixes.join('\n'));
+        }
+
+        // 特殊ページ除外
+        if (exclude.special && Array.isArray(exclude.special)) {
+            exclude.special.forEach(function(special) {
+                $(`input[name="visibility_exclude_special[]"][value="${special}"]`).prop('checked', true);
+            });
+        }
+
+        // 手動除外設定の表示状態を更新
+        toggleManualExcludeSettings();
+
+        function toggleManualExcludeSettings() {
+            const isManualExclude = $('input[name="visibility_mode"]:checked').val() === 'manual_exclude';
+            $('#manual-exclude-settings').toggle(isManualExclude);
+        }
     }
 
 })(jQuery);
