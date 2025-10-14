@@ -29,6 +29,7 @@
 
             /* CSS変数API */
             --sf-color-brand: var(--andw-sf-color-brand, #667eea);
+            --sf-tab-text-color: var(--andw-sf-tab-text-color, #ffffff);
             --sf-radius: var(--andw-sf-radius, 8px);
             --sf-shadow: var(--andw-sf-shadow, 0 4px 12px rgba(0,0,0,0.15));
             --sf-spacing: var(--andw-sf-spacing, 16px);
