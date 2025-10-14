@@ -563,6 +563,8 @@
             writing-mode: vertical-rl;
             text-orientation: mixed;
             letter-spacing: var(--tab-letter-spacing, normal);
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         /* レスポンシブ：モバイル対応 */
@@ -1912,7 +1914,7 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 文字数ベース高さ計算
     function calculateCharBasedHeight(container, tabText, letterSpacing = 0) {
         const charCount = tabText ? tabText.length : 0;
-        const totalHeight = charCount + 3 + (letterSpacing * (charCount - 1)) / 16; // 文字数 + 3 + 文字間隔補正
+        const totalHeight = charCount + 3; // 文字数 + 3 (文字間隔補正を削除、white-space: nowrapで対応)
 
         container.style.setProperty('--char-based-height', `${totalHeight}rem`);
     }
