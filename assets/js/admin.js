@@ -63,7 +63,14 @@
             const $this = $(this);
             if (!$this.hasClass('wp-color-picker') && $this.closest('.wp-picker-container').length === 0) {
                 $this.wpColorPicker({
-                    change: function() {
+                    change: function(event, ui) {
+                        // カラーピッカーの値が変更されたときに元のinput要素の値も更新
+                        const color = ui.color.toString();
+                        $this.val(color).trigger('change');
+                        updateConfig();
+                    },
+                    clear: function() {
+                        $this.val('').trigger('change');
                         updateConfig();
                     }
                 });
@@ -75,7 +82,14 @@
             const $this = $(this);
             if (!$this.hasClass('wp-color-picker') && $this.closest('.wp-picker-container').length === 0) {
                 $this.wpColorPicker({
-                    change: function() {
+                    change: function(event, ui) {
+                        // カラーピッカーの値が変更されたときに元のinput要素の値も更新
+                        const color = ui.color.toString();
+                        $this.val(color).trigger('change');
+                        updateConfig();
+                    },
+                    clear: function() {
+                        $this.val('').trigger('change');
                         updateConfig();
                     }
                 });
@@ -300,12 +314,20 @@
             const configJson = JSON.stringify(config);
 
             // デバッグ: タブ文字色の値を詳しくログ出力
-            const tabTextColorValue = $('#token-tab-text-color').val();
+            const $tabColorElement = $('#token-tab-text-color');
+            const $tabColorContainer = $tabColorElement.closest('.wp-picker-container');
+            const tabTextColorValue = $tabColorElement.val();
             const tabTextColorFromConfig = config.styles?.tokens?.tabTextColor;
+
             console.log('DEBUG - Tab text color input value:', tabTextColorValue);
             console.log('DEBUG - Tab text color in config:', tabTextColorFromConfig);
-            console.log('DEBUG - Color picker element:', $('#token-tab-text-color')[0]);
-            console.log('DEBUG - Color picker container:', $('#token-tab-text-color').closest('.wp-picker-container')[0]);
+            console.log('DEBUG - Color picker element:', $tabColorElement[0]);
+            console.log('DEBUG - Color picker container:', $tabColorContainer[0]);
+            console.log('DEBUG - wp-color-result-text element:', $tabColorContainer.find('.wp-color-result-text')[0]);
+            console.log('DEBUG - wp-color-result-text content:', $tabColorContainer.find('.wp-color-result-text').text());
+            console.log('DEBUG - All inputs in container:', $tabColorContainer.find('input').toArray());
+            console.log('DEBUG - Hidden wp-color-picker input:', $tabColorContainer.find('input.wp-color-picker')[0]);
+            console.log('DEBUG - Hidden wp-color-picker input value:', $tabColorContainer.find('input.wp-color-picker').val());
 
             // 設定データが空でないことを確認
             if (!config || configJson.length < 10) {
@@ -341,20 +363,49 @@
             return '';
         }
 
-        // WordPress ColorPickerが初期化されている場合
+        // WordPressカラーピッカーコンテナ内での値取得を試行
+        const $container = $element.closest('.wp-picker-container');
+        if ($container.length) {
+            // 1. wp-color-result-textから値を取得
+            const $resultText = $container.find('.wp-color-result-text');
+            if ($resultText.length && $resultText.text().trim()) {
+                const colorText = $resultText.text().trim();
+                console.log('Color from wp-color-result-text:', colorText);
+                return colorText;
+            }
+
+            // 2. 隠されたinput要素から値を取得
+            const $hiddenInput = $container.find('input.wp-color-picker');
+            if ($hiddenInput.length) {
+                const hiddenValue = $hiddenInput.val();
+                console.log('Color from hidden input:', hiddenValue);
+                if (hiddenValue) return hiddenValue;
+            }
+
+            // 3. wpColorPickerメソッドを試行
+            try {
+                const color = $element.wpColorPicker('color');
+                console.log('Color from wpColorPicker method:', color);
+                if (color) return color;
+            } catch (e) {
+                console.warn('wpColorPicker method failed:', e);
+            }
+        }
+
+        // WordPress ColorPickerが初期化されている場合の従来の方法
         if ($element.hasClass('wp-color-picker')) {
             try {
                 const color = $element.wpColorPicker('color');
-                return color || $element.val() || '';
+                if (color) return color;
             } catch (e) {
-                // wpColorPickerメソッドが使えない場合は通常のvalを使用
                 console.warn('wpColorPicker method failed, falling back to val():', e);
-                return $element.val() || '';
             }
         }
 
         // 通常のinput要素として値を取得
-        return $element.val() || '';
+        const normalValue = $element.val() || '';
+        console.log('Color from normal val():', normalValue);
+        return normalValue;
     }
 
     // コンテナ内のカラーピッカーの値を取得するヘルパー関数
