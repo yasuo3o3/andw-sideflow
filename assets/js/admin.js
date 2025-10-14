@@ -280,6 +280,11 @@
 
         // ボタン追加
         $('#add-button').on('click', function() {
+            const currentButtonCount = $('#buttons-list .button-item').length;
+            if (currentButtonCount >= 3) {
+                alert('ボタンは最大3個まで追加できます。');
+                return;
+            }
             addButtonItem();
         });
 
@@ -287,6 +292,7 @@
         $(document).on('click', '.remove-button', function() {
             $(this).closest('.button-item').remove();
             updateButtonIndices();
+            updateAddButtonState();
             updateConfig();
         });
     }
@@ -616,6 +622,7 @@
         });
 
         updateButtonIndices();
+        updateAddButtonState();
         updateConfig();
     }
 
@@ -632,6 +639,18 @@
             $(this).attr('data-index', index);
             $(this).find('h4').text(`ボタン ${index + 1}`);
         });
+    }
+
+    // ボタン追加ボタンの状態更新
+    function updateAddButtonState() {
+        const currentButtonCount = $('#buttons-list .button-item').length;
+        const $addButton = $('#add-button');
+
+        if (currentButtonCount >= 3) {
+            $addButton.prop('disabled', true).text('ボタンを追加（上限3個）');
+        } else {
+            $addButton.prop('disabled', false).text('ボタンを追加');
+        }
     }
 
     // フォームデータ収集
@@ -876,6 +895,9 @@
                 addButtonItemWithData(button, index);
             });
         }
+
+        // ボタン追加ボタンの状態を更新
+        updateAddButtonState();
 
         // スタイル設定
         if (config.styles) {
