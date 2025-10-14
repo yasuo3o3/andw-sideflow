@@ -731,8 +731,27 @@
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
         container.style.setProperty('--sf-ease', motionConfig.easing);
 
-        if (tabConfig.anchor !== 'center') {
-            container.style.setProperty('--tab-offset', `${tabConfig.offsetPx}px`);
+        // タブオフセット設定（全アンカータイプ統一）
+        container.style.setProperty('--tab-offset', `${tabConfig.offsetPx || 0}px`);
+
+        // iOS Safe Area対応強化
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            const safeAreaRight = parseInt(getComputedStyle(document.documentElement)
+                .getPropertyValue('env(safe-area-inset-right)')) || 0;
+            const safeAreaBottom = parseInt(getComputedStyle(document.documentElement)
+                .getPropertyValue('env(safe-area-inset-bottom)')) || 0;
+
+            container.style.setProperty('--safe-area-right', `${safeAreaRight}px`);
+            container.style.setProperty('--safe-area-bottom', `${safeAreaBottom}px`);
+
+            // iOS専用デバッグ情報を追加
+            console.log('🔍 andW SideFlow iOS Offset Debug:', {
+                anchor: tabConfig.anchor,
+                offsetPx: tabConfig.offsetPx,
+                safeAreaRight: safeAreaRight,
+                safeAreaBottom: safeAreaBottom,
+                userAgent: navigator.userAgent.substring(0, 50) + '...'
+            });
         }
 
         if (sliderConfig.heightMode === 'auto' && sliderConfig.aspectRatio) {
@@ -1471,14 +1490,34 @@
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
-            // iOS レスポンシブ デバッグ情報
+            // iOS タブオフセット再計算（位置ずれ防止）
             if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                const tabConfig = config.tab || { anchor: 'right' };
+                const safeAreaInsetRight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)').replace('px', '')) || 0;
+                const safeAreaInsetBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)').replace('px', '')) || 0;
+
+                // タブオフセット再計算
+                let tabOffset = 0;
+                if (tabConfig.anchor === 'right') {
+                    tabOffset = safeAreaInsetRight;
+                } else if (tabConfig.anchor === 'bottom') {
+                    tabOffset = safeAreaInsetBottom;
+                } else if (tabConfig.anchor === 'center') {
+                    tabOffset = safeAreaInsetBottom;
+                }
+
+                // CSS変数に設定
+                wrap.style.setProperty('--tab-offset', `${tabOffset}px`);
+
                 console.log('🔄 andW SideFlow iOS Responsive Update:', {
                     trigger: 'layout update',
                     viewportWidth: viewportWidth,
                     drawerPercentWidth: drawerPercentWidth,
                     actualDrawerWidth: actualDrawerWidth,
-                    safeAreaInsetRight: getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)')
+                    anchor: tabConfig.anchor,
+                    safeAreaInsetRight: safeAreaInsetRight,
+                    safeAreaInsetBottom: safeAreaInsetBottom,
+                    tabOffset: tabOffset
                 });
             }
 
@@ -1583,13 +1622,7 @@
         host.style.setProperty('--andw-sf-ease', tokens.easing || 'cubic-bezier(0.34, 1.56, 0.64, 1)');
         host.style.setProperty('--andw-sf-font', tokens.fontFamily || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
 
-        // タブオフセットも設定
-        const tabConfig = config.tab || {};
-        if (tabConfig.anchor === 'center') {
-            host.style.setProperty('--tab-offset-center', (tabConfig.offsetPx || 0) + 'px');
-        } else {
-            host.style.setProperty('--tab-offset-bottom', (tabConfig.offsetPx || 24) + 'px');
-        }
+        // タブオフセットはcreateTabUIで統一設定済み（重複削除）
     }
 
     // カスタムCSS読み込み
