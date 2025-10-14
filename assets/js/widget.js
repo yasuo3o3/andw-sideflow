@@ -553,8 +553,8 @@
 
         .sf-wrap[data-tab-height="short"] .sf-tab {
             /* ショートタブ：文字数ベース高さ計算 */
-            min-height: var(--char-based-height, 5rem);
-            height: auto;
+            height: var(--char-based-height, 5rem);
+            max-height: none;
             padding: 1rem 0.75rem;
             display: flex;
             flex-direction: column;
