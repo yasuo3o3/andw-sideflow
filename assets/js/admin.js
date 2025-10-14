@@ -1378,4 +1378,88 @@
         }
     }
 
+    // レガシー設定削除とリセット機能
+    initLegacyResetButtons();
+
 })(jQuery);
+
+/**
+ * レガシー設定削除とリセット機能の初期化
+ */
+function initLegacyResetButtons() {
+    const cleanBtn = document.getElementById('clean-legacy-btn');
+    const resetBtn = document.getElementById('reset-all-config-btn');
+    const result = document.getElementById('clean-legacy-result');
+
+    if (!cleanBtn || !result || typeof andwSideFlowAdmin === 'undefined') {
+        return;
+    }
+
+    // 古い設定削除ボタン
+    cleanBtn.addEventListener('click', function() {
+        cleanBtn.disabled = true;
+        cleanBtn.textContent = '処理中...';
+
+        fetch(andwSideFlowAdmin.ajaxUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=andw_sideflow_clean_legacy&nonce=' + andwSideFlowAdmin.clean_nonce
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                result.innerHTML = '<div style="color: red;">✗ ' + (data.data || 'エラーが発生しました') + '</div>';
+            }
+        })
+        .catch(error => {
+            result.innerHTML = '<div style="color: red;">✗ 通信エラーが発生しました</div>';
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            cleanBtn.disabled = false;
+            cleanBtn.textContent = '古い設定項目を削除';
+        });
+    });
+
+    // 全設定リセットボタン
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (!confirm('全ての設定を削除します。この操作は元に戻せません。続行しますか？')) {
+                return;
+            }
+
+            resetBtn.disabled = true;
+            resetBtn.textContent = '処理中...';
+
+            fetch(andwSideFlowAdmin.ajaxUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=andw_sideflow_reset_all_config&nonce=' + andwSideFlowAdmin.reset_nonce
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    result.innerHTML = '<div style="color: green;">✓ ' + data.data + '</div>';
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    result.innerHTML = '<div style="color: red;">✗ ' + (data.data || 'エラーが発生しました') + '</div>';
+                }
+            })
+            .catch(error => {
+                result.innerHTML = '<div style="color: red;">✗ 通信エラーが発生しました</div>';
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                resetBtn.disabled = false;
+                resetBtn.textContent = '全設定をリセット';
+            });
+        });
+    }
+}

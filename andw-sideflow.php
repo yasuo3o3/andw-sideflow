@@ -1174,14 +1174,7 @@ class ANDW_SideFlow {
             true
         );
 
-        // 新しいカラーピッカー機能
-        wp_enqueue_script(
-            'andw-sideflow-admin-extra',
-            ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/admin-scripts.js',
-            array('jquery', 'wp-color-picker', 'andw-sideflow-admin'),
-            ANDW_SIDEFLOW_VERSION,
-            true
-        );
+        // admin-scripts.js は削除済み（機能は admin.js に統合）
         */
 
         // 管理画面CSS
