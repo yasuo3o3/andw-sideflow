@@ -595,6 +595,26 @@
         `;
 
         $('#buttons-list').append(template);
+
+        // 新しく追加されたボタンのカラーピッカーを初期化
+        const $newButton = $('#buttons-list .button-item').last();
+        $newButton.find('.button-color-background, .button-color-text, .button-color-gradient-start, .button-color-gradient-end, .button-color-border').each(function() {
+            const $this = $(this);
+            if (!$this.hasClass('wp-color-picker') && $this.closest('.wp-picker-container').length === 0) {
+                $this.wpColorPicker({
+                    change: function(event, ui) {
+                        const color = ui.color.toString();
+                        $this.val(color).trigger('change');
+                        updateConfig();
+                    },
+                    clear: function() {
+                        $this.val('').trigger('change');
+                        updateConfig();
+                    }
+                });
+            }
+        });
+
         updateButtonIndices();
         updateConfig();
     }
@@ -1072,6 +1092,25 @@
 
         // 追加したボタン要素に対してバリアント制御を適用
         const addedButtonItem = $('#buttons-list .button-item').last();
+
+        // 新しく追加されたボタンのカラーピッカーを初期化
+        addedButtonItem.find('.button-color-background, .button-color-text, .button-color-gradient-start, .button-color-gradient-end, .button-color-border').each(function() {
+            const $this = $(this);
+            if (!$this.hasClass('wp-color-picker') && $this.closest('.wp-picker-container').length === 0) {
+                $this.wpColorPicker({
+                    change: function(event, ui) {
+                        const color = ui.color.toString();
+                        $this.val(color).trigger('change');
+                        updateConfig();
+                    },
+                    clear: function() {
+                        $this.val('').trigger('change');
+                        updateConfig();
+                    }
+                });
+            }
+        });
+
         const variant = addedButtonItem.find('.button-variant').val();
         updateVariantDisplay(addedButtonItem, variant);
     }
