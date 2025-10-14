@@ -19,6 +19,12 @@
         initializeVisibilityControl();
         initializePreviewSizeControl();
         populateFormWithCurrentConfig();
+
+        // タブ高さモード変更の特別なハンドラー
+        $('input[name="tab-height-mode"]').on('change', function() {
+            console.log('Tab height mode changed to:', $(this).val());
+            updateConfig();
+        });
     });
 
     // タブ切り替え
@@ -711,6 +717,10 @@
 
     // フォームデータ収集
     function collectFormData() {
+        // デバッグ: タブ高さモードの値を確認
+        const heightModeValue = $('input[name="tab-height-mode"]:checked').val();
+        console.log('Tab height mode value:', heightModeValue);
+
         const config = {
             buttons: collectButtonsData(),
             tab: {
@@ -985,7 +995,9 @@
             $('#tab-text').val(config.tab.text || '求人');
             $('input[name="tab-action"][value="' + (config.tab.action || 'drawer') + '"]').prop('checked', true);
             $('#tab-link-url-input').val(config.tab.linkUrl || '');
-            $('input[name="tab-height-mode"][value="' + (config.tab.heightMode || 'full') + '"]').prop('checked', true);
+            const heightMode = config.tab.heightMode || 'full';
+            console.log('Setting height mode to:', heightMode);
+            $('input[name="tab-height-mode"][value="' + heightMode + '"]').prop('checked', true);
             $('#tab-letter-spacing').val(config.tab.letterSpacing || 0);
         }
 
