@@ -348,9 +348,12 @@ function collectFormData() {
         tab: {
             anchor: $('input[name="tab-anchor"]:checked').val() || 'center',
             offsetPx: parseInt($('#tab-offset').val()) || 24,
+            widthPx: parseInt($('#tab-width').val()) || 50,
             text: $('#tab-text').val() || '求人',
             action: $('input[name="tab-action"]:checked').val() || 'drawer',
-            linkUrl: $('#tab-link-url-input').val() || ''
+            linkUrl: $('#tab-link-url-input').val() || '',
+            heightMode: $('input[name="tab-height-mode"]:checked').val() || 'full',
+            letterSpacing: parseFloat($('#tab-letter-spacing').val()) || 0
         },
         drawer: {
             backdrop: $('#drawer-backdrop').is(':checked'),
@@ -373,6 +376,7 @@ function collectFormData() {
             customCssUrl: $('#custom-css-url').val() || '',
             tokens: {
                 colorBrand: $('#token-color-brand').val() || '#667eea',
+                tabTextColor: $('#token-tab-text-color').val() || '#ffffff',
                 radius: parseInt($('#token-radius').val()) || 8,
                 shadow: $('#token-shadow').val() || '0 4px 12px rgba(0,0,0,0.15)',
                 spacing: parseInt($('#token-spacing').val()) || 16,

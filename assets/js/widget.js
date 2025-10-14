@@ -117,7 +117,7 @@
             border-radius: var(--sf-radius) 0 0 var(--sf-radius);
             border: none;
             cursor: pointer;
-            color: white;
+            color: var(--sf-tab-text-color, white);
             font-size: 14px;
             font-weight: 600;
             writing-mode: vertical-rl;
@@ -1592,6 +1592,7 @@
         const host = shadowRoot.host;
 
         host.style.setProperty('--andw-sf-color-brand', tokens.colorBrand || '#667eea');
+        host.style.setProperty('--andw-sf-tab-text-color', tokens.tabTextColor || '#ffffff');
         host.style.setProperty('--andw-sf-radius', (tokens.radius !== undefined ? tokens.radius : 8) + 'px');
         host.style.setProperty('--andw-sf-shadow', tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
         host.style.setProperty('--andw-sf-spacing', (tokens.spacing || 16) + 'px');

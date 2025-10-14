@@ -324,6 +324,14 @@ class ANDW_SideFlow_Admin_UI {
                     <th scope="row"><?php esc_html_e('ブランドカラー', 'andw-sideflow'); ?></th>
                     <td>
                         <input type="text" id="token-color-brand" value="<?php echo esc_attr($tokens['colorBrand'] ?? '#667eea'); ?>" class="color-picker">
+                        <p class="description"><?php esc_html_e('タブの背景色に使用されるメインカラーです', 'andw-sideflow'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('タブ文字色', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="text" id="token-tab-text-color" value="<?php echo esc_attr($tokens['tabTextColor'] ?? '#ffffff'); ?>" class="color-picker">
+                        <p class="description"><?php esc_html_e('タブに表示される文字の色を設定します', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -416,6 +424,13 @@ class ANDW_SideFlow_Admin_UI {
                             <input type="radio" name="tab-anchor" value="bottom" <?php checked($tab['anchor'] ?? 'center', 'bottom'); ?>>
                             <?php esc_html_e('画面下端', 'andw-sideflow'); ?>
                         </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('タブ幅', 'andw-sideflow'); ?></th>
+                    <td>
+                        <input type="number" id="tab-width" name="tab_width" value="<?php echo esc_attr($tab['widthPx'] ?? 50); ?>" min="30" max="80">
+                        <span class="description">px（タブの幅を設定）</span>
                     </td>
                 </tr>
                 <tr>

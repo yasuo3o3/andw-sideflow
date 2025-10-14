@@ -2,7 +2,7 @@
 /**
  * Plugin Name: andW SideFlow
  * Description: 右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
- * Version: 0.3.1
+ * Version: 0.3.2
  * Author: yasuo3o3
  * Author URI: https://yasuo-o.xyz/
  * License: GPLv2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('ANDW_SIDEFLOW_VERSION', '0.3.1');
+define('ANDW_SIDEFLOW_VERSION', '0.3.2');
 define('ANDW_SIDEFLOW_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -499,6 +499,7 @@ class ANDW_SideFlow {
             'customCssUrl' => esc_url_raw($styles['customCssUrl'] ?? ''),
             'tokens' => array(
                 'colorBrand' => sanitize_hex_color($styles['tokens']['colorBrand'] ?? '#667eea'),
+                'tabTextColor' => sanitize_hex_color($styles['tokens']['tabTextColor'] ?? '#ffffff'),
                 'radius' => max(0, intval($styles['tokens']['radius'] ?? 8)),
                 'shadow' => sanitize_text_field($styles['tokens']['shadow'] ?? '0 4px 12px rgba(0,0,0,0.15)'),
                 'spacing' => max(0, intval($styles['tokens']['spacing'] ?? 16)),
@@ -812,6 +813,7 @@ class ANDW_SideFlow {
                 'customCssUrl' => '',
                 'tokens' => array(
                     'colorBrand' => '#667eea',
+                    'tabTextColor' => '#ffffff',
                     'radius' => 8,
                     'shadow' => '0 4px 12px rgba(0,0,0,0.15)',
                     'spacing' => 16,

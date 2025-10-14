@@ -498,6 +498,7 @@
             tab: {
                 anchor: $('input[name="tab-anchor"]:checked').val() || 'center',
                 offsetPx: parseInt($('#tab-offset').val()) || 24,
+                widthPx: parseInt($('#tab-width').val()) || 50,
                 text: $('#tab-text').val() || '求人',
                 action: $('input[name="tab-action"]:checked').val() || 'drawer',
                 linkUrl: $('#tab-link-url-input').val() || '',
@@ -525,6 +526,7 @@
                 customCssUrl: $('#custom-css-url').val() || '',
                 tokens: {
                     colorBrand: $('#token-color-brand').val() || '#667eea',
+                    tabTextColor: $('#token-tab-text-color').val() || '#ffffff',
                     radius: parseInt($('#token-radius').val()) || 8,
                     shadow: $('#token-shadow').val() || '0 4px 12px rgba(0,0,0,0.15)',
                     spacing: parseInt($('#token-spacing').val()) || 16,
@@ -738,6 +740,7 @@
 
             if (config.styles.tokens) {
                 $('#token-color-brand').val(config.styles.tokens.colorBrand || '#667eea');
+                $('#token-tab-text-color').val(config.styles.tokens.tabTextColor || '#ffffff');
                 $('#token-radius').val(config.styles.tokens.radius || 8);
                 $('#token-shadow').val(config.styles.tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
                 $('#token-spacing').val(config.styles.tokens.spacing || 16);
@@ -751,6 +754,7 @@
         if (config.tab) {
             $('input[name="tab-anchor"][value="' + (config.tab.anchor || 'center') + '"]').prop('checked', true);
             $('#tab-offset').val(config.tab.offsetPx || 24);
+            $('#tab-width').val(config.tab.widthPx || 50);
             $('#tab-text').val(config.tab.text || '求人');
             $('input[name="tab-action"][value="' + (config.tab.action || 'drawer') + '"]').prop('checked', true);
             $('#tab-link-url-input').val(config.tab.linkUrl || '');
