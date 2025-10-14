@@ -140,20 +140,12 @@
     align-self: flex-start;
 }
 
-.preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.preview-header h3 {
-    margin: 0;
-}
-
 .preview-size-controls {
     display: flex;
     gap: 5px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    justify-content: center;
 }
 
 .preview-size-btn {
@@ -167,6 +159,25 @@
     background: #0073aa;
     border-color: #005a87;
     color: #fff;
+}
+
+.device-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.device-info p {
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.device-info strong {
+    color: #0073aa;
+    font-weight: 600;
 }
 
 .preview-container {

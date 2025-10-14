@@ -157,16 +157,21 @@ class ANDW_SideFlow_Admin_UI {
 
                 <!-- プレビューエリア -->
                 <div class="andw-sideflow-preview">
-                    <div class="preview-header">
-                        <h3><?php esc_html_e('プレビュー', 'andw-sideflow'); ?></h3>
-                        <div class="preview-size-controls">
-                            <button type="button" class="button preview-size-btn active" data-width="320"><?php esc_html_e('320px', 'andw-sideflow'); ?></button>
-                            <button type="button" class="button preview-size-btn" data-width="375"><?php esc_html_e('375px', 'andw-sideflow'); ?></button>
-                            <button type="button" class="button preview-size-btn" data-width="390"><?php esc_html_e('390px', 'andw-sideflow'); ?></button>
-                        </div>
-                    </div>
+                    <h3><?php esc_html_e('プレビュー', 'andw-sideflow'); ?></h3>
                     <div class="preview-container" data-width="320">
                         <iframe id="preview-iframe" src="<?php echo esc_url(home_url('?andwsideflow=preview')); ?>" frameborder="0"></iframe>
+                    </div>
+                    <div class="preview-size-controls">
+                        <button type="button" class="button preview-size-btn active" data-width="320"><?php esc_html_e('320px', 'andw-sideflow'); ?></button>
+                        <button type="button" class="button preview-size-btn" data-width="375"><?php esc_html_e('375px', 'andw-sideflow'); ?></button>
+                        <button type="button" class="button preview-size-btn" data-width="390"><?php esc_html_e('390px', 'andw-sideflow'); ?></button>
+                        <button type="button" class="button preview-size-btn" data-width="420"><?php esc_html_e('420px', 'andw-sideflow'); ?></button>
+                    </div>
+                    <div class="device-info">
+                        <p><strong>320px</strong> - iPhone SE</p>
+                        <p><strong>375px</strong> - iPhone 11 Proまで、iPhone mini</p>
+                        <p><strong>390px</strong> - iPhone12-14（17が402）</p>
+                        <p><strong>420px</strong> - iPhone 1x Pro Max</p>
                     </div>
                 </div>
             </div>
