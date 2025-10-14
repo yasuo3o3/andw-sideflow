@@ -82,6 +82,32 @@ class ANDW_SideFlow_Admin_UI {
     }
 
     /**
+     * 利用可能なフォントファミリーを取得
+     */
+    private function get_available_fonts() {
+        $fonts = array();
+
+        // WordPressのテーマ登録フォントを取得
+        $theme_fonts = wp_get_global_settings(array('typography', 'fontFamilies')) ?: array();
+        foreach ($theme_fonts as $font) {
+            if (isset($font['name'], $font['fontFamily'])) {
+                $fonts[$font['name']] = $font['fontFamily'];
+            }
+        }
+
+        // システム・推奨フォントを追加
+        $system_fonts = array(
+            'システムフォント' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            'WordPress標準' => '-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+            '明朝体' => '"Times New Roman", Times, serif',
+            '等幅フォント' => '"Courier New", Courier, monospace',
+            '日本語対応' => '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif'
+        );
+
+        return array_merge($fonts, $system_fonts);
+    }
+
+    /**
      * 新しい管理画面を出力
      */
     public function render_admin_page() {
@@ -358,7 +384,8 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('影', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="text" id="token-shadow" value="<?php echo esc_attr($tokens['shadow'] ?? '0 4px 12px rgba(0,0,0,0.15)'); ?>" class="regular-text">
+                        <input type="text" id="token-shadow" value="<?php echo esc_attr($tokens['shadow'] ?? '0 4px 12px rgba(0,0,0,0.15)'); ?>" class="regular-text" placeholder="0 4px 12px rgba(0,0,0,0.15)">
+                        <p class="description"><?php esc_html_e('形式: X軸 Y軸 ぼかし 色（例: 0 4px 12px rgba(0,0,0,0.15)）', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -378,13 +405,37 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('イージング', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="text" id="token-easing" value="<?php echo esc_attr($tokens['easing'] ?? 'cubic-bezier(0.34, 1.56, 0.64, 1)'); ?>" class="regular-text">
+                        <select id="token-easing-select" class="regular-text">
+                            <option value="ease"><?php esc_html_e('ease (標準的な動き)', 'andw-sideflow'); ?></option>
+                            <option value="ease-in"><?php esc_html_e('ease-in (ゆっくり開始)', 'andw-sideflow'); ?></option>
+                            <option value="ease-out"><?php esc_html_e('ease-out (ゆっくり終了)', 'andw-sideflow'); ?></option>
+                            <option value="ease-in-out"><?php esc_html_e('ease-in-out (両端ゆっくり)', 'andw-sideflow'); ?></option>
+                            <option value="cubic-bezier(0.34, 1.56, 0.64, 1)"><?php esc_html_e('バウンス (跳ね返り効果)', 'andw-sideflow'); ?></option>
+                            <option value="cubic-bezier(0.25, 0.46, 0.45, 0.94)"><?php esc_html_e('スムーズ (滑らか)', 'andw-sideflow'); ?></option>
+                            <option value="custom"><?php esc_html_e('カスタム', 'andw-sideflow'); ?></option>
+                        </select>
+                        <input type="text" id="token-easing" value="<?php echo esc_attr($tokens['easing'] ?? 'cubic-bezier(0.34, 1.56, 0.64, 1)'); ?>" class="regular-text" style="display: none; margin-top: 5px;" placeholder="cubic-bezier(0.25, 0.46, 0.45, 0.94)">
+                        <p class="description"><?php esc_html_e('アニメーションの動きを制御する関数', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><?php esc_html_e('フォントファミリー', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="text" id="token-font-family" value="<?php echo esc_attr($tokens['fontFamily'] ?? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'); ?>" class="regular-text">
+                        <select id="token-font-family-select" class="regular-text">
+                            <?php
+                            $available_fonts = $this->get_available_fonts();
+                            $current_font = $tokens['fontFamily'] ?? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            $is_custom = !in_array($current_font, $available_fonts);
+
+                            foreach ($available_fonts as $name => $value): ?>
+                                <option value="<?php echo esc_attr($value); ?>" <?php selected($current_font, $value); ?>>
+                                    <?php echo esc_html($name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                            <option value="custom" <?php selected($is_custom, true); ?>><?php esc_html_e('カスタム', 'andw-sideflow'); ?></option>
+                        </select>
+                        <input type="text" id="token-font-family" value="<?php echo esc_attr($current_font); ?>" class="regular-text" style="<?php echo $is_custom ? 'margin-top: 5px;' : 'display: none; margin-top: 5px;'; ?>" placeholder="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif">
+                        <p class="description"><?php esc_html_e('テキストの表示に使用するフォント', 'andw-sideflow'); ?></p>
                     </td>
                 </tr>
             </table>

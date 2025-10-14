@@ -8,6 +8,7 @@
         initializeTabs();
         initializeColorPickers();
         initializeButtonVariantControl();
+        initializeStyleControls();
         initializeSortables();
         initializeMediaSelection();
         initializePreview();
@@ -112,6 +113,61 @@
             const buttonContainer = $(this).closest('.button-item');
             updateVariantDisplay(buttonContainer, $(this).val());
         });
+    }
+
+    // スタイル設定の制御
+    function initializeStyleControls() {
+        // イージング設定の制御
+        $('#token-easing-select').on('change', function() {
+            const value = $(this).val();
+            const $customInput = $('#token-easing');
+
+            if (value === 'custom') {
+                $customInput.show();
+            } else {
+                $customInput.hide().val(value);
+                updateConfig();
+            }
+        });
+
+        // フォントファミリー設定の制御
+        $('#token-font-family-select').on('change', function() {
+            const value = $(this).val();
+            const $customInput = $('#token-font-family');
+
+            if (value === 'custom') {
+                $customInput.show();
+            } else {
+                $customInput.hide().val(value);
+                updateConfig();
+            }
+        });
+
+        // 初期状態を設定
+        initializeSelectDefaults();
+    }
+
+    // セレクトボックスの初期状態を設定
+    function initializeSelectDefaults() {
+        // イージング設定
+        const currentEasing = $('#token-easing').val();
+        const $easingSelect = $('#token-easing-select');
+        if ($easingSelect.find(`option[value="${currentEasing}"]`).length > 0) {
+            $easingSelect.val(currentEasing);
+        } else {
+            $easingSelect.val('custom');
+            $('#token-easing').show();
+        }
+
+        // フォントファミリー設定
+        const currentFont = $('#token-font-family').val();
+        const $fontSelect = $('#token-font-family-select');
+        if ($fontSelect.find(`option[value="${currentFont}"]`).length > 0) {
+            $fontSelect.val(currentFont);
+        } else {
+            $fontSelect.val('custom');
+            $('#token-font-family').show();
+        }
     }
 
     // バリアント別表示制御
@@ -915,6 +971,11 @@
                 $('#token-font-family').val(config.styles.tokens.fontFamily || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
             }
         }
+
+        // セレクトボックスの状態を初期化
+        setTimeout(function() {
+            initializeSelectDefaults();
+        }, 100);
 
         // タブ・レイアウト設定
         if (config.tab) {
