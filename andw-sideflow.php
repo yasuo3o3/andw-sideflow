@@ -298,7 +298,17 @@ class ANDW_SideFlow {
      * 設定のサニタイズ
      */
     public function sanitize_config($input) {
+        // 空の入力の場合はデフォルト設定を返す
+        if (empty($input)) {
+            return $this->get_default_config();
+        }
+
         if (is_string($input)) {
+            // 空文字列の場合はデフォルト設定を返す
+            if (trim($input) === '') {
+                return $this->get_default_config();
+            }
+
             $decoded = json_decode($input, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 try {
@@ -327,6 +337,24 @@ class ANDW_SideFlow {
                     'error'
                 );
             }
+        } elseif (is_array($input)) {
+            // 配列の場合は直接サニタイズ
+            try {
+                $sanitized = $this->sanitize_config_array($input);
+
+                // フックでDBへの保存確認
+                add_action('updated_option', array($this, 'debug_option_updated'), 10, 3);
+
+                return $sanitized;
+            } catch (Exception $e) {
+                add_settings_error(
+                    'andw_sideflow_config',
+                    'sanitize_error',
+                    /* translators: %s: error message */
+                    sprintf(__('設定の処理中にエラーが発生しました: %s', 'andw-sideflow'), $e->getMessage()),
+                    'error'
+                );
+            }
         } else {
             add_settings_error(
                 'andw_sideflow_config',
@@ -336,8 +364,8 @@ class ANDW_SideFlow {
             );
         }
 
-        $default = $this->get_default_config();
-        return $default;
+        // エラーが発生した場合はデフォルト設定を返す
+        return $this->get_default_config();
     }
 
     /**

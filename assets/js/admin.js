@@ -298,6 +298,13 @@
             const config = collectFormData();
             const configJson = JSON.stringify(config);
 
+            // 設定データが空でないことを確認
+            if (!config || configJson.length < 10) {
+                e.preventDefault();
+                alert('設定データが正しく収集できませんでした。再度お試しください。');
+                return false;
+            }
+
             // WordPressの設定APIに合わせたフィールドに設定
             $('#andw_sideflow_config_textarea').val(configJson);
 
@@ -1049,7 +1056,7 @@
     function initializeTabActionControl() {
         function toggleTabLinkUrl() {
             const isLink = $('input[name="tab-action"]:checked').val() === 'link';
-            $('#tab-link-url-group').toggle(isLink);
+            $('#tab-link-url').toggle(isLink);
         }
 
         // 初期表示
