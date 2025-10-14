@@ -518,6 +518,83 @@ class ANDW_SideFlow {
             $sanitized['glitter']['interval'] = is_numeric($interval) ? max(1000, intval($interval)) : 25000;
         }
 
+        // 表示制御設定（新規）
+        $visibility = $config['visibility'] ?? array();
+        $mode = $visibility['mode'] ?? 'all';
+        $valid_modes = array('all', 'front', 'manual_exclude');
+        if (!in_array($mode, $valid_modes)) {
+            $mode = 'all';
+        }
+
+        $exclude = $visibility['exclude'] ?? array();
+        $sanitized['visibility'] = array(
+            'mode' => $mode,
+            'exclude' => array(
+                'pages' => array(),
+                'post_types' => array(),
+                'tax_terms' => array(),
+                'url_prefixes' => array(),
+                'special' => array()
+            )
+        );
+
+        // pages配列の処理（投稿・固定ページID）
+        if (isset($exclude['pages']) && is_array($exclude['pages'])) {
+            foreach ($exclude['pages'] as $page_id) {
+                $sanitized_id = absint($page_id);
+                if ($sanitized_id > 0) {
+                    $sanitized['visibility']['exclude']['pages'][] = $sanitized_id;
+                }
+            }
+        }
+
+        // post_types配列の処理
+        if (isset($exclude['post_types']) && is_array($exclude['post_types'])) {
+            foreach ($exclude['post_types'] as $post_type) {
+                $sanitized_pt = sanitize_key($post_type);
+                if (!empty($sanitized_pt) && post_type_exists($sanitized_pt)) {
+                    $sanitized['visibility']['exclude']['post_types'][] = $sanitized_pt;
+                }
+            }
+        }
+
+        // tax_terms配列の処理（タクソノミー別タームID）
+        if (isset($exclude['tax_terms']) && is_array($exclude['tax_terms'])) {
+            foreach ($exclude['tax_terms'] as $taxonomy => $term_ids) {
+                $sanitized_tax = sanitize_key($taxonomy);
+                if (!empty($sanitized_tax) && taxonomy_exists($sanitized_tax) && is_array($term_ids)) {
+                    $sanitized['visibility']['exclude']['tax_terms'][$sanitized_tax] = array();
+                    foreach ($term_ids as $term_id) {
+                        $sanitized_term_id = absint($term_id);
+                        if ($sanitized_term_id > 0) {
+                            $sanitized['visibility']['exclude']['tax_terms'][$sanitized_tax][] = $sanitized_term_id;
+                        }
+                    }
+                }
+            }
+        }
+
+        // url_prefixes配列の処理
+        if (isset($exclude['url_prefixes']) && is_array($exclude['url_prefixes'])) {
+            foreach ($exclude['url_prefixes'] as $prefix) {
+                $sanitized_prefix = sanitize_text_field($prefix);
+                if (!empty($sanitized_prefix)) {
+                    $sanitized['visibility']['exclude']['url_prefixes'][] = $sanitized_prefix;
+                }
+            }
+        }
+
+        // special配列の処理
+        if (isset($exclude['special']) && is_array($exclude['special'])) {
+            $valid_special = array('search', '404', 'archive');
+            foreach ($exclude['special'] as $special) {
+                $sanitized_special = sanitize_key($special);
+                if (in_array($sanitized_special, $valid_special)) {
+                    $sanitized['visibility']['exclude']['special'][] = $sanitized_special;
+                }
+            }
+        }
+
         return $sanitized;
     }
 
@@ -733,7 +810,17 @@ class ANDW_SideFlow {
                 'debug' => false
             ),
             'glitterInterval' => 25000,
-            'respectReducedMotion' => true
+            'respectReducedMotion' => true,
+            'visibility' => array(
+                'mode' => 'all',
+                'exclude' => array(
+                    'pages' => array(),
+                    'post_types' => array(),
+                    'tax_terms' => array(),
+                    'url_prefixes' => array(),
+                    'special' => array()
+                )
+            )
         );
     }
 
@@ -883,6 +970,11 @@ class ANDW_SideFlow {
             return;
         }
 
+        // 表示判定チェック
+        if (!$this->should_display()) {
+            return;
+        }
+
         wp_enqueue_script(
             'andw-sideflow-widget',
             ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/widget.js',
@@ -895,6 +987,92 @@ class ANDW_SideFlow {
             'apiUrl' => rest_url('andw-sideflow/v1/config'),
             'nonce' => wp_create_nonce('wp_rest')
         ));
+    }
+
+    /**
+     * 表示判定
+     */
+    private function should_display() {
+        // プレビューモードの場合は常に表示
+        if (isset($_GET['andwsideflow']) && $_GET['andwsideflow'] === 'preview') {
+            return true;
+        }
+
+        $config = get_option('andw_sideflow_config', $this->get_default_config());
+        $visibility = $config['visibility'] ?? array();
+        $mode = $visibility['mode'] ?? 'all';
+
+        // モード別判定
+        switch ($mode) {
+            case 'front':
+                return is_front_page();
+
+            case 'all':
+            case 'manual_exclude':
+                // 基本は表示、除外条件をチェック
+                $exclude = $visibility['exclude'] ?? array();
+
+                // URL前方一致判定（最優先）
+                if (!empty($exclude['url_prefixes'])) {
+                    $current_url = $_SERVER['REQUEST_URI'] ?? '';
+                    foreach ($exclude['url_prefixes'] as $prefix) {
+                        if (strpos($current_url, $prefix) === 0) {
+                            return false;
+                        }
+                    }
+                }
+
+                // 個別ページID判定
+                if (!empty($exclude['pages']) && is_singular()) {
+                    $current_id = get_queried_object_id();
+                    if (in_array($current_id, $exclude['pages'])) {
+                        return false;
+                    }
+                }
+
+                // タクソノミー判定
+                if (!empty($exclude['tax_terms'])) {
+                    foreach ($exclude['tax_terms'] as $taxonomy => $term_ids) {
+                        if (!empty($term_ids)) {
+                            // タクソノミーアーカイブページ
+                            if (is_tax($taxonomy, $term_ids)) {
+                                return false;
+                            }
+                            // 投稿に紐づくターム
+                            if (is_singular() && has_term($term_ids, $taxonomy)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+                // 投稿タイプ判定
+                if (!empty($exclude['post_types'])) {
+                    foreach ($exclude['post_types'] as $post_type) {
+                        if (is_singular($post_type) || is_post_type_archive($post_type)) {
+                            return false;
+                        }
+                    }
+                }
+
+                // 特殊ページ判定
+                if (!empty($exclude['special'])) {
+                    if (in_array('search', $exclude['special']) && is_search()) {
+                        return false;
+                    }
+                    if (in_array('404', $exclude['special']) && is_404()) {
+                        return false;
+                    }
+                    if (in_array('archive', $exclude['special']) && is_archive()) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            default:
+                return true;
+        }
     }
 
     /**

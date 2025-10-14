@@ -108,6 +108,7 @@ class ANDW_SideFlow_Admin_UI {
                                 <a href="#styles" class="nav-tab"><?php esc_html_e('スタイル設定', 'andw-sideflow'); ?></a>
                                 <a href="#layout" class="nav-tab"><?php esc_html_e('レイアウト設定', 'andw-sideflow'); ?></a>
                                 <a href="#buttons" class="nav-tab"><?php esc_html_e('ボタン設定', 'andw-sideflow'); ?></a>
+                                <a href="#visibility" class="nav-tab"><?php esc_html_e('表示制御', 'andw-sideflow'); ?></a>
                                 <a href="#advanced" class="nav-tab"><?php esc_html_e('詳細設定', 'andw-sideflow'); ?></a>
                             </nav>
                         </div>
@@ -130,6 +131,11 @@ class ANDW_SideFlow_Admin_UI {
                         <!-- ボタン設定タブ -->
                         <div class="tab-content" id="buttons" style="display:none;">
                             <?php $this->render_buttons_section($config); ?>
+                        </div>
+
+                        <!-- 表示制御タブ -->
+                        <div class="tab-content" id="visibility" style="display:none;">
+                            <?php $this->render_visibility_section($config); ?>
                         </div>
 
                         <!-- 詳細設定タブ -->
@@ -638,6 +644,117 @@ class ANDW_SideFlow_Admin_UI {
             </table>
             <div style="margin-top: 15px; text-align: left;">
                 <button type="submit" class="button button-primary" style="min-width: 120px;"><?php esc_html_e('このボタンを保存', 'andw-sideflow'); ?></button>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * 表示制御セクション
+     */
+    private function render_visibility_section($config) {
+        $visibility = $config['visibility'] ?? array();
+        $mode = $visibility['mode'] ?? 'all';
+        $exclude = $visibility['exclude'] ?? array();
+        ?>
+        <div class="andw-sideflow-section">
+            <h3><?php esc_html_e('表示制御設定', 'andw-sideflow'); ?></h3>
+
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php esc_html_e('表示モード', 'andw-sideflow'); ?></th>
+                    <td>
+                        <fieldset>
+                            <legend class="screen-reader-text"><?php esc_html_e('表示モード', 'andw-sideflow'); ?></legend>
+                            <label>
+                                <input type="radio" name="visibility_mode" value="all" <?php checked($mode, 'all'); ?>>
+                                <?php esc_html_e('全ページに表示', 'andw-sideflow'); ?>
+                            </label><br>
+                            <label>
+                                <input type="radio" name="visibility_mode" value="front" <?php checked($mode, 'front'); ?>>
+                                <?php esc_html_e('フロントページのみ', 'andw-sideflow'); ?>
+                            </label><br>
+                            <label>
+                                <input type="radio" name="visibility_mode" value="manual_exclude" <?php checked($mode, 'manual_exclude'); ?>>
+                                <?php esc_html_e('手動で除外設定', 'andw-sideflow'); ?>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- 手動除外設定 -->
+            <div id="manual-exclude-settings" style="<?php echo $mode !== 'manual_exclude' ? 'display:none;' : ''; ?>">
+                <h4><?php esc_html_e('除外設定', 'andw-sideflow'); ?></h4>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php esc_html_e('除外ページ', 'andw-sideflow'); ?></th>
+                        <td>
+                            <?php
+                            $pages = get_pages();
+                            $selected_pages = $exclude['pages'] ?? array();
+                            ?>
+                            <select name="visibility_exclude_pages[]" multiple size="5" style="width: 100%; max-width: 400px;">
+                                <?php foreach ($pages as $page): ?>
+                                    <option value="<?php echo esc_attr($page->ID); ?>" <?php selected(in_array($page->ID, $selected_pages)); ?>>
+                                        <?php echo esc_html($page->post_title); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php esc_html_e('複数選択可能（Ctrl+クリック）', 'andw-sideflow'); ?></p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php esc_html_e('除外投稿タイプ', 'andw-sideflow'); ?></th>
+                        <td>
+                            <?php
+                            $post_types = get_post_types(array('public' => true), 'objects');
+                            $selected_post_types = $exclude['post_types'] ?? array();
+                            ?>
+                            <fieldset>
+                                <?php foreach ($post_types as $post_type): ?>
+                                    <label>
+                                        <input type="checkbox" name="visibility_exclude_post_types[]" value="<?php echo esc_attr($post_type->name); ?>" <?php checked(in_array($post_type->name, $selected_post_types)); ?>>
+                                        <?php echo esc_html($post_type->label); ?>
+                                    </label><br>
+                                <?php endforeach; ?>
+                            </fieldset>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php esc_html_e('除外URL（前方一致）', 'andw-sideflow'); ?></th>
+                        <td>
+                            <textarea name="visibility_exclude_url_prefixes" rows="4" cols="50" placeholder="/contact&#10;/jobs/&#10;/private/"><?php
+                                echo esc_textarea(implode("\n", $exclude['url_prefixes'] ?? array()));
+                            ?></textarea>
+                            <p class="description"><?php esc_html_e('1行につき1つのURL前方一致パターンを入力', 'andw-sideflow'); ?></p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php esc_html_e('特殊ページ除外', 'andw-sideflow'); ?></th>
+                        <td>
+                            <?php $selected_special = $exclude['special'] ?? array(); ?>
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="visibility_exclude_special[]" value="search" <?php checked(in_array('search', $selected_special)); ?>>
+                                    <?php esc_html_e('検索結果ページ', 'andw-sideflow'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="visibility_exclude_special[]" value="404" <?php checked(in_array('404', $selected_special)); ?>>
+                                    <?php esc_html_e('404エラーページ', 'andw-sideflow'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="visibility_exclude_special[]" value="archive" <?php checked(in_array('archive', $selected_special)); ?>>
+                                    <?php esc_html_e('アーカイブページ', 'andw-sideflow'); ?>
+                                </label>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
         <?php
