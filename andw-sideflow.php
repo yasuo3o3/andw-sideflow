@@ -2,7 +2,7 @@
 /**
  * Plugin Name: andW SideFlow
  * Description: 右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
- * Version: 0.3.5
+ * Version: 0.4.0
  * Author: yasuo3o3
  * Author URI: https://yasuo-o.xyz/
  * License: GPLv2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('ANDW_SIDEFLOW_VERSION', '0.3.5');
+define('ANDW_SIDEFLOW_VERSION', '0.4.0');
 define('ANDW_SIDEFLOW_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -447,7 +447,7 @@ class ANDW_SideFlow {
         $sanitized['drawer'] = array(
             'backdrop' => (bool)($drawer['backdrop'] ?? false),
             'widthPercent' => max(0.5, min(0.95, floatval($drawer['widthPercent'] ?? 0.76))),
-            'maxWidthPx' => max(300, min(1000, intval($drawer['maxWidthPx'] ?? 600)))
+            'maxWidthPx' => max(200, min(370, intval($drawer['maxWidthPx'] ?? 370)))
         );
 
         // モーション設定
@@ -787,7 +787,7 @@ class ANDW_SideFlow {
             'drawer' => array(
                 'backdrop' => false,
                 'widthPercent' => 0.76,
-                'maxWidthPx' => 600
+                'maxWidthPx' => 370
             ),
             'slider' => array(
                 'autoplay' => true,

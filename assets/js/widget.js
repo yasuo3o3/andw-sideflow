@@ -679,7 +679,7 @@
     function createTabUI() {
         // 設定取得
         const tabConfig = config.tab || { anchor: 'center', offsetPx: 24, widthPx: 50, heightMode: 'full' };
-        const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76, maxWidthPx: 600 };
+        const drawerConfig = config.drawer || { backdrop: false, widthPercent: 0.76, maxWidthPx: 370 };
         const motionConfig = config.motion || { durationMs: 300, easing: 'cubic-bezier(0.2,0,0,1)' };
         const sliderConfig = config.slider || { heightMode: 'auto', aspectRatio: '16:9' };
         const layoutConfig = config.layout || { maxHeightPx: 640 };
@@ -701,16 +701,10 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // 実際のドロワー幅を計算（max-width制限を考慮）
+        // 実際のドロワー幅を計算（420px総幅制限）
         const viewportWidth = window.innerWidth;
-        let drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
-
-        // mobile時の調整（レスポンシブ更新と同じロジック）
-        if (viewportWidth <= 480) {
-            drawerPercentWidth = 0.85 * viewportWidth;
-        }
-
-        const maxWidth = drawerConfig.maxWidthPx || 600;
+        const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+        const maxWidth = drawerConfig.maxWidthPx || 370;
         const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
 
         // iOS デバッグ情報（問題特定のため）
@@ -730,12 +724,8 @@
             console.log('🔍 andW SideFlow iOS Debug:', debugInfo);
         }
 
-        // CSS変数設定（mobile調整を反映）
-        if (viewportWidth <= 480) {
-            container.style.setProperty('--sf-drawerW', '85vw');
-        } else {
-            container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-        }
+        // CSS変数設定（420px総幅制限）
+        container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
         container.style.setProperty('--sf-drawerMaxW', `${maxWidth}px`);
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
@@ -1470,21 +1460,14 @@
             const wrap = shadowRoot.querySelector('.sf-wrap');
             if (!wrap) return;
 
-            const drawerConfig = config.drawer || { widthPercent: 0.76, maxWidthPx: 600 };
+            const drawerConfig = config.drawer || { widthPercent: 0.76, maxWidthPx: 370 };
 
-            // 実際のドロワー幅を再計算（max-width制限を考慮）
+            // 実際のドロワー幅を再計算（420px総幅制限）
             const viewportWidth = window.innerWidth;
-            let drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+            const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
+            const maxWidth = drawerConfig.maxWidthPx || 370;
 
-            // mobile時の調整
-            if (viewportWidth <= 480) {
-                drawerPercentWidth = 0.85 * viewportWidth;
-                wrap.style.setProperty('--sf-drawerW', '85vw');
-            } else {
-                wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-            }
-
-            const maxWidth = drawerConfig.maxWidthPx || 600;
+            wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
@@ -1806,7 +1789,7 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
 
             // ドロワー幅計算
             const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
-            const maxDrawerWidth = drawerConfig.maxWidthPx || 600;
+            const maxDrawerWidth = drawerConfig.maxWidthPx || 370;
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxDrawerWidth);
 
             // スライダー幅（ドロワー幅と同じ）
