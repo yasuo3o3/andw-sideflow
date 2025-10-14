@@ -162,6 +162,7 @@ class ANDW_SideFlow_Admin_UI {
                         <div class="preview-size-controls">
                             <button type="button" class="button preview-size-btn active" data-width="320"><?php esc_html_e('320px', 'andw-sideflow'); ?></button>
                             <button type="button" class="button preview-size-btn" data-width="375"><?php esc_html_e('375px', 'andw-sideflow'); ?></button>
+                            <button type="button" class="button preview-size-btn" data-width="390"><?php esc_html_e('390px', 'andw-sideflow'); ?></button>
                         </div>
                     </div>
                     <div class="preview-container" data-width="320">

@@ -1198,7 +1198,7 @@
 
         // 保存されたサイズを復元
         const savedWidth = localStorage.getItem('andw-sideflow-preview-width');
-        if (savedWidth && (savedWidth === '320' || savedWidth === '375')) {
+        if (savedWidth && (savedWidth === '320' || savedWidth === '375' || savedWidth === '390')) {
             const targetWidth = parseInt(savedWidth);
             const containerWidth = targetWidth + scrollbarWidth;
 
