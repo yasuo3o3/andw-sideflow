@@ -30,7 +30,7 @@
             /* CSS変数API */
             --sf-color-brand: var(--andw-sf-color-brand, #667eea);
             --sf-tab-text-color: var(--andw-sf-tab-text-color, #ffffff);
-            --sf-radius: var(--andw-sf-radius, 8px);
+            --sf-radius: var(--andw-sf-radius, 0px);
             --sf-shadow: var(--andw-sf-shadow, 0 4px 12px rgba(0,0,0,0.15));
             --sf-spacing: var(--andw-sf-spacing, 16px);
             --sf-font: var(--andw-sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
@@ -1616,7 +1616,7 @@
 
         host.style.setProperty('--andw-sf-color-brand', tokens.colorBrand || '#667eea');
         host.style.setProperty('--andw-sf-tab-text-color', tokens.tabTextColor || '#ffffff');
-        host.style.setProperty('--andw-sf-radius', (tokens.radius !== undefined ? tokens.radius : 8) + 'px');
+        host.style.setProperty('--andw-sf-radius', (tokens.radius !== undefined ? tokens.radius : 0) + 'px');
         host.style.setProperty('--andw-sf-shadow', tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
         host.style.setProperty('--andw-sf-spacing', (tokens.spacing || 16) + 'px');
         host.style.setProperty('--andw-sf-duration', (tokens.durationMs || 300) + 'ms');

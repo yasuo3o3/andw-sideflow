@@ -503,7 +503,7 @@ class ANDW_SideFlow {
             'tokens' => array(
                 'colorBrand' => sanitize_hex_color($styles['tokens']['colorBrand'] ?? '#667eea') ?: '#667eea',
                 'tabTextColor' => sanitize_hex_color($styles['tokens']['tabTextColor'] ?? '#ffffff') ?: '#ffffff',
-                'radius' => max(0, intval($styles['tokens']['radius'] ?? 8)),
+                'radius' => max(0, intval($styles['tokens']['radius'] ?? 0)),
                 'shadow' => sanitize_text_field($styles['tokens']['shadow'] ?? '0 4px 12px rgba(0,0,0,0.15)'),
                 'spacing' => max(0, intval($styles['tokens']['spacing'] ?? 16)),
                 'durationMs' => max(0, intval($styles['tokens']['durationMs'] ?? 300)),
@@ -858,7 +858,7 @@ class ANDW_SideFlow {
                 'tokens' => array(
                     'colorBrand' => '#667eea',
                     'tabTextColor' => '#ffffff',
-                    'radius' => 8,
+                    'radius' => 0,
                     'shadow' => '0 4px 12px rgba(0,0,0,0.15)',
                     'spacing' => 16,
                     'durationMs' => 300,

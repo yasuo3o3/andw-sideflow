@@ -351,7 +351,7 @@ class ANDW_SideFlow_Admin_UI {
                 <tr>
                     <th scope="row"><?php esc_html_e('角丸', 'andw-sideflow'); ?></th>
                     <td>
-                        <input type="number" id="token-radius" value="<?php echo esc_attr($tokens['radius'] ?? 8); ?>" min="0" max="50">
+                        <input type="number" id="token-radius" value="<?php echo esc_attr($tokens['radius'] ?? 0); ?>" min="0" max="50">
                         <span class="description">px</span>
                     </td>
                 </tr>

@@ -417,7 +417,7 @@ function collectFormData() {
             tokens: {
                 colorBrand: $('#token-color-brand').val() || '#667eea',
                 tabTextColor: $('#token-tab-text-color').val() || '#ffffff',
-                radius: parseInt($('#token-radius').val()) || 8,
+                radius: parseInt($('#token-radius').val()) >= 0 ? parseInt($('#token-radius').val()) : 0,
                 shadow: $('#token-shadow').val() || '0 4px 12px rgba(0,0,0,0.15)',
                 spacing: parseInt($('#token-spacing').val()) || 16,
                 durationMs: parseInt($('#token-duration').val()) || 300,

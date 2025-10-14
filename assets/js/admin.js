@@ -650,7 +650,7 @@
                 tokens: {
                     colorBrand: getColorPickerValue('#token-color-brand') || '#667eea',
                     tabTextColor: getColorPickerValue('#token-tab-text-color') || '#ffffff',
-                    radius: parseInt($('#token-radius').val()) || 8,
+                    radius: parseInt($('#token-radius').val()) >= 0 ? parseInt($('#token-radius').val()) : 0,
                     shadow: $('#token-shadow').val() || '0 4px 12px rgba(0,0,0,0.15)',
                     spacing: parseInt($('#token-spacing').val()) || 16,
                     durationMs: parseInt($('#token-duration').val()) || 300,
@@ -865,7 +865,7 @@
             if (config.styles.tokens) {
                 $('#token-color-brand').val(config.styles.tokens.colorBrand || '#667eea');
                 $('#token-tab-text-color').val(config.styles.tokens.tabTextColor || '#ffffff');
-                $('#token-radius').val(config.styles.tokens.radius || 8);
+                $('#token-radius').val(config.styles.tokens.radius !== undefined ? config.styles.tokens.radius : 0);
                 $('#token-shadow').val(config.styles.tokens.shadow || '0 4px 12px rgba(0,0,0,0.15)');
                 $('#token-spacing').val(config.styles.tokens.spacing || 16);
                 $('#token-duration').val(config.styles.tokens.durationMs || 300);
