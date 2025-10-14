@@ -168,7 +168,17 @@
         // フォントファミリー設定
         const currentFont = $('#token-font-family').val();
         const $fontSelect = $('#token-font-family-select');
-        if ($fontSelect.find(`option[value="${currentFont}"]`).length > 0) {
+
+        // セレクトボックスのオプションを検索（安全な方法）
+        let optionFound = false;
+        $fontSelect.find('option').each(function() {
+            if ($(this).val() === currentFont) {
+                optionFound = true;
+                return false; // break
+            }
+        });
+
+        if (optionFound) {
             $fontSelect.val(currentFont);
         } else {
             $fontSelect.val('custom');
