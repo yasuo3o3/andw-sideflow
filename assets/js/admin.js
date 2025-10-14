@@ -299,6 +299,14 @@
             const config = collectFormData();
             const configJson = JSON.stringify(config);
 
+            // デバッグ: タブ文字色の値を詳しくログ出力
+            const tabTextColorValue = $('#token-tab-text-color').val();
+            const tabTextColorFromConfig = config.styles?.tokens?.tabTextColor;
+            console.log('DEBUG - Tab text color input value:', tabTextColorValue);
+            console.log('DEBUG - Tab text color in config:', tabTextColorFromConfig);
+            console.log('DEBUG - Color picker element:', $('#token-tab-text-color')[0]);
+            console.log('DEBUG - Color picker container:', $('#token-tab-text-color').closest('.wp-picker-container')[0]);
+
             // 設定データが空でないことを確認
             if (!config || configJson.length < 10) {
                 e.preventDefault();
@@ -323,6 +331,36 @@
         // 初期設定の読み込み
         loadInitialConfig();
         updateConfig();
+    }
+
+    // カラーピッカーの値を取得するヘルパー関数
+    function getColorPickerValue(selector) {
+        const $element = (typeof selector === 'string') ? $(selector) : selector;
+
+        if (!$element.length) {
+            return '';
+        }
+
+        // WordPress ColorPickerが初期化されている場合
+        if ($element.hasClass('wp-color-picker')) {
+            try {
+                const color = $element.wpColorPicker('color');
+                return color || $element.val() || '';
+            } catch (e) {
+                // wpColorPickerメソッドが使えない場合は通常のvalを使用
+                console.warn('wpColorPicker method failed, falling back to val():', e);
+                return $element.val() || '';
+            }
+        }
+
+        // 通常のinput要素として値を取得
+        return $element.val() || '';
+    }
+
+    // コンテナ内のカラーピッカーの値を取得するヘルパー関数
+    function getColorPickerValueInContainer($container, selector) {
+        const $element = $container.find(selector);
+        return getColorPickerValue($element);
     }
 
     // スライドアイテム追加
@@ -526,8 +564,8 @@
                 preset: $('#style-preset').val() || 'light',
                 customCssUrl: $('#custom-css-url').val() || '',
                 tokens: {
-                    colorBrand: $('#token-color-brand').val() || '#667eea',
-                    tabTextColor: $('#token-tab-text-color').val() || '#ffffff',
+                    colorBrand: getColorPickerValue('#token-color-brand') || '#667eea',
+                    tabTextColor: getColorPickerValue('#token-tab-text-color') || '#ffffff',
                     radius: parseInt($('#token-radius').val()) || 8,
                     shadow: $('#token-shadow').val() || '0 4px 12px rgba(0,0,0,0.15)',
                     spacing: parseInt($('#token-spacing').val()) || 16,
@@ -620,19 +658,20 @@
             // カラー設定を収集
             if (variant !== 'line') {
                 button.colors = {};
+                const $container = $(this);
                 switch (variant) {
                     case 'solid':
-                        button.colors.background = $(this).find('.button-color-background').val() || '#f0f0f1';
-                        button.colors.text = $(this).find('.button-color-text').val() || '#2c3338';
+                        button.colors.background = getColorPickerValueInContainer($container, '.button-color-background') || '#f0f0f1';
+                        button.colors.text = getColorPickerValueInContainer($container, '.button-color-text') || '#2c3338';
                         break;
                     case 'gradient':
-                        button.colors.gradientStart = $(this).find('.button-color-gradient-start').val() || '#0073aa';
-                        button.colors.gradientEnd = $(this).find('.button-color-gradient-end').val() || '#005a87';
-                        button.colors.text = $(this).find('.button-color-text').val() || '#ffffff';
+                        button.colors.gradientStart = getColorPickerValueInContainer($container, '.button-color-gradient-start') || '#0073aa';
+                        button.colors.gradientEnd = getColorPickerValueInContainer($container, '.button-color-gradient-end') || '#005a87';
+                        button.colors.text = getColorPickerValueInContainer($container, '.button-color-text') || '#ffffff';
                         break;
                     case 'outline':
-                        button.colors.border = $(this).find('.button-color-border').val() || '#0073aa';
-                        button.colors.text = $(this).find('.button-color-text').val() || '#0073aa';
+                        button.colors.border = getColorPickerValueInContainer($container, '.button-color-border') || '#0073aa';
+                        button.colors.text = getColorPickerValueInContainer($container, '.button-color-text') || '#0073aa';
                         break;
                 }
             }
