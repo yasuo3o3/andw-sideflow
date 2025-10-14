@@ -402,17 +402,17 @@ class ANDW_SideFlow {
                         // variant別の色設定
                         switch ($variant) {
                             case 'solid':
-                                $sanitizedButton['colors']['background'] = sanitize_hex_color($colors['background'] ?? '#f0f0f1');
-                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#2c3338');
+                                $sanitizedButton['colors']['background'] = sanitize_hex_color($colors['background'] ?? '#f0f0f1') ?: '#f0f0f1';
+                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#2c3338') ?: '#2c3338';
                                 break;
                             case 'gradient':
-                                $sanitizedButton['colors']['gradientStart'] = sanitize_hex_color($colors['gradientStart'] ?? '#0073aa');
-                                $sanitizedButton['colors']['gradientEnd'] = sanitize_hex_color($colors['gradientEnd'] ?? '#005a87');
-                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#ffffff');
+                                $sanitizedButton['colors']['gradientStart'] = sanitize_hex_color($colors['gradientStart'] ?? '#0073aa') ?: '#0073aa';
+                                $sanitizedButton['colors']['gradientEnd'] = sanitize_hex_color($colors['gradientEnd'] ?? '#005a87') ?: '#005a87';
+                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#ffffff') ?: '#ffffff';
                                 break;
                             case 'outline':
-                                $sanitizedButton['colors']['border'] = sanitize_hex_color($colors['border'] ?? '#0073aa');
-                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#0073aa');
+                                $sanitizedButton['colors']['border'] = sanitize_hex_color($colors['border'] ?? '#0073aa') ?: '#0073aa';
+                                $sanitizedButton['colors']['text'] = sanitize_hex_color($colors['text'] ?? '#0073aa') ?: '#0073aa';
                                 break;
                         }
                     }
@@ -498,8 +498,8 @@ class ANDW_SideFlow {
             'preset' => in_array($styles['preset'] ?? 'light', array('light', 'brand', 'minimal')) ? $styles['preset'] : 'light',
             'customCssUrl' => esc_url_raw($styles['customCssUrl'] ?? ''),
             'tokens' => array(
-                'colorBrand' => sanitize_hex_color($styles['tokens']['colorBrand'] ?? '#667eea'),
-                'tabTextColor' => sanitize_hex_color($styles['tokens']['tabTextColor'] ?? '#ffffff'),
+                'colorBrand' => sanitize_hex_color($styles['tokens']['colorBrand'] ?? '#667eea') ?: '#667eea',
+                'tabTextColor' => sanitize_hex_color($styles['tokens']['tabTextColor'] ?? '#ffffff') ?: '#ffffff',
                 'radius' => max(0, intval($styles['tokens']['radius'] ?? 8)),
                 'shadow' => sanitize_text_field($styles['tokens']['shadow'] ?? '0 4px 12px rgba(0,0,0,0.15)'),
                 'spacing' => max(0, intval($styles['tokens']['spacing'] ?? 16)),
