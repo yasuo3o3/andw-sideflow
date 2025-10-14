@@ -878,8 +878,9 @@
             $('#dev-debug').prop('checked', config.dev.debug || false);
         }
 
-        // カラーピッカーの再初期化
-        $('.color-picker').wpColorPicker('color', config.styles?.tokens?.colorBrand || '#667eea');
+        // カラーピッカーの個別設定
+        $('#token-color-brand').wpColorPicker('color', config.styles?.tokens?.colorBrand || '#667eea');
+        $('#token-tab-text-color').wpColorPicker('color', config.styles?.tokens?.tabTextColor || '#ffffff');
     }
 
     // データ付きスライドアイテム追加
