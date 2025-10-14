@@ -16,6 +16,7 @@
         initializeAspectRatioControl();
         initializeTabActionControl();
         initializeVisibilityControl();
+        initializePreviewSizeControl();
         populateFormWithCurrentConfig();
     });
 
@@ -1139,6 +1140,78 @@
         function toggleManualExcludeSettings() {
             const isManualExclude = $('input[name="visibility_mode"]:checked').val() === 'manual_exclude';
             $('#manual-exclude-settings').toggle(isManualExclude);
+        }
+    }
+
+    // スクロールバー幅を計算
+    function getScrollbarWidth() {
+        // キャッシュされた値があれば使用
+        if (window.andwScrollbarWidth !== undefined) {
+            return window.andwScrollbarWidth;
+        }
+
+        // スクロールバー幅測定用の一時要素を作成
+        const outer = document.createElement('div');
+        outer.style.visibility = 'hidden';
+        outer.style.overflow = 'scroll';
+        outer.style.msOverflowStyle = 'scrollbar'; // IE/Edge対応
+        document.body.appendChild(outer);
+
+        const inner = document.createElement('div');
+        outer.appendChild(inner);
+
+        const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+
+        // 要素を削除
+        document.body.removeChild(outer);
+
+        // 結果をキャッシュ
+        window.andwScrollbarWidth = scrollbarWidth;
+        return scrollbarWidth;
+    }
+
+    // プレビューサイズ制御
+    function initializePreviewSizeControl() {
+        // スクロールバー幅を取得
+        const scrollbarWidth = getScrollbarWidth();
+
+        // サイズ切り替えボタンのイベント
+        $(document).on('click', '.preview-size-btn', function(e) {
+            e.preventDefault();
+
+            const $button = $(this);
+            const targetWidth = parseInt($button.data('width'));
+
+            // ボタンのアクティブ状態を切り替え
+            $('.preview-size-btn').removeClass('active');
+            $button.addClass('active');
+
+            // プレビューコンテナのサイズを変更（スクロールバー幅を考慮）
+            const containerWidth = targetWidth + scrollbarWidth;
+            $('.preview-container')
+                .attr('data-width', targetWidth)
+                .css('width', containerWidth + 'px');
+
+            // 設定を保存（ローカルストレージ）
+            localStorage.setItem('andw-sideflow-preview-width', targetWidth);
+        });
+
+        // 保存されたサイズを復元
+        const savedWidth = localStorage.getItem('andw-sideflow-preview-width');
+        if (savedWidth && (savedWidth === '320' || savedWidth === '375')) {
+            const targetWidth = parseInt(savedWidth);
+            const containerWidth = targetWidth + scrollbarWidth;
+
+            $('.preview-size-btn').removeClass('active');
+            $(`.preview-size-btn[data-width="${savedWidth}"]`).addClass('active');
+            $('.preview-container')
+                .attr('data-width', targetWidth)
+                .css('width', containerWidth + 'px');
+        } else {
+            // デフォルト320pxを設定
+            const defaultWidth = 320;
+            const containerWidth = defaultWidth + scrollbarWidth;
+            $('.preview-container').css('width', containerWidth + 'px');
         }
     }
 

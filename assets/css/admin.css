@@ -140,12 +140,49 @@
     align-self: flex-start;
 }
 
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.preview-header h3 {
+    margin: 0;
+}
+
+.preview-size-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.preview-size-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    border-radius: 3px;
+}
+
+.preview-size-btn.active {
+    background: #0073aa;
+    border-color: #005a87;
+    color: #fff;
+}
+
 .preview-container {
     border: 1px solid #ddd;
     border-radius: 4px;
     overflow: hidden;
     background: #fff;
     height: 600px;
+    transition: width 0.3s ease;
+    margin: 0 auto;
+}
+
+/* プレビューサイズ制御（JavaScriptで動的に設定） */
+.preview-container {
+    min-width: 320px;
+    max-width: 100%;
 }
 
 #preview-iframe {
