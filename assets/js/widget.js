@@ -13,6 +13,15 @@
     let widget = null;
     let focusTrap = null;
 
+    // 台形角丸用path()生成関数
+    function generateRoundedTrapezoidPath(width, height) {
+        const cornerRadius = 10;
+        const topOffset = height * 0.08;    // 8%
+        const bottomOffset = height * 0.92;  // 92%
+
+        return `M0,${topOffset + cornerRadius} A${cornerRadius},${cornerRadius} 0 0,1 ${cornerRadius},${topOffset} L${width},0 L${width},${height} L${cornerRadius},${bottomOffset} A${cornerRadius},${cornerRadius} 0 0,1 0,${bottomOffset - cornerRadius} Z`;
+    }
+
     // CSS スタイル
     const CSS_STYLES = `
         :host {
@@ -142,10 +151,9 @@
             clip-path: polygon(0% 8%, 100% 0%, 100% 100%, 0% 92%);
         }
 
-        /* 台形角丸スタイル - 左上・左下角丸 */
+        /* 台形角丸スタイル - 動的path()で設定（JavaScriptで処理） */
         .sf-wrap[data-preset="trapezoid-rounded"] .sf-tab {
-            clip-path: polygon(0% 8%, 100% 0%, 100% 100%, 0% 92%);
-            border-radius: 10px 0 0 10px;
+            /* clip-pathは動的に設定される */
         }
 
         /* フォールバック: clip-path: path()未対応の場合 */
@@ -727,6 +735,30 @@
         const preset = config.styles?.preset || 'rectangular';
         container.setAttribute('data-preset', preset);
 
+        // 台形角丸の動的path()適用関数
+        function applyDynamicTrapezoidPath() {
+            if (preset !== 'trapezoid-rounded') return;
+
+            const tab = container.querySelector('.sf-tab');
+            if (!tab) return;
+
+            const rect = tab.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
+
+            const path = generateRoundedTrapezoidPath(rect.width, rect.height);
+            tab.style.clipPath = `path("${path}")`;
+        }
+
+        // リサイズイベント対応（台形角丸のみ）
+        if (preset === 'trapezoid-rounded') {
+            let resizeTimeout;
+            const handleResize = () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(applyDynamicTrapezoidPath, 100);
+            };
+            window.addEventListener('resize', handleResize);
+        }
+
         // 初期開閉状態の設定
         if (uiConfig.startOpen) {
             container.classList.add('is-open');
@@ -883,6 +915,8 @@
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 widget.classList.add('sf-initialized');
+                // 台形角丸の動的path()を適用
+                applyDynamicTrapezoidPath();
             });
         });
     }
