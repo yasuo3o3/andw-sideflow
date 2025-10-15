@@ -132,22 +132,23 @@
             transform: translateX(0px);
         }
 
-        /* iOS Safe Area対応 - 37px右寄せ修正 */
+        /* iOS Safe Area対応 - 37px右寄せ修正（迷い動き防止） */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + 37px));
+                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + 37px)) !important;
+                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out) !important;
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + 37px));
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + 37px)) !important;
             }
 
             .sf-wrap.is-open {
-                transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px));
+                transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)) !important;
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px));
+                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)) !important;
             }
 
             /* ドロワー幅も画面幅に制限 */
