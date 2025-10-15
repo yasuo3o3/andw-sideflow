@@ -51,10 +51,10 @@
 
         .sf-wrap {
             position: fixed;
-            right: env(safe-area-inset-right, 0px);
+            right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(var(--sf-actualDrawerW, 400px));
+            transform: translateX(calc(var(--sf-actualDrawerW, 400px) + env(safe-area-inset-right, 0px)));
             transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             z-index: var(--sf-z-index, 10000);
         }
@@ -62,13 +62,14 @@
         /* iOS固有の修正 */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                right: max(env(safe-area-inset-right, 0px), 0px);
+                right: 0;
+                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + env(safe-area-inset-right, 0px)));
             }
         }
 
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, 400px));
+            transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + env(safe-area-inset-right, 0px)));
         }
 
         .sf-wrap.anchor-center.is-opening {
@@ -108,11 +109,11 @@
         }
 
         .sf-wrap.anchor-center.is-open {
-            transform: translateY(-50%) translateX(0);
+            transform: translateY(-50%) translateX(env(safe-area-inset-right, 0px));
         }
 
         .sf-wrap.anchor-bottom.is-open {
-            transform: translateX(0);
+            transform: translateX(env(safe-area-inset-right, 0px));
         }
 
         .sf-wrap.anchor-bottom {
@@ -801,23 +802,20 @@
         // タブオフセット設定（全アンカータイプ統一）
         container.style.setProperty('--tab-offset', `${tabConfig.offsetPx || 0}px`);
 
-        // iOS Safe Area対応強化
+        // iOS Safe Area対応（CSS calc()で自動計算されるため最小限の処理）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
             const safeAreaRight = parseInt(getComputedStyle(document.documentElement)
                 .getPropertyValue('env(safe-area-inset-right)')) || 0;
             const safeAreaBottom = parseInt(getComputedStyle(document.documentElement)
                 .getPropertyValue('env(safe-area-inset-bottom)')) || 0;
 
-            container.style.setProperty('--safe-area-right', `${safeAreaRight}px`);
-            container.style.setProperty('--safe-area-bottom', `${safeAreaBottom}px`);
-
-            // iOS専用デバッグ情報を追加
-            console.log('🔍 andW SideFlow iOS Offset Debug:', {
+            // iOS専用デバッグ情報
+            console.log('🔍 andW SideFlow iOS Safe Area Debug:', {
                 anchor: tabConfig.anchor,
                 offsetPx: tabConfig.offsetPx,
                 safeAreaRight: safeAreaRight,
                 safeAreaBottom: safeAreaBottom,
-                userAgent: navigator.userAgent.substring(0, 50) + '...'
+                note: 'Safe Area positioning handled by CSS calc()'
             });
         }
 
@@ -1313,10 +1311,11 @@
 
             // 最終位置を確実に設定
             const tabConfig = config.tab || { anchor: 'center' };
+            const safeAreaOffset = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)') || '0px';
             if (tabConfig.anchor === 'center') {
-                wrap.style.transform = 'translateY(-50%) translateX(0)';
+                wrap.style.transform = `translateY(-50%) translateX(${safeAreaOffset})`;
             } else {
-                wrap.style.transform = 'translateX(0)';
+                wrap.style.transform = `translateX(${safeAreaOffset})`;
             }
         }, animationDuration);
 
@@ -1559,34 +1558,16 @@
             const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
-            // iOS タブオフセット再計算（位置ずれ防止）
+            // iOS用のレスポンシブ更新ログ（Safe Areaは CSS calc()で自動処理）
             if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                const tabConfig = config.tab || { anchor: 'right' };
-                const safeAreaInsetRight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)').replace('px', '')) || 0;
-                const safeAreaInsetBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)').replace('px', '')) || 0;
-
-                // タブオフセット再計算
-                let tabOffset = 0;
-                if (tabConfig.anchor === 'right') {
-                    tabOffset = safeAreaInsetRight;
-                } else if (tabConfig.anchor === 'bottom') {
-                    tabOffset = safeAreaInsetBottom;
-                } else if (tabConfig.anchor === 'center') {
-                    tabOffset = safeAreaInsetBottom;
-                }
-
-                // CSS変数に設定
-                wrap.style.setProperty('--tab-offset', `${tabOffset}px`);
-
+                const tabConfig = config.tab || { anchor: 'center' };
                 console.log('🔄 andW SideFlow iOS Responsive Update:', {
                     trigger: 'layout update',
                     viewportWidth: viewportWidth,
                     drawerPercentWidth: drawerPercentWidth,
                     actualDrawerWidth: actualDrawerWidth,
                     anchor: tabConfig.anchor,
-                    safeAreaInsetRight: safeAreaInsetRight,
-                    safeAreaInsetBottom: safeAreaInsetBottom,
-                    tabOffset: tabOffset
+                    note: 'Safe Area handled by CSS calc()'
                 });
             }
 
