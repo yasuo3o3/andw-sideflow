@@ -306,12 +306,12 @@
             .sf-wrap {
                 right: 0 !important;
                 max-width: 100vw !important;
-                transform: translateX(calc(100vw - 50px)) !important;
+                transform: translateX(325px) !important;
                 transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out) !important;
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(100vw - 50px)) !important;
+                transform: translateY(-50%) translateX(325px) !important;
             }
 
             .sf-wrap.is-open {
