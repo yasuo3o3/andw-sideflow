@@ -306,21 +306,20 @@
             .sf-wrap {
                 right: 0 !important;
                 max-width: 100vw !important;
-                transform: translateX(calc(100vw - 45px)) !important;
+                transform: translateX(calc(100vw - 50px)) !important;
                 transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out) !important;
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(100vw - 45px)) !important;
+                transform: translateY(-50%) translateX(calc(100vw - 50px)) !important;
             }
 
-            .sf-wrap.is-open,
-            .sf-wrap.anchor-center.is-open {
-                transform: translateX(calc(100vw - 100%)) !important;
+            .sf-wrap.is-open {
+                transform: translateX(0px) !important;
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(calc(100vw - 100%)) !important;
+                transform: translateY(-50%) translateX(0px) !important;
             }
 
             /* タブ幅を画面サイズに制限 */
