@@ -497,8 +497,20 @@ class ANDW_SideFlow {
 
         // スタイル設定（新規）
         $styles = $config['styles'] ?? array();
+
+        // 後方互換性: 旧プリセット値を新しい値にマッピング
+        $preset = $styles['preset'] ?? 'rectangular';
+        $legacy_mapping = array(
+            'light' => 'rectangular',
+            'brand' => 'trapezoid',
+            'minimal' => 'trapezoid-rounded'
+        );
+        if (isset($legacy_mapping[$preset])) {
+            $preset = $legacy_mapping[$preset];
+        }
+
         $sanitized['styles'] = array(
-            'preset' => in_array($styles['preset'] ?? 'light', array('light', 'brand', 'minimal')) ? $styles['preset'] : 'light',
+            'preset' => in_array($preset, array('rectangular', 'trapezoid', 'trapezoid-rounded')) ? $preset : 'rectangular',
             'customCssUrl' => esc_url_raw($styles['customCssUrl'] ?? ''),
             'tokens' => array(
                 'colorBrand' => sanitize_hex_color($styles['tokens']['colorBrand'] ?? '#667eea') ?: '#667eea',
@@ -853,7 +865,7 @@ class ANDW_SideFlow {
                 )
             ),
             'styles' => array(
-                'preset' => 'light',
+                'preset' => 'rectangular',
                 'customCssUrl' => '',
                 'tokens' => array(
                     'colorBrand' => '#667eea',

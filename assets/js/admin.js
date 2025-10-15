@@ -760,7 +760,7 @@
                 items: collectSlidesData()
             },
             styles: {
-                preset: $('#style-preset').val() || 'light',
+                preset: $('#style-preset').val() || 'rectangular',
                 customCssUrl: $('#custom-css-url').val() || '',
                 tokens: {
                     colorBrand: getColorPickerValue('#token-color-brand') || '#667eea',
@@ -977,7 +977,7 @@
 
         // スタイル設定
         if (config.styles) {
-            $('#style-preset').val(config.styles.preset || 'light');
+            $('#style-preset').val(config.styles.preset || 'rectangular');
             $('#custom-css-url').val(config.styles.customCssUrl || '');
 
             if (config.styles.tokens) {

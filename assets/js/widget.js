@@ -115,7 +115,6 @@
             display: flex;
             align-items: stretch;
             background: linear-gradient(135deg, var(--sf-color-brand) 0%, color-mix(in srgb, var(--sf-color-brand) 80%, #764ba2 20%) 100%);
-            border-radius: var(--sf-radius) 0 0 var(--sf-radius);
             border: none;
             cursor: pointer;
             color: var(--sf-tab-text-color, white);
@@ -131,6 +130,28 @@
             justify-content: center;
             align-items: center;
             position: relative;
+        }
+
+        /* 四角形スタイル（デフォルト） */
+        .sf-wrap[data-preset="rectangular"] .sf-tab {
+            border-radius: var(--sf-radius) 0 0 var(--sf-radius);
+        }
+
+        /* 台形スタイル（角丸なし） */
+        .sf-wrap[data-preset="trapezoid"] .sf-tab {
+            clip-path: polygon(20px 0%, 100% 0%, 100% 100%, 20px 100%, 0% 85%, 0% 15%);
+        }
+
+        /* 台形角丸スタイル */
+        .sf-wrap[data-preset="trapezoid-rounded"] .sf-tab {
+            clip-path: path("M0,15 A15,15 0 0,1 15,0 L100%,0 L100%,100% L15,100% A15,15 0 0,1 0,85 Z");
+        }
+
+        /* フォールバック: clip-path: path()未対応の場合 */
+        @supports not (clip-path: path("M0,0")) {
+            .sf-wrap[data-preset="trapezoid-rounded"] .sf-tab {
+                clip-path: polygon(20px 0%, 100% 0%, 100% 100%, 20px 100%, 0% 85%, 0% 15%);
+            }
         }
 
         .sf-tab:hover {
@@ -700,6 +721,10 @@
         // CSS変数設定
         const container = document.createElement('div');
         container.className = 'sf-wrap';
+
+        // プリセット属性設定
+        const preset = config.styles?.preset || 'rectangular';
+        container.setAttribute('data-preset', preset);
 
         // 初期開閉状態の設定
         if (uiConfig.startOpen) {

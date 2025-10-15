@@ -343,9 +343,9 @@ class ANDW_SideFlow_Admin_UI {
                     <th scope="row"><?php esc_html_e('プリセット', 'andw-sideflow'); ?></th>
                     <td>
                         <select id="style-preset">
-                            <option value="light" <?php selected($styles['preset'] ?? 'light', 'light'); ?>><?php esc_html_e('ライト', 'andw-sideflow'); ?></option>
-                            <option value="brand" <?php selected($styles['preset'] ?? 'light', 'brand'); ?>><?php esc_html_e('ブランド', 'andw-sideflow'); ?></option>
-                            <option value="minimal" <?php selected($styles['preset'] ?? 'light', 'minimal'); ?>><?php esc_html_e('ミニマル', 'andw-sideflow'); ?></option>
+                            <option value="rectangular" <?php selected($styles['preset'] ?? 'rectangular', 'rectangular'); ?>><?php esc_html_e('四角', 'andw-sideflow'); ?></option>
+                            <option value="trapezoid" <?php selected($styles['preset'] ?? 'rectangular', 'trapezoid'); ?>><?php esc_html_e('台形', 'andw-sideflow'); ?></option>
+                            <option value="trapezoid-rounded" <?php selected($styles['preset'] ?? 'rectangular', 'trapezoid-rounded'); ?>><?php esc_html_e('台形角丸', 'andw-sideflow'); ?></option>
                         </select>
                     </td>
                 </tr>
