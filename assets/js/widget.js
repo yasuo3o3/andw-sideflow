@@ -264,6 +264,43 @@
             100% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
         }
 
+        /* iOS専用アニメーション - 37px調整込み */
+        @supports (-webkit-touch-callout: none) {
+            @keyframes slideInOvershoot {
+                0% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                60% { transform: translateY(-50%) translateX(calc(var(--sf-overshoot, -15px) + 37px)); }
+                80% { transform: translateY(-50%) translateX(calc(2px + 37px)); }
+                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+            }
+
+            @keyframes slideInOvershootBottom {
+                0% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                60% { transform: translateX(calc(var(--sf-overshoot, -15px) + 37px)); }
+                80% { transform: translateX(calc(2px + 37px)); }
+                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+            }
+
+            @keyframes slideInSimple {
+                0% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+            }
+
+            @keyframes slideInSimpleBottom {
+                0% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+            }
+
+            @keyframes slideOutSmooth {
+                0% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+                100% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+            }
+
+            @keyframes slideOutSmoothBottom {
+                0% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+                100% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+            }
+        }
+
         @keyframes slideInSimple {
             0% { transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
             100% { transform: translateY(-50%) translateX(0); }
