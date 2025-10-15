@@ -137,20 +137,20 @@
             border-radius: var(--sf-radius) 0 0 var(--sf-radius);
         }
 
-        /* 台形スタイル（角丸なし） - 左辺短・右辺長 */
+        /* 台形スタイル（角丸なし） - 左辺短・右辺長（なだらか） */
         .sf-wrap[data-preset="trapezoid"] .sf-tab {
-            clip-path: polygon(0% 20%, 100% 0%, 100% 100%, 0% 80%);
+            clip-path: polygon(0% 10%, 100% 0%, 100% 100%, 0% 90%);
         }
 
-        /* 台形角丸スタイル - 左辺短・右辺長 */
+        /* 台形角丸スタイル - 左辺短・右辺長（なだらか） */
         .sf-wrap[data-preset="trapezoid-rounded"] .sf-tab {
-            clip-path: path("M0,20% A10,10 0 0,1 10,15% L100%,0 L100%,100% L10,85% A10,10 0 0,1 0,80% Z");
+            clip-path: path("M0,10% A8,8 0 0,1 8,5% L100%,0 L100%,100% L8,95% A8,8 0 0,1 0,90% Z");
         }
 
         /* フォールバック: clip-path: path()未対応の場合 */
         @supports not (clip-path: path("M0,0")) {
             .sf-wrap[data-preset="trapezoid-rounded"] .sf-tab {
-                clip-path: polygon(0% 20%, 100% 0%, 100% 100%, 0% 80%);
+                clip-path: polygon(0% 10%, 100% 0%, 100% 100%, 0% 90%);
             }
         }
 
