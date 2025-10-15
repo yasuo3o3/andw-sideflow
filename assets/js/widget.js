@@ -144,7 +144,8 @@
 
         /* 台形角丸スタイル - 左上・左下角丸 */
         .sf-wrap[data-preset="trapezoid-rounded"] .sf-tab {
-            clip-path: path("M0,18% A10,10 0 0,1 10,8% L100%,0 L100%,100% L10,92% A10,10 0 0,1 0,82% Z");
+            clip-path: polygon(0% 8%, 100% 0%, 100% 100%, 0% 92%);
+            border-radius: 10px 0 0 10px;
         }
 
         /* フォールバック: clip-path: path()未対応の場合 */
