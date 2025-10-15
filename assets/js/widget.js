@@ -267,26 +267,26 @@
         /* iOS専用アニメーション - 37px調整込み */
         @supports (-webkit-touch-callout: none) {
             @keyframes slideInOvershoot {
-                0% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
-                60% { transform: translateY(-50%) translateX(calc(var(--sf-overshoot, -15px) + 37px)); }
+                0% { transform: translateY(-50%) translateX(calc(325px + 37px)); }
+                60% { transform: translateY(-50%) translateX(calc(-15px + 37px)); }
                 80% { transform: translateY(-50%) translateX(calc(2px + 37px)); }
                 100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
             @keyframes slideInOvershootBottom {
-                0% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
-                60% { transform: translateX(calc(var(--sf-overshoot, -15px) + 37px)); }
+                0% { transform: translateX(calc(325px + 37px)); }
+                60% { transform: translateX(calc(-15px + 37px)); }
                 80% { transform: translateX(calc(2px + 37px)); }
                 100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
             @keyframes slideInSimple {
-                0% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                0% { transform: translateY(-50%) translateX(calc(325px + 37px)); }
                 100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
             @keyframes slideInSimpleBottom {
-                0% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                0% { transform: translateX(calc(325px + 37px)); }
                 100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
@@ -1430,14 +1430,29 @@
         const motionConfig = config.motion || { durationMs: 300 };
         const animationDuration = motionConfig.durationMs || 300;
 
-        // アニメーションクラスを追加（オーバーシュート設定によって分岐）
+        // アニメーションクラスを追加（バウンス効果設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
 
-        if (motionConfig.overshoot !== false) {
-            wrap.classList.add('is-opening');
-        } else {
-            wrap.classList.add('is-opening-simple');
-        }
+        // CSS変数を確実に設定してからアニメーション開始
+        const actualDrawerWidth = Math.min(
+            (config.drawer?.widthPercent || 0.76) * window.innerWidth,
+            config.drawer?.maxWidthPx || 370,
+            window.innerWidth - (config.tab?.widthPx || 50) - 20
+        );
+        wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
+
+        // 次フレームでアニメーション開始（CSS変数確定後）
+        requestAnimationFrame(() => {
+            // バウンス効果OFFまたは設定なしの場合は強制的にシンプルアニメーション
+            const hasBounceSetting = config.ui?.bounceEffect !== undefined;
+            const bounceEnabled = hasBounceSetting ? config.ui.bounceEffect : (motionConfig.overshoot !== false);
+
+            if (bounceEnabled) {
+                wrap.classList.add('is-opening');
+            } else {
+                wrap.classList.add('is-opening-simple');
+            }
+        });
 
         setTimeout(() => {
             wrap.classList.remove('is-opening', 'is-opening-simple');
