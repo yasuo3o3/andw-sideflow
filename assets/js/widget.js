@@ -62,25 +62,52 @@
         container.style.setProperty('--sf-safe-area-offset', `${safeAreaRight}px`);
 
         // 物理的なポジショニング修正（iOS確実対応）
-        if (safeAreaRight > 0) {
-            // 直接rightプロパティを設定してはみ出しを防ぐ
-            container.style.right = `${safeAreaRight}px`;
+        setTimeout(() => {
+            const tabElement = container.querySelector('.sf-tab');
+            if (!tabElement) return;
 
-            // 開いた状態では、Safe Area分だけ内側に配置
-            const openTransform = container.classList.contains('anchor-center')
-                ? `translateY(-50%) translateX(0)`
-                : `translateX(0)`;
+            const tabRect = tabElement.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
 
-            // カスタムプロパティで開いた時の位置を記録
-            container.style.setProperty('--sf-open-transform', openTransform);
-        } else {
-            // Safe Areaがない場合は通常の配置
-            container.style.right = '0';
-            const openTransform = container.classList.contains('anchor-center')
-                ? `translateY(-50%) translateX(0)`
-                : `translateX(0)`;
-            container.style.setProperty('--sf-open-transform', openTransform);
-        }
+            // タブが画面からはみ出している場合の修正
+            if (tabRect.right > viewportWidth) {
+                const overhang = tabRect.right - viewportWidth;
+                const currentRight = parseInt(getComputedStyle(container).right) || 0;
+                const newRight = Math.max(0, currentRight + overhang + 5); // 5px余裕
+
+                console.log('🔧 iOS Overhang Fix:', {
+                    tabRight: tabRect.right,
+                    viewportWidth: viewportWidth,
+                    overhang: overhang,
+                    oldRight: currentRight,
+                    newRight: newRight
+                });
+
+                // 強制的に画面内に収める
+                container.style.right = `${newRight}px`;
+                container.style.setProperty('--sf-safe-area-offset', `${newRight}px`);
+            }
+
+            if (safeAreaRight > 0) {
+                // 直接rightプロパティを設定してはみ出しを防ぐ
+                container.style.right = `${safeAreaRight}px`;
+
+                // 開いた状態では、Safe Area分だけ内側に配置
+                const openTransform = container.classList.contains('anchor-center')
+                    ? `translateY(-50%) translateX(0)`
+                    : `translateX(0)`;
+
+                // カスタムプロパティで開いた時の位置を記録
+                container.style.setProperty('--sf-open-transform', openTransform);
+            } else {
+                // Safe Areaがない場合は通常の配置
+                container.style.right = container.style.right || '0';
+                const openTransform = container.classList.contains('anchor-center')
+                    ? `translateY(-50%) translateX(0)`
+                    : `translateX(0)`;
+                container.style.setProperty('--sf-open-transform', openTransform);
+            }
+        }, 50); // 50ms遅延でDOM確定後に実行
 
         // iOS上でのデバッグ表示（画面上に表示）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
@@ -105,6 +132,11 @@
                 max-width: 300px;
                 word-wrap: break-word;
             `;
+            // タブ要素の実際のサイズを取得
+            const tabElement = container.querySelector('.sf-tab');
+            const tabRect = tabElement ? tabElement.getBoundingClientRect() : null;
+            const containerRect = container.getBoundingClientRect();
+
             debugDiv.innerHTML = `
                 <strong>iOS Debug Info:</strong><br>
                 safeAreaRight: ${safeAreaRight}px<br>
@@ -113,6 +145,11 @@
                 innerWidth: ${window.innerWidth}px<br>
                 viewportWidth: ${window.visualViewport?.width || 'N/A'}px<br>
                 orientation: ${window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'}<br>
+                containerRight: ${containerRect.right}px<br>
+                containerWidth: ${containerRect.width}px<br>
+                tabWidth: ${tabRect ? tabRect.width : 'N/A'}px<br>
+                tabRight: ${tabRect ? tabRect.right : 'N/A'}px<br>
+                translateX: ${getComputedStyle(container).transform}<br>
                 userAgent: ${navigator.userAgent.substring(0, 50)}...
             `;
             document.body.appendChild(debugDiv);
