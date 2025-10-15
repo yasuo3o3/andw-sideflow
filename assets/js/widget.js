@@ -614,7 +614,7 @@
 
             .sf-tab {
                 width: 44px;
-                font-size: 12px;
+                font-size: 16px;
             }
 
             /* タブの高さ同期モードでない場合の固定高さ */
