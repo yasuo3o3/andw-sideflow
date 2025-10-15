@@ -134,6 +134,14 @@
 
         /* iOS Safe Area対応 - 最小限の修正 */
         @supports (-webkit-touch-callout: none) {
+            .sf-wrap {
+                transform: translateX(calc(var(--sf-actualDrawerW, 400px) - 37px));
+            }
+
+            .sf-wrap.anchor-center {
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) - 37px));
+            }
+
             .sf-wrap.is-open {
                 transform: translateX(env(safe-area-inset-right, 0px));
             }
