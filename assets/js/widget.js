@@ -301,15 +301,32 @@
             transform: translateX(var(--sf-safe-area-offset, 0px));
         }
 
-        /* iOS強制修正 - 最優先適用 */
+        /* iOS完全修正 - 全面的書き換え */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                max-width: calc(100vw - var(--sf-safe-area-offset, 0px)) !important;
-                right: var(--sf-safe-area-offset, 0px) !important;
+                right: 0 !important;
+                max-width: 100vw !important;
+                transform: translateX(calc(100vw - 60px)) !important;
+                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out) !important;
             }
 
-            .sf-wrap.is-open {
-                right: var(--sf-safe-area-offset, 0px) !important;
+            .sf-wrap.anchor-center {
+                transform: translateY(-50%) translateX(calc(100vw - 60px)) !important;
+            }
+
+            .sf-wrap.is-open,
+            .sf-wrap.anchor-center.is-open {
+                transform: translateX(calc(100vw - 100%)) !important;
+            }
+
+            .sf-wrap.anchor-center.is-open {
+                transform: translateY(-50%) translateX(calc(100vw - 100%)) !important;
+            }
+
+            /* タブ幅を画面サイズに制限 */
+            .sf-tab {
+                max-width: 60px !important;
+                width: min(var(--sf-tabW, 50px), 60px) !important;
             }
         }
 
