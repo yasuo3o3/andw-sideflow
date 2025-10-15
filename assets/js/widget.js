@@ -61,6 +61,70 @@
         // CSS変数に設定
         container.style.setProperty('--sf-safe-area-offset', `${safeAreaRight}px`);
 
+        // 物理的なポジショニング修正（iOS確実対応）
+        if (safeAreaRight > 0) {
+            // 直接rightプロパティを設定してはみ出しを防ぐ
+            container.style.right = `${safeAreaRight}px`;
+
+            // 開いた状態では、Safe Area分だけ内側に配置
+            const openTransform = container.classList.contains('anchor-center')
+                ? `translateY(-50%) translateX(0)`
+                : `translateX(0)`;
+
+            // カスタムプロパティで開いた時の位置を記録
+            container.style.setProperty('--sf-open-transform', openTransform);
+        } else {
+            // Safe Areaがない場合は通常の配置
+            container.style.right = '0';
+            const openTransform = container.classList.contains('anchor-center')
+                ? `translateY(-50%) translateX(0)`
+                : `translateX(0)`;
+            container.style.setProperty('--sf-open-transform', openTransform);
+        }
+
+        // iOS上でのデバッグ表示（画面上に表示）
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            // 既存のデバッグ表示を削除
+            const existingDebug = document.querySelector('.andw-debug-info');
+            if (existingDebug) {
+                existingDebug.remove();
+            }
+
+            // デバッグ情報を画面に表示
+            const debugDiv = document.createElement('div');
+            debugDiv.className = 'andw-debug-info';
+            debugDiv.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 10px;
+                font-size: 12px;
+                z-index: 99999;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+            debugDiv.innerHTML = `
+                <strong>iOS Debug Info:</strong><br>
+                safeAreaRight: ${safeAreaRight}px<br>
+                envValue: ${envValue}<br>
+                screenWidth: ${window.screen.width}px<br>
+                innerWidth: ${window.innerWidth}px<br>
+                viewportWidth: ${window.visualViewport?.width || 'N/A'}px<br>
+                orientation: ${window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'}<br>
+                userAgent: ${navigator.userAgent.substring(0, 50)}...
+            `;
+            document.body.appendChild(debugDiv);
+
+            // 5秒後に自動削除
+            setTimeout(() => {
+                if (debugDiv.parentNode) {
+                    debugDiv.remove();
+                }
+            }, 5000);
+        }
+
         console.log('🔍 Safe Area Updated:', {
             safeAreaRight,
             envValue,
@@ -155,6 +219,18 @@
 
         .sf-wrap.anchor-bottom.is-open {
             transform: translateX(var(--sf-safe-area-offset, 0px));
+        }
+
+        /* iOS強制修正 - 最優先適用 */
+        @supports (-webkit-touch-callout: none) {
+            .sf-wrap {
+                max-width: calc(100vw - var(--sf-safe-area-offset, 0px)) !important;
+                right: var(--sf-safe-area-offset, 0px) !important;
+            }
+
+            .sf-wrap.is-open {
+                right: var(--sf-safe-area-offset, 0px) !important;
+            }
         }
 
         .sf-wrap.anchor-bottom {
