@@ -132,23 +132,23 @@
             transform: translateX(0px);
         }
 
-        /* iOS Safe Area対応 - 37px右寄せ修正（迷い動き防止） */
+        /* iOS Safe Area対応 - 37px右寄せ修正（!important削除でアニメーション競合回避） */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + 37px)) !important;
-                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out) !important;
+                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + 37px));
+                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + 37px)) !important;
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + 37px));
             }
 
             .sf-wrap.is-open {
-                transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)) !important;
+                transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px));
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)) !important;
+                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px));
             }
 
             /* ドロワー幅も画面幅に制限 */
@@ -264,40 +264,65 @@
             100% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
         }
 
-        /* iOS専用アニメーション - 37px調整込み */
+        /* iOS専用アニメーション - 独立キーフレーム名で競合回避 */
         @supports (-webkit-touch-callout: none) {
-            @keyframes slideInOvershoot {
+            @keyframes slideInOvershootIOS {
                 0% { transform: translateY(-50%) translateX(calc(325px + 37px)); }
                 60% { transform: translateY(-50%) translateX(calc(-15px + 37px)); }
                 80% { transform: translateY(-50%) translateX(calc(2px + 37px)); }
                 100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
-            @keyframes slideInOvershootBottom {
+            @keyframes slideInOvershootBottomIOS {
                 0% { transform: translateX(calc(325px + 37px)); }
                 60% { transform: translateX(calc(-15px + 37px)); }
                 80% { transform: translateX(calc(2px + 37px)); }
                 100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
-            @keyframes slideInSimple {
+            @keyframes slideInSimpleIOS {
                 0% { transform: translateY(-50%) translateX(calc(325px + 37px)); }
                 100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
-            @keyframes slideInSimpleBottom {
+            @keyframes slideInSimpleBottomIOS {
                 0% { transform: translateX(calc(325px + 37px)); }
                 100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
             }
 
-            @keyframes slideOutSmooth {
+            @keyframes slideOutSmoothIOS {
                 0% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
                 100% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
             }
 
-            @keyframes slideOutSmoothBottom {
+            @keyframes slideOutSmoothBottomIOS {
                 0% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
                 100% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+            }
+
+            /* iOS専用アニメーション定義 - !important適用 */
+            .sf-wrap.anchor-center.is-opening {
+                animation: slideInOvershootIOS var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards !important;
+            }
+
+            .sf-wrap.anchor-bottom.is-opening {
+                animation: slideInOvershootBottomIOS var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards !important;
+            }
+
+            .sf-wrap.anchor-center.is-opening-simple {
+                animation: slideInSimpleIOS var(--sf-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+            }
+
+            .sf-wrap.anchor-bottom.is-opening-simple {
+                animation: slideInSimpleBottomIOS var(--sf-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+            }
+
+            .sf-wrap.anchor-center.is-closing {
+                animation: slideOutSmoothIOS var(--sf-duration, 300ms) ease-out forwards !important;
+            }
+
+            .sf-wrap.anchor-bottom.is-closing {
+                animation: slideOutSmoothBottomIOS var(--sf-duration, 300ms) ease-out forwards !important;
             }
         }
 
@@ -1433,7 +1458,7 @@
         // アニメーションクラスを追加（バウンス効果設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
 
-        // CSS変数を確実に設定してからアニメーション開始
+        // CSS変数を確実に設定
         const actualDrawerWidth = Math.min(
             (config.drawer?.widthPercent || 0.76) * window.innerWidth,
             config.drawer?.maxWidthPx || 370,
@@ -1441,18 +1466,15 @@
         );
         wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
-        // 次フレームでアニメーション開始（CSS変数確定後）
-        requestAnimationFrame(() => {
-            // バウンス効果OFFまたは設定なしの場合は強制的にシンプルアニメーション
-            const hasBounceSetting = config.ui?.bounceEffect !== undefined;
-            const bounceEnabled = hasBounceSetting ? config.ui.bounceEffect : (motionConfig.overshoot !== false);
+        // 即座にアニメーション開始（遅延なし）
+        const hasBounceSetting = config.ui?.bounceEffect !== undefined;
+        const bounceEnabled = hasBounceSetting ? config.ui.bounceEffect : (motionConfig.overshoot !== false);
 
-            if (bounceEnabled) {
-                wrap.classList.add('is-opening');
-            } else {
-                wrap.classList.add('is-opening-simple');
-            }
-        });
+        if (bounceEnabled) {
+            wrap.classList.add('is-opening');
+        } else {
+            wrap.classList.add('is-opening-simple');
+        }
 
         setTimeout(() => {
             wrap.classList.remove('is-opening', 'is-opening-simple');
