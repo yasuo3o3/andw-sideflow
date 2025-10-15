@@ -23,6 +23,40 @@
 
 .andw-sideflow-tabs .nav-tab-wrapper {
     margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+}
+
+/* タブの台形化 */
+.andw-sideflow-tabs .nav-tab {
+    position: relative;
+    margin-left: -1px;
+    padding: 10px 20px 10px 30px;
+    background: #f1f1f1;
+    border: 1px solid #c3c4c7;
+    color: #646970;
+    text-decoration: none;
+    clip-path: path("M0,10 A10,10 0 0,1 10,0 L100%,0 L100%,100% L10,100% A10,10 0 0,1 0,90 Z");
+}
+
+/* アクティブタブ */
+.andw-sideflow-tabs .nav-tab-active {
+    background: #fff;
+    border-bottom-color: #fff;
+    color: #0073aa;
+    clip-path: path("M0,10 A10,10 0 0,1 10,0 L100.5%,0 L100.5%,100% L10,100% A10,10 0 0,1 0,90 Z");
+}
+
+/* フォールバック: clip-path: path()未対応の場合 */
+@supports not (clip-path: path("M0,0")) {
+    .andw-sideflow-tabs .nav-tab {
+        clip-path: polygon(15px 0%, 100% 0%, 100% 100%, 15px 100%, 0% 85%, 0% 15%);
+    }
+
+    .andw-sideflow-tabs .nav-tab-active {
+        clip-path: polygon(15px 0%, 100.5% 0%, 100.5% 100%, 15px 100%, 0% 85%, 0% 15%);
+    }
 }
 
 .tab-content {
