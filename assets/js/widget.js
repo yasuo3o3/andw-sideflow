@@ -31,14 +31,23 @@
 
         let safeAreaRight = 0;
 
-        // 方法1: env()関数
-        const envValue = getComputedStyle(document.documentElement)
-            .getPropertyValue('env(safe-area-inset-right)');
-        if (envValue && envValue !== '0px' && envValue !== '') {
-            safeAreaRight = parseInt(envValue) || 0;
+        // 方法1: CSS変数から既存値を取得
+        const cssVarValue = getComputedStyle(container).getPropertyValue('--sf-safe-area-offset');
+        const parsedVar = parseInt(cssVarValue, 10);
+        if (!Number.isNaN(parsedVar) && parsedVar > 0) {
+            safeAreaRight = parsedVar;
         }
 
-        // 方法2: visualViewport（iOS Safari）
+        // 方法2: CSS変数が0の場合はenv()で再試行
+        if (safeAreaRight === 0) {
+            const envValue = getComputedStyle(document.documentElement)
+                .getPropertyValue('env(safe-area-inset-right)');
+            if (envValue && envValue !== '0px' && envValue !== '') {
+                safeAreaRight = parseInt(envValue, 10) || 0;
+            }
+        }
+
+        // 方法3: visualViewport（iOS Safari）
         if (window.visualViewport && safeAreaRight === 0) {
             const screenWidth = window.screen.width;
             const viewportWidth = window.visualViewport.width;
@@ -47,7 +56,7 @@
             }
         }
 
-        // 方法3: User Agent + 画面サイズによる推定
+        // 方法4: User Agent + 画面サイズによる推定
         if (safeAreaRight === 0) {
             const isLandscape = window.innerWidth > window.innerHeight;
             if (isLandscape && /iPhone/.test(navigator.userAgent)) {
@@ -58,7 +67,7 @@
             }
         }
 
-        // CSS変数に設定
+        // CSS変数を更新して統一
         container.style.setProperty('--sf-safe-area-offset', `${safeAreaRight}px`);
 
         // 物理的なポジショニング修正（iOS確実対応）
@@ -72,25 +81,9 @@
             // コンテナのbounding rectを取得
             const containerRect = container.getBoundingClientRect();
 
-            // iOS強制修正（条件チェック）
-            console.log('🔍 iOS Fix Check:', {
-                containerRight: containerRect.right,
-                viewportWidth: viewportWidth,
-                condition: containerRect.right > viewportWidth,
-                userAgent: navigator.userAgent.includes('iPhone')
-            });
-
-            // iOS && はみ出している場合の強制修正（CSS優先でJavaScript修正は最小限）
+            // iOS位置チェック（CSS変数統一後は簡素化）
             if (/iPad|iPhone|iPod/.test(navigator.userAgent) && containerRect.right > viewportWidth) {
-                const overhang = containerRect.right - viewportWidth;
-                console.log('🔧 iOS Overhang Detected:', {
-                    overhang: overhang,
-                    note: 'CSS @supports will handle positioning automatically'
-                });
-
-                // CSS変数のみ更新（位置修正はCSSに委譲）
-                const correctedDrawerWidth = Math.max(250, parseInt(container.style.getPropertyValue('--sf-actualDrawerW')) - overhang);
-                container.style.setProperty('--sf-actualDrawerW', `${correctedDrawerWidth}px`);
+                console.log('🔧 iOS Overhang Detected - CSS unified control active');
             }
 
             if (safeAreaRight > 0) {
@@ -169,11 +162,9 @@
 
         console.log('🔍 Safe Area Updated:', {
             safeAreaRight,
-            envValue,
-            visualViewportWidth: window.visualViewport?.width,
-            screenWidth: window.screen.width,
-            innerWidth: window.innerWidth,
-            method: 'JS complete control'
+            cssVarValue,
+            envValue: safeAreaRight > 0 ? 'detected' : 'not available',
+            method: 'CSS variable unified control'
         });
     }
 
@@ -198,6 +189,9 @@
             --sf-shadow: var(--andw-sf-shadow, 0 4px 12px rgba(0,0,0,0.15));
             --sf-spacing: var(--andw-sf-spacing, 16px);
             --sf-font: var(--andw-sf-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+
+            /* Safe Area一元管理 */
+            --sf-safe-area-offset: env(safe-area-inset-right, 0px);
         }
 
         :host(.sf-initialized) {
@@ -209,14 +203,14 @@
             right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(var(--sf-actualDrawerW, 400px));
+            transform: translateX(calc(var(--sf-actualDrawerW, 400px) + var(--sf-safe-area-offset, 0px)));
             transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             z-index: var(--sf-z-index, 10000);
         }
 
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, 400px));
+            transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + var(--sf-safe-area-offset, 0px)));
         }
 
         .sf-wrap.anchor-center.is-opening {
@@ -263,25 +257,25 @@
             transform: translateX(var(--sf-safe-area-offset, 0px));
         }
 
-        /* iOS Safe Area対応 - 画面幅制限優先 */
+        /* iOS Safe Area対応 - CSS変数統一 */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
                 right: 0;
                 max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-                transform: translateX(calc(var(--sf-actualDrawerW, 325px) + env(safe-area-inset-right, 0px)));
+                transform: translateX(calc(var(--sf-actualDrawerW, 325px) + var(--sf-safe-area-offset, 0px)));
                 transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 325px) + env(safe-area-inset-right, 0px)));
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 325px) + var(--sf-safe-area-offset, 0px)));
             }
 
             .sf-wrap.is-open {
-                transform: translateX(env(safe-area-inset-right, 0px));
+                transform: translateX(var(--sf-safe-area-offset, 0px));
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(env(safe-area-inset-right, 0px));
+                transform: translateY(-50%) translateX(var(--sf-safe-area-offset, 0px));
             }
 
             /* ドロワー幅も画面幅に制限 */
@@ -984,21 +978,13 @@
         const availableWidth = viewportWidth - tabWidth - 20; // 20pxは余白
         const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth, availableWidth);
 
-        // iOS デバッグ情報（問題特定のため）
+        // iOS デバッグ情報（簡素化）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            const debugInfo = {
-                userAgent: navigator.userAgent,
+            console.log('🔍 andW SideFlow iOS:', {
                 viewportWidth: viewportWidth,
-                drawerPercentWidth: drawerPercentWidth,
-                maxWidth: maxWidth,
                 actualDrawerWidth: actualDrawerWidth,
-                safeAreaInsetRight: getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)'),
-                windowInnerWidth: window.innerWidth,
-                windowOuterWidth: window.outerWidth,
-                screenWidth: screen.width,
-                devicePixelRatio: window.devicePixelRatio
-            };
-            console.log('🔍 andW SideFlow iOS Debug:', debugInfo);
+                safeAreaOffset: container.style.getPropertyValue('--sf-safe-area-offset') || 'not set'
+            });
         }
 
         // CSS変数設定（420px総幅制限）
