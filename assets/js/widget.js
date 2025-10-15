@@ -22,6 +22,55 @@
         return `M0,${topOffset + cornerRadius} A${cornerRadius},${cornerRadius} 0 0,1 ${cornerRadius},${topOffset} L${width},0 L${width},${height} L${cornerRadius},${bottomOffset} A${cornerRadius},${cornerRadius} 0 0,1 0,${bottomOffset - cornerRadius} Z`;
     }
 
+    // iOS Safe Area完全制御関数
+    function updateSafeAreaOffsets(container) {
+        if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            container.style.setProperty('--sf-safe-area-offset', '0px');
+            return;
+        }
+
+        let safeAreaRight = 0;
+
+        // 方法1: env()関数
+        const envValue = getComputedStyle(document.documentElement)
+            .getPropertyValue('env(safe-area-inset-right)');
+        if (envValue && envValue !== '0px' && envValue !== '') {
+            safeAreaRight = parseInt(envValue) || 0;
+        }
+
+        // 方法2: visualViewport（iOS Safari）
+        if (window.visualViewport && safeAreaRight === 0) {
+            const screenWidth = window.screen.width;
+            const viewportWidth = window.visualViewport.width;
+            if (screenWidth > viewportWidth) {
+                safeAreaRight = Math.max(0, (screenWidth - viewportWidth) / 2);
+            }
+        }
+
+        // 方法3: User Agent + 画面サイズによる推定
+        if (safeAreaRight === 0) {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            if (isLandscape && /iPhone/.test(navigator.userAgent)) {
+                // iPhone Xシリーズ以降の横向きSafe Area推定
+                if (window.screen.width >= 812) { // iPhone X以降
+                    safeAreaRight = 44; // 一般的なSafe Area値
+                }
+            }
+        }
+
+        // CSS変数に設定
+        container.style.setProperty('--sf-safe-area-offset', `${safeAreaRight}px`);
+
+        console.log('🔍 Safe Area Updated:', {
+            safeAreaRight,
+            envValue,
+            visualViewportWidth: window.visualViewport?.width,
+            screenWidth: window.screen.width,
+            innerWidth: window.innerWidth,
+            method: 'JS complete control'
+        });
+    }
+
     // CSS スタイル
     const CSS_STYLES = `
         :host {
@@ -54,22 +103,14 @@
             right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(calc(var(--sf-actualDrawerW, 400px) + env(safe-area-inset-right, 0px)));
+            transform: translateX(var(--sf-actualDrawerW, 400px));
             transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             z-index: var(--sf-z-index, 10000);
         }
 
-        /* iOS固有の修正 */
-        @supports (-webkit-touch-callout: none) {
-            .sf-wrap {
-                right: 0;
-                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + env(safe-area-inset-right, 0px)));
-            }
-        }
-
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + env(safe-area-inset-right, 0px)));
+            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, 400px));
         }
 
         .sf-wrap.anchor-center.is-opening {
@@ -109,11 +150,11 @@
         }
 
         .sf-wrap.anchor-center.is-open {
-            transform: translateY(-50%) translateX(env(safe-area-inset-right, 0px));
+            transform: translateY(-50%) translateX(var(--sf-safe-area-offset, 0px));
         }
 
         .sf-wrap.anchor-bottom.is-open {
-            transform: translateX(env(safe-area-inset-right, 0px));
+            transform: translateX(var(--sf-safe-area-offset, 0px));
         }
 
         .sf-wrap.anchor-bottom {
@@ -750,14 +791,40 @@
             tab.style.clipPath = `path("${path}")`;
         }
 
-        // リサイズイベント対応（台形角丸のみ）
-        if (preset === 'trapezoid-rounded') {
-            let resizeTimeout;
-            const handleResize = () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(applyDynamicTrapezoidPath, 100);
-            };
-            window.addEventListener('resize', handleResize);
+        // iOS Safe Area + リサイズイベント対応
+        let resizeTimeout;
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                updateSafeAreaOffsets(container);
+                if (preset === 'trapezoid-rounded') {
+                    applyDynamicTrapezoidPath();
+                }
+            }, 100);
+        };
+
+        // イベントリスナー設定
+        window.addEventListener('resize', handleResize);
+
+        // iOS画面回転対応
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    updateSafeAreaOffsets(container);
+                    if (preset === 'trapezoid-rounded') {
+                        applyDynamicTrapezoidPath();
+                    }
+                }, 200);
+            });
+
+            // visualViewport対応
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    setTimeout(() => {
+                        updateSafeAreaOffsets(container);
+                    }, 100);
+                });
+            }
         }
 
         // 初期開閉状態の設定
@@ -913,8 +980,13 @@
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 widget.classList.add('sf-initialized');
-                // 台形角丸の動的path()を適用
-                applyDynamicTrapezoidPath();
+
+                // Safe Area初期設定（遅延実行で確実に取得）
+                setTimeout(() => {
+                    updateSafeAreaOffsets(container);
+                    // 台形角丸の動的path()を適用
+                    applyDynamicTrapezoidPath();
+                }, 100);
             });
         });
     }
@@ -1309,14 +1381,9 @@
             wrap.classList.remove('is-opening', 'is-opening-simple');
             wrap.classList.add('is-open');
 
-            // 最終位置を確実に設定
-            const tabConfig = config.tab || { anchor: 'center' };
-            const safeAreaOffset = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-right)') || '0px';
-            if (tabConfig.anchor === 'center') {
-                wrap.style.transform = `translateY(-50%) translateX(${safeAreaOffset})`;
-            } else {
-                wrap.style.transform = `translateX(${safeAreaOffset})`;
-            }
+            // 最終位置を確実に設定（CSS変数で制御）
+            updateSafeAreaOffsets(wrap);
+            // CSS classによる自動適用を利用（.is-openクラスで制御済み）
         }, animationDuration);
 
         // フォーカストラップ設定
