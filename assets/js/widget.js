@@ -69,23 +69,41 @@
             const tabRect = tabElement.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
 
-            // タブが画面からはみ出している場合の修正
-            if (tabRect.right > viewportWidth) {
-                const overhang = tabRect.right - viewportWidth;
-                const currentRight = parseInt(getComputedStyle(container).right) || 0;
-                const newRight = Math.max(0, currentRight + overhang + 5); // 5px余裕
+            // コンテナが画面からはみ出している場合の根本修正
+            if (containerRect.right > viewportWidth) {
+                const overhang = containerRect.right - viewportWidth;
 
-                console.log('🔧 iOS Overhang Fix:', {
-                    tabRight: tabRect.right,
+                // 現在のtranslateX値を取得
+                const transform = getComputedStyle(container).transform;
+                let currentTranslateX = 0;
+                if (transform && transform !== 'none') {
+                    const matrix = transform.match(/matrix\([^)]+\)/);
+                    if (matrix) {
+                        const values = matrix[0].match(/[-+]?[0-9]*\.?[0-9]+/g);
+                        currentTranslateX = parseFloat(values[4]) || 0;
+                    }
+                }
+
+                // はみ出し分を引いた新しいtranslateX値
+                const newTranslateX = Math.max(0, currentTranslateX - overhang - 10); // 10px余裕
+
+                console.log('🔧 iOS Container Fix:', {
+                    containerRight: containerRect.right,
                     viewportWidth: viewportWidth,
                     overhang: overhang,
-                    oldRight: currentRight,
-                    newRight: newRight
+                    oldTranslateX: currentTranslateX,
+                    newTranslateX: newTranslateX
                 });
 
-                // 強制的に画面内に収める
-                container.style.right = `${newRight}px`;
-                container.style.setProperty('--sf-safe-area-offset', `${newRight}px`);
+                // translateXを直接修正
+                if (container.classList.contains('anchor-center')) {
+                    container.style.transform = `translateY(-50%) translateX(${newTranslateX}px)`;
+                } else {
+                    container.style.transform = `translateX(${newTranslateX}px)`;
+                }
+
+                // CSS変数も更新
+                container.style.setProperty('--sf-actualDrawerW', `${newTranslateX}px`);
             }
 
             if (safeAreaRight > 0) {
