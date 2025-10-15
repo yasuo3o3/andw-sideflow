@@ -143,11 +143,11 @@
             }
 
             .sf-wrap.is-open {
-                transform: translateX(calc(env(safe-area-inset-right, 0px) - 37px));
+                transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px));
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) - 37px));
+                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px));
             }
 
             /* ドロワー幅も画面幅に制限 */
