@@ -175,7 +175,7 @@
             border: none;
             cursor: pointer;
             color: var(--sf-tab-text-color, white);
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 600;
             writing-mode: vertical-rl;
             text-orientation: mixed;
