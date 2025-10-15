@@ -69,8 +69,16 @@
             const tabRect = tabElement.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
 
-            // コンテナが画面からはみ出している場合の根本修正
-            if (containerRect.right > viewportWidth) {
+            // iOS強制修正（条件チェック）
+            console.log('🔍 iOS Fix Check:', {
+                containerRight: containerRect.right,
+                viewportWidth: viewportWidth,
+                condition: containerRect.right > viewportWidth,
+                userAgent: navigator.userAgent.includes('iPhone')
+            });
+
+            // iOS && はみ出している場合の強制修正
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && containerRect.right > viewportWidth) {
                 const overhang = containerRect.right - viewportWidth;
 
                 // 現在のtranslateX値を取得
@@ -85,25 +93,42 @@
                 }
 
                 // はみ出し分を引いた新しいtranslateX値
-                const newTranslateX = Math.max(0, currentTranslateX - overhang - 10); // 10px余裕
+                const newTranslateX = Math.max(10, currentTranslateX - overhang - 10); // 最低10px
 
-                console.log('🔧 iOS Container Fix:', {
+                console.log('🔧 iOS Container Fix EXECUTING:', {
                     containerRight: containerRect.right,
                     viewportWidth: viewportWidth,
                     overhang: overhang,
                     oldTranslateX: currentTranslateX,
-                    newTranslateX: newTranslateX
+                    newTranslateX: newTranslateX,
+                    isCenter: container.classList.contains('anchor-center')
                 });
 
-                // translateXを直接修正
-                if (container.classList.contains('anchor-center')) {
-                    container.style.transform = `translateY(-50%) translateX(${newTranslateX}px)`;
-                } else {
-                    container.style.transform = `translateX(${newTranslateX}px)`;
-                }
+                // transitionを一時的に無効化
+                const originalTransition = container.style.transition;
+                container.style.transition = 'none';
 
-                // CSS変数も更新
+                // translateXを直接修正
+                const newTransform = container.classList.contains('anchor-center')
+                    ? `translateY(-50%) translateX(${newTranslateX}px)`
+                    : `translateX(${newTranslateX}px)`;
+
+                container.style.transform = newTransform;
                 container.style.setProperty('--sf-actualDrawerW', `${newTranslateX}px`);
+
+                // !importantで強制適用も試行
+                container.style.setProperty('transform', newTransform, 'important');
+
+                console.log('🔧 Transform Applied:', {
+                    newTransform: newTransform,
+                    actualTransform: getComputedStyle(container).transform,
+                    containerStyle: container.style.transform
+                });
+
+                // transitionを復元（次フレームで）
+                requestAnimationFrame(() => {
+                    container.style.transition = originalTransition;
+                });
             }
 
             if (safeAreaRight > 0) {
