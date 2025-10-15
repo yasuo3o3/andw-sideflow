@@ -573,7 +573,10 @@
         /* レスポンシブ：モバイル対応 */
         @media (max-width: 768px) {
             .sf-wrap[data-tab-height="short"] .sf-tab {
-                padding: 0.75rem 0.5rem;
+                padding-top: calc(0.75rem + var(--tab-letter-spacing-padding, 0px));
+                padding-right: 0.5rem;
+                padding-bottom: 0.75rem;
+                padding-left: 0.5rem;
                 min-height: 2.5rem;
                 font-size: 0.9rem;
             }
