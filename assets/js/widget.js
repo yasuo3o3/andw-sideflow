@@ -69,6 +69,9 @@
             const tabRect = tabElement.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
 
+            // コンテナのbounding rectを取得
+            const containerRect = container.getBoundingClientRect();
+
             // iOS強制修正（条件チェック）
             console.log('🔍 iOS Fix Check:', {
                 containerRight: containerRect.right,
@@ -77,58 +80,17 @@
                 userAgent: navigator.userAgent.includes('iPhone')
             });
 
-            // iOS && はみ出している場合の強制修正
+            // iOS && はみ出している場合の強制修正（CSS優先でJavaScript修正は最小限）
             if (/iPad|iPhone|iPod/.test(navigator.userAgent) && containerRect.right > viewportWidth) {
                 const overhang = containerRect.right - viewportWidth;
-
-                // 現在のtranslateX値を取得
-                const transform = getComputedStyle(container).transform;
-                let currentTranslateX = 0;
-                if (transform && transform !== 'none') {
-                    const matrix = transform.match(/matrix\([^)]+\)/);
-                    if (matrix) {
-                        const values = matrix[0].match(/[-+]?[0-9]*\.?[0-9]+/g);
-                        currentTranslateX = parseFloat(values[4]) || 0;
-                    }
-                }
-
-                // はみ出し分を引いた新しいtranslateX値
-                const newTranslateX = Math.max(10, currentTranslateX - overhang - 10); // 最低10px
-
-                console.log('🔧 iOS Container Fix EXECUTING:', {
-                    containerRight: containerRect.right,
-                    viewportWidth: viewportWidth,
+                console.log('🔧 iOS Overhang Detected:', {
                     overhang: overhang,
-                    oldTranslateX: currentTranslateX,
-                    newTranslateX: newTranslateX,
-                    isCenter: container.classList.contains('anchor-center')
+                    note: 'CSS @supports will handle positioning automatically'
                 });
 
-                // transitionを一時的に無効化
-                const originalTransition = container.style.transition;
-                container.style.transition = 'none';
-
-                // translateXを直接修正
-                const newTransform = container.classList.contains('anchor-center')
-                    ? `translateY(-50%) translateX(${newTranslateX}px)`
-                    : `translateX(${newTranslateX}px)`;
-
-                container.style.transform = newTransform;
-                container.style.setProperty('--sf-actualDrawerW', `${newTranslateX}px`);
-
-                // !importantで強制適用も試行
-                container.style.setProperty('transform', newTransform, 'important');
-
-                console.log('🔧 Transform Applied:', {
-                    newTransform: newTransform,
-                    actualTransform: getComputedStyle(container).transform,
-                    containerStyle: container.style.transform
-                });
-
-                // transitionを復元（次フレームで）
-                requestAnimationFrame(() => {
-                    container.style.transition = originalTransition;
-                });
+                // CSS変数のみ更新（位置修正はCSSに委譲）
+                const correctedDrawerWidth = Math.max(250, parseInt(container.style.getPropertyValue('--sf-actualDrawerW')) - overhang);
+                container.style.setProperty('--sf-actualDrawerW', `${correctedDrawerWidth}px`);
             }
 
             if (safeAreaRight > 0) {
@@ -301,31 +263,36 @@
             transform: translateX(var(--sf-safe-area-offset, 0px));
         }
 
-        /* iOS完全修正 - 全面的書き換え */
+        /* iOS Safe Area対応 - 画面幅制限優先 */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                right: 0 !important;
-                max-width: 100vw !important;
-                transform: translateX(325px) !important;
-                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out) !important;
+                right: 0;
+                max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+                transform: translateX(calc(var(--sf-actualDrawerW, 325px) + env(safe-area-inset-right, 0px)));
+                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(325px) !important;
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 325px) + env(safe-area-inset-right, 0px)));
             }
 
             .sf-wrap.is-open {
-                transform: translateX(0px) !important;
+                transform: translateX(env(safe-area-inset-right, 0px));
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(0px) !important;
+                transform: translateY(-50%) translateX(env(safe-area-inset-right, 0px));
+            }
+
+            /* ドロワー幅も画面幅に制限 */
+            .sf-drawer {
+                max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - var(--sf-tabW, 50px));
             }
 
             /* タブ幅を画面サイズに制限 */
             .sf-tab {
-                max-width: 60px !important;
-                width: min(var(--sf-tabW, 50px), 60px) !important;
+                max-width: 60px;
+                width: min(var(--sf-tabW, 50px), 60px);
             }
         }
 
@@ -1008,11 +975,14 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // 実際のドロワー幅を計算（420px総幅制限）
+        // 実際のドロワー幅を計算（画面幅制限優先）
         const viewportWidth = window.innerWidth;
+        const tabWidth = tabConfig.widthPx || 50;
         const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
         const maxWidth = drawerConfig.maxWidthPx || 370;
-        const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
+        // iOS Safe Area考慮 + タブ幅分を除外した利用可能幅
+        const availableWidth = viewportWidth - tabWidth - 20; // 20pxは余白
+        const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth, availableWidth);
 
         // iOS デバッグ情報（問題特定のため）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
@@ -1788,13 +1758,17 @@
 
             const drawerConfig = config.drawer || { widthPercent: 0.76, maxWidthPx: 370 };
 
-            // 実際のドロワー幅を再計算（420px総幅制限）
+            // 実際のドロワー幅を再計算（画面幅制限優先）
             const viewportWidth = window.innerWidth;
+            const tabConfig = config.tab || { widthPx: 50 };
+            const tabWidth = tabConfig.widthPx || 50;
             const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
             const maxWidth = drawerConfig.maxWidthPx || 370;
+            // 利用可能幅を計算（タブ幅 + 余白を除外）
+            const availableWidth = viewportWidth - tabWidth - 20; // 20pxは余白
 
             wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-            const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth);
+            const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth, availableWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
             // iOS用のレスポンシブ更新ログ（Safe Areaは CSS calc()で自動処理）
