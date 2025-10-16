@@ -22,25 +22,20 @@
         return `M0,${topOffset + cornerRadius} A${cornerRadius},${cornerRadius} 0 0,1 ${cornerRadius},${topOffset} L${width},0 L${width},${height} L${cornerRadius},${bottomOffset} A${cornerRadius},${cornerRadius} 0 0,1 0,${bottomOffset - cornerRadius} Z`;
     }
 
-    // iOS Safe Area簡素化処理
+    // iOS Safe Area簡素化処理（デバッグ専用）
     function updateSafeAreaOffsets(container) {
         if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
             return;
         }
 
-        // デバッグ情報のみ（位置修正はCSSに委譲）
+        // デバッグ情報のみ（位置修正はCSSのenv()で自動処理）
         if (config?.dev?.debug) {
             setTimeout(() => {
                 const containerRect = container.getBoundingClientRect();
-                const tabElement = container.querySelector('.sf-tab');
-                const tabRect = tabElement ? tabElement.getBoundingClientRect() : null;
-
                 console.log('🔍 iOS Position Debug:', {
                     containerRight: containerRect.right,
                     viewportWidth: window.innerWidth,
-                    tabWidth: tabRect ? tabRect.width : 'N/A',
-                    tabRight: tabRect ? tabRect.right : 'N/A',
-                    transform: getComputedStyle(container).transform
+                    note: 'Positioning handled by CSS env() + 12px'
                 });
             }, 100);
         }
@@ -132,23 +127,23 @@
             transform: translateX(0px);
         }
 
-        /* iOS Safe Area対応 - 37px右寄せ修正（!important削除でアニメーション競合回避） */
+        /* iOS Safe Area対応 - Safe Area APIベースの動的調整 */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                transform: translateX(calc(var(--sf-actualDrawerW, 400px) + 37px));
+                transform: translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px));
                 transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) + 37px));
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px));
             }
 
             .sf-wrap.is-open {
-                transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px));
+                transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px));
             }
 
             .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px));
+                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px));
             }
 
             /* ドロワー幅も画面幅に制限 */
@@ -264,40 +259,40 @@
             100% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
         }
 
-        /* iOS専用アニメーション - 独立キーフレーム名で競合回避 */
+        /* iOS専用アニメーション - Safe Area APIベース */
         @supports (-webkit-touch-callout: none) {
             @keyframes slideInOvershootIOS {
-                0% { transform: translateY(-50%) translateX(calc(325px + 37px)); }
-                60% { transform: translateY(-50%) translateX(calc(-15px + 37px)); }
-                80% { transform: translateY(-50%) translateX(calc(2px + 37px)); }
-                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+                0% { transform: translateY(-50%) translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
+                60% { transform: translateY(-50%) translateX(calc(-15px + env(safe-area-inset-right, 0px) + 12px)); }
+                80% { transform: translateY(-50%) translateX(calc(2px + env(safe-area-inset-right, 0px) + 12px)); }
+                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
             }
 
             @keyframes slideInOvershootBottomIOS {
-                0% { transform: translateX(calc(325px + 37px)); }
-                60% { transform: translateX(calc(-15px + 37px)); }
-                80% { transform: translateX(calc(2px + 37px)); }
-                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+                0% { transform: translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
+                60% { transform: translateX(calc(-15px + env(safe-area-inset-right, 0px) + 12px)); }
+                80% { transform: translateX(calc(2px + env(safe-area-inset-right, 0px) + 12px)); }
+                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
             }
 
             @keyframes slideInSimpleIOS {
-                0% { transform: translateY(-50%) translateX(calc(325px + 37px)); }
-                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+                0% { transform: translateY(-50%) translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
+                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
             }
 
             @keyframes slideInSimpleBottomIOS {
-                0% { transform: translateX(calc(325px + 37px)); }
-                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
+                0% { transform: translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
+                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
             }
 
             @keyframes slideOutSmoothIOS {
-                0% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
-                100% { transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                0% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
+                100% { transform: translateY(-50%) translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
             }
 
             @keyframes slideOutSmoothBottomIOS {
-                0% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 37px)); }
-                100% { transform: translateX(calc(var(--sf-actualDrawerW, var(--sf-drawerW)) + 37px)); }
+                0% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
+                100% { transform: translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
             }
 
             /* iOS専用アニメーション定義 - !important適用 */
@@ -921,27 +916,20 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // 実際のドロワー幅を計算（画面幅制限優先）
-        const viewportWidth = window.innerWidth;
-        const tabWidth = tabConfig.widthPx || 50;
-        const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
-        const maxWidth = drawerConfig.maxWidthPx || 370;
-        // iOS Safe Area考慮 + タブ幅分を除外した利用可能幅
-        const availableWidth = viewportWidth - tabWidth - 20; // 20pxは余白
-        const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth, availableWidth);
+        // ドロワー幅を固定値に簡素化（370px固定）
+        const actualDrawerWidth = 370;
 
         // iOS デバッグ情報（簡素化）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
             console.log('🔍 andW SideFlow iOS:', {
-                viewportWidth: viewportWidth,
                 actualDrawerWidth: actualDrawerWidth,
-                safeAreaOffset: container.style.getPropertyValue('--sf-safe-area-offset') || 'not set'
+                note: 'Fixed 370px width, no longer viewport dependent'
             });
         }
 
-        // CSS変数設定（420px総幅制限）
-        container.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-        container.style.setProperty('--sf-drawerMaxW', `${maxWidth}px`);
+        // CSS変数設定（固定幅）
+        container.style.setProperty('--sf-drawerW', '370px');
+        container.style.setProperty('--sf-drawerMaxW', '370px');
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
         container.style.setProperty('--sf-ease', motionConfig.easing);
@@ -949,20 +937,12 @@
         // タブオフセット設定（全アンカータイプ統一）
         container.style.setProperty('--tab-offset', `${tabConfig.offsetPx || 0}px`);
 
-        // iOS Safe Area対応（CSS calc()で自動計算されるため最小限の処理）
+        // iOS Safe Area対応（CSS calc()で自動処理、JavaScriptでの手動調整は不要）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            const safeAreaRight = parseInt(getComputedStyle(document.documentElement)
-                .getPropertyValue('env(safe-area-inset-right)')) || 0;
-            const safeAreaBottom = parseInt(getComputedStyle(document.documentElement)
-                .getPropertyValue('env(safe-area-inset-bottom)')) || 0;
-
-            // iOS専用デバッグ情報
-            console.log('🔍 andW SideFlow iOS Safe Area Debug:', {
+            console.log('🔍 andW SideFlow iOS:', {
                 anchor: tabConfig.anchor,
                 offsetPx: tabConfig.offsetPx,
-                safeAreaRight: safeAreaRight,
-                safeAreaBottom: safeAreaBottom,
-                note: 'Safe Area positioning handled by CSS calc()'
+                note: 'Safe Area positioning handled by CSS env() + 12px padding'
             });
         }
 
@@ -1458,12 +1438,8 @@
         // アニメーションクラスを追加（バウンス効果設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
 
-        // CSS変数を確実に設定
-        const actualDrawerWidth = Math.min(
-            (config.drawer?.widthPercent || 0.76) * window.innerWidth,
-            config.drawer?.maxWidthPx || 370,
-            window.innerWidth - (config.tab?.widthPx || 50) - 20
-        );
+        // CSS変数を確実に設定（固定幅）
+        const actualDrawerWidth = 370;
         wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
         // 即座にアニメーション開始（遅延なし）
@@ -1713,31 +1689,20 @@
             const wrap = shadowRoot.querySelector('.sf-wrap');
             if (!wrap) return;
 
-            const drawerConfig = config.drawer || { widthPercent: 0.76, maxWidthPx: 370 };
+            // ドロワー幅を固定値に簡素化
+            const actualDrawerWidth = 370;
 
-            // 実際のドロワー幅を再計算（画面幅制限優先）
-            const viewportWidth = window.innerWidth;
-            const tabConfig = config.tab || { widthPx: 50 };
-            const tabWidth = tabConfig.widthPx || 50;
-            const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
-            const maxWidth = drawerConfig.maxWidthPx || 370;
-            // 利用可能幅を計算（タブ幅 + 余白を除外）
-            const availableWidth = viewportWidth - tabWidth - 20; // 20pxは余白
-
-            wrap.style.setProperty('--sf-drawerW', `${drawerConfig.widthPercent * 100}vw`);
-            const actualDrawerWidth = Math.min(drawerPercentWidth, maxWidth, availableWidth);
+            wrap.style.setProperty('--sf-drawerW', '370px');
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
-            // iOS用のレスポンシブ更新ログ（Safe Areaは CSS calc()で自動処理）
+            // iOS用のレスポンシブ更新ログ（簡素化）
             if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                 const tabConfig = config.tab || { anchor: 'center' };
                 console.log('🔄 andW SideFlow iOS Responsive Update:', {
                     trigger: 'layout update',
-                    viewportWidth: viewportWidth,
-                    drawerPercentWidth: drawerPercentWidth,
                     actualDrawerWidth: actualDrawerWidth,
                     anchor: tabConfig.anchor,
-                    note: 'Safe Area handled by CSS calc()'
+                    note: 'Fixed 370px width applied'
                 });
             }
 
@@ -2036,14 +2001,8 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 最適サイズ事前計算
     function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
         try {
-            // ビューポートサイズ取得
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-
-            // ドロワー幅計算
-            const drawerPercentWidth = drawerConfig.widthPercent * viewportWidth;
-            const maxDrawerWidth = drawerConfig.maxWidthPx || 370;
-            const actualDrawerWidth = Math.min(drawerPercentWidth, maxDrawerWidth);
+            // ドロワー幅を固定値に変更
+            const actualDrawerWidth = 370;
 
             // スライダー幅（ドロワー幅と同じ）
             const sliderWidth = actualDrawerWidth;

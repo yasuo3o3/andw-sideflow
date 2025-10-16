@@ -744,9 +744,7 @@
                 letterSpacing: parseFloat($('#tab-letter-spacing').val()) || 0
             },
             drawer: {
-                backdrop: $('#drawer-backdrop').is(':checked'),
-                widthPercent: parseFloat($('#drawer-width-percent').val()) / 100 || 0.76,
-                maxWidthPx: parseInt($('#drawer-max-width').val()) || 600
+                backdrop: $('#drawer-backdrop').is(':checked')
             },
             slider: {
                 autoplay: $('#slider-autoplay').is(':checked'),
@@ -1013,8 +1011,6 @@
 
         if (config.drawer) {
             $('#drawer-backdrop').prop('checked', config.drawer.backdrop || false);
-            $('#drawer-width-percent').val((config.drawer.widthPercent || 0.76) * 100);
-            $('#drawer-max-width').val(config.drawer.maxWidthPx || 600);
         }
 
         // モーション設定
