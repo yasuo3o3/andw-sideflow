@@ -130,12 +130,14 @@
         /* iOS Safe Area対応 - Safe Area APIベースの動的調整 */
         @supports (-webkit-touch-callout: none) {
             .sf-wrap {
-                transform: translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px));
+                /* 修正: タブ幅分を引いて、タブが画面内に残るようにする */
+                transform: translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px - var(--sf-tabW, 50px)));
                 transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             }
 
             .sf-wrap.anchor-center {
-                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px));
+                /* 修正: タブ幅分を引く */
+                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px - var(--sf-tabW, 50px)));
             }
 
             .sf-wrap.is-open {
@@ -917,12 +919,35 @@
         // ドロワー幅を固定値に簡素化（370px固定）
         const actualDrawerWidth = 370;
 
-        // iOS デバッグ情報（簡素化）
+        // iOS デバッグ情報（Safe Area Transform 診断を追加）
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            console.log('🔍 andW SideFlow iOS:', {
-                actualDrawerWidth: actualDrawerWidth,
-                note: 'Fixed 370px width, no longer viewport dependent'
-            });
+            // Safe Area 値を取得（初期化後に再取得する必要があるため、setTimeout使用）
+            setTimeout(() => {
+                const computedStyle = getComputedStyle(document.documentElement);
+                const safeAreaRight = computedStyle.getPropertyValue('safe-area-inset-right') || '0px';
+                const safeAreaRightPx = parseInt(safeAreaRight) || 0;
+                const padding = 12;
+                const totalTransform = actualDrawerWidth + safeAreaRightPx + padding;
+                const tabWidth = tabConfig.widthPx || 50;
+
+                console.log('🔍 [SideFlow iOS Transform Debug]', {
+                    orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
+                    viewportWidth: window.innerWidth,
+                    safeAreaRight: safeAreaRight,
+                    safeAreaRightPx: safeAreaRightPx,
+                    actualDrawerWidth: actualDrawerWidth,
+                    padding: padding,
+                    tabWidth: tabWidth,
+                    totalTransform: totalTransform + 'px',
+                    transformWithoutTab: totalTransform,
+                    transformWithTab: (totalTransform - tabWidth),
+                    willBeVisible: window.innerWidth >= totalTransform,
+                    shouldBeVisible: window.innerWidth >= (totalTransform - tabWidth),
+                    diagnosis: window.innerWidth < totalTransform ?
+                        '⚠️ タブが画面外に押し出されている可能性大' :
+                        '✅ タブは画面内にあるはず'
+                });
+            }, 200);
         }
 
         // CSS変数設定（固定幅）
