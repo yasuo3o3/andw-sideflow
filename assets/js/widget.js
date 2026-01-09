@@ -763,9 +763,7 @@
             console.error('andW SideFlow: 設定取得エラー:', error);
 
             // フェイルセーフ：設定取得失敗時は描画停止
-            if (widget) {
-                widget.style.display = 'none';
-            }
+            // 削除: display:none はリカバリー不能なため、エラーをthrowするのみ
             throw error;
         }
     }
