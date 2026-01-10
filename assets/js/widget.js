@@ -1372,11 +1372,28 @@
 
         // タブクリック
         const tabConfig = config.tab || { action: 'drawer' };
+        alert('🔍 タブ設定:\naction: ' + tabConfig.action + '\nlinkUrl: ' + tabConfig.linkUrl);
+        console.log('🔍 Tab config:', tabConfig);
+
         if (tabConfig.action === 'link' && tabConfig.linkUrl) {
             // リンクモードの場合はイベントリスナー不要（ネイティブリンク動作）
+            alert('⚠️ タブはリンクモードです（ドロワーは開きません）');
         } else {
             // ドロワーモードの場合
+            alert('✅ タブにクリックイベントを登録します');
             tab.addEventListener('click', toggleDrawer);
+
+            // 診断: タブがクリック可能か確認
+            const tabStyle = getComputedStyle(tab);
+            alert('🔍 タブのスタイル:\npointer-events: ' + tabStyle.pointerEvents + '\nz-index: ' + tabStyle.zIndex + '\nposition: ' + tabStyle.position);
+            console.log('🔍 Tab computed style:', {
+                pointerEvents: tabStyle.pointerEvents,
+                zIndex: tabStyle.zIndex,
+                position: tabStyle.position,
+                display: tabStyle.display,
+                visibility: tabStyle.visibility,
+                opacity: tabStyle.opacity
+            });
 
             // タブホバー時の画像プリロード（デスクトップのみ）
             if (!('ontouchstart' in window)) {
@@ -1520,6 +1537,9 @@
 
     // ドロワー開閉
     function toggleDrawer() {
+        alert('🔍 toggleDrawer が呼ばれました\nisDrawerOpen: ' + isDrawerOpen);
+        console.log('🔍 toggleDrawer called, isDrawerOpen:', isDrawerOpen);
+
         if (isDrawerOpen) {
             closeDrawer();
         } else {
@@ -1528,10 +1548,16 @@
     }
 
     function openDrawer() {
+        alert('🔍 openDrawer が呼ばれました');
+        console.log('🔍 openDrawer called');
+
         isDrawerOpen = true;
         const wrap = shadowRoot.querySelector('.sf-wrap');
         const tab = shadowRoot.querySelector('.sf-tab');
         const drawer = shadowRoot.querySelector('.sf-drawer');
+
+        alert('🔍 要素取得結果:\nwrap: ' + (wrap ? 'あり' : 'なし') + '\ntab: ' + (tab ? 'あり' : 'なし') + '\ndrawer: ' + (drawer ? 'あり' : 'なし'));
+        console.log('🔍 Elements:', { wrap, tab, drawer });
 
         tab.setAttribute('aria-expanded', 'true');
         drawer.setAttribute('aria-hidden', 'false');
