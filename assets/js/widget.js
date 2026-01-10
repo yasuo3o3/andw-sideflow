@@ -1,6 +1,9 @@
 (function() {
     'use strict';
 
+    // デバッグモード（本番環境では false にする）
+    const DEBUG_MODE = false;
+
     // グローバル変数
     let config = null;
     let isDrawerOpen = false;
@@ -652,14 +655,14 @@
     // 初期化
     function init() {
         // 【iPhone診断1】最初のalert - これが出なければキャッシュ問題
-        alert('✅ SideFlow: 初期化開始 (ver.2)');
+        if (DEBUG_MODE) alert('✅ SideFlow: 初期化開始 (ver.2)');
 
         // 診断: 初期化開始を確認
         console.log('🚀 andW SideFlow: 初期化開始');
 
         if (typeof andwSideFlowConfig === 'undefined') {
             console.warn('andW SideFlow: 設定が見つかりません');
-            alert('⚠️ andW SideFlow: 設定が見つかりません（スクリプトが読み込まれていない可能性）');
+            if (DEBUG_MODE) alert('⚠️ andW SideFlow: 設定が見つかりません（スクリプトが読み込まれていない可能性）');
             return;
         }
 
@@ -669,7 +672,7 @@
             .then(createWidget)
             .catch(error => {
                 console.error('andW SideFlow: 初期化エラー:', error);
-                alert('❌ andW SideFlow: 初期化エラー - ' + error.message);
+                if (DEBUG_MODE) alert('❌ andW SideFlow: 初期化エラー - ' + error.message);
             });
     }
 
@@ -898,15 +901,17 @@
                 // 画面右端からのズレを計算
                 const offsetFromRight = viewportWidth - tabRightEdge;
 
-                alert('🔍 実際のコンテナ状態:\n' +
-                      'Viewport: ' + viewportWidth + 'px\n' +
-                      'Tab幅: ' + tabWidth + 'px\n' +
-                      'TranslateX: ' + Math.round(translateXValue) + 'px\n' +
-                      'タブ左端: ' + Math.round(tabLeftEdge) + 'px\n' +
-                      'タブ右端: ' + Math.round(tabRightEdge) + 'px\n' +
-                      '画面右端: ' + viewportWidth + 'px\n' +
-                      '★ズレ: ' + Math.round(offsetFromRight) + 'px ' +
-                      (offsetFromRight > 0 ? '(右に余白)' : offsetFromRight < 0 ? '(はみ出し)' : '(ぴったり)'));
+                if (DEBUG_MODE) {
+                    alert('🔍 実際のコンテナ状態:\n' +
+                          'Viewport: ' + viewportWidth + 'px\n' +
+                          'Tab幅: ' + tabWidth + 'px\n' +
+                          'TranslateX: ' + Math.round(translateXValue) + 'px\n' +
+                          'タブ左端: ' + Math.round(tabLeftEdge) + 'px\n' +
+                          'タブ右端: ' + Math.round(tabRightEdge) + 'px\n' +
+                          '画面右端: ' + viewportWidth + 'px\n' +
+                          '★ズレ: ' + Math.round(offsetFromRight) + 'px ' +
+                          (offsetFromRight > 0 ? '(右に余白)' : offsetFromRight < 0 ? '(はみ出し)' : '(ぴったり)'));
+                }
 
                 const computedStyle = getComputedStyle(document.documentElement);
                 const safeAreaRight = computedStyle.getPropertyValue('safe-area-inset-right') || '0px';
@@ -933,64 +938,66 @@
                         '✅ タブは画面内にあるはず'
                 });
 
-                // 画面上に診断情報を表示（iPhone用 - Console が使えない場合）
-                const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
-                const shouldBeVisible = window.innerWidth >= (totalTransform - tabWidth);
+                if (DEBUG_MODE) {
+                    // 画面上に診断情報を表示（iPhone用 - Console が使えない場合）
+                    const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+                    const shouldBeVisible = window.innerWidth >= (totalTransform - tabWidth);
 
-                // iPhone診断: 診断ボックスの内容を alert で表示
-                const alertMessage = [
-                    '🔍 SideFlow Debug',
-                    '',
-                    'Orientation: ' + orientation,
-                    'Viewport: ' + window.innerWidth + 'px',
-                    'Safe Area Right: ' + safeAreaRight,
-                    'Transform (before): ' + totalTransform + 'px',
-                    'Transform (after): ' + (totalTransform - tabWidth) + 'px',
-                    '',
-                    shouldBeVisible ? '✅ Should be visible' : '❌ Should NOT be visible'
-                ].join('\n');
-                alert(alertMessage);
+                    // iPhone診断: 診断ボックスの内容を alert で表示
+                    const alertMessage = [
+                        '🔍 SideFlow Debug',
+                        '',
+                        'Orientation: ' + orientation,
+                        'Viewport: ' + window.innerWidth + 'px',
+                        'Safe Area Right: ' + safeAreaRight,
+                        'Transform (before): ' + totalTransform + 'px',
+                        'Transform (after): ' + (totalTransform - tabWidth) + 'px',
+                        '',
+                        shouldBeVisible ? '✅ Should be visible' : '❌ Should NOT be visible'
+                    ].join('\n');
+                    alert(alertMessage);
 
-                const debugDiv = document.createElement('div');
-                debugDiv.style.cssText = `
-                    position: fixed;
-                    top: 10px;
-                    left: 10px;
-                    background: rgba(0,0,0,0.9);
-                    color: white;
-                    padding: 12px;
-                    font-size: 11px;
-                    font-family: monospace;
-                    z-index: 999999;
-                    max-width: 90%;
-                    border-radius: 6px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-                    line-height: 1.5;
-                `;
-                debugDiv.innerHTML = `
-                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🔍 SideFlow Debug</div>
-                    <div>Orientation: <strong>${orientation}</strong></div>
-                    <div>Viewport: <strong>${window.innerWidth}px</strong></div>
-                    <div>Safe Area Right: <strong>${safeAreaRight}</strong></div>
-                    <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.3);">
-                        Transform (before): ${totalTransform}px<br>
-                        Transform (after): ${totalTransform - tabWidth}px
-                    </div>
-                    <div style="margin-top: 8px; padding: 6px; background: ${shouldBeVisible ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)'}; border-radius: 4px; text-align: center;">
-                        <strong>${shouldBeVisible ? '✅ Should be visible' : '❌ Should NOT be visible'}</strong>
-                    </div>
-                    <div style="margin-top: 6px; font-size: 10px; opacity: 0.7; text-align: center;">
-                        (Auto-hide in 8 seconds)
-                    </div>
-                `;
-                document.body.appendChild(debugDiv);
+                    const debugDiv = document.createElement('div');
+                    debugDiv.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        left: 10px;
+                        background: rgba(0,0,0,0.9);
+                        color: white;
+                        padding: 12px;
+                        font-size: 11px;
+                        font-family: monospace;
+                        z-index: 999999;
+                        max-width: 90%;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                        line-height: 1.5;
+                    `;
+                    debugDiv.innerHTML = `
+                        <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🔍 SideFlow Debug</div>
+                        <div>Orientation: <strong>${orientation}</strong></div>
+                        <div>Viewport: <strong>${window.innerWidth}px</strong></div>
+                        <div>Safe Area Right: <strong>${safeAreaRight}</strong></div>
+                        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.3);">
+                            Transform (before): ${totalTransform}px<br>
+                            Transform (after): ${totalTransform - tabWidth}px
+                        </div>
+                        <div style="margin-top: 8px; padding: 6px; background: ${shouldBeVisible ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)'}; border-radius: 4px; text-align: center;">
+                            <strong>${shouldBeVisible ? '✅ Should be visible' : '❌ Should NOT be visible'}</strong>
+                        </div>
+                        <div style="margin-top: 6px; font-size: 10px; opacity: 0.7; text-align: center;">
+                            (Auto-hide in 8 seconds)
+                        </div>
+                    `;
+                    document.body.appendChild(debugDiv);
 
-                // 8秒後に自動削除
-                setTimeout(() => {
-                    if (debugDiv.parentNode) {
-                        debugDiv.remove();
-                    }
-                }, 8000);
+                    // 8秒後に自動削除
+                    setTimeout(() => {
+                        if (debugDiv.parentNode) {
+                            debugDiv.remove();
+                        }
+                    }, 8000);
+                }
             }, 200);
         }
 
@@ -1323,20 +1330,20 @@
 
         // タブクリック
         const tabConfig = config.tab || { action: 'drawer' };
-        alert('🔍 タブ設定:\naction: ' + tabConfig.action + '\nlinkUrl: ' + tabConfig.linkUrl);
+        if (DEBUG_MODE) alert('🔍 タブ設定:\naction: ' + tabConfig.action + '\nlinkUrl: ' + tabConfig.linkUrl);
         console.log('🔍 Tab config:', tabConfig);
 
         if (tabConfig.action === 'link' && tabConfig.linkUrl) {
             // リンクモードの場合はイベントリスナー不要（ネイティブリンク動作）
-            alert('⚠️ タブはリンクモードです（ドロワーは開きません）');
+            if (DEBUG_MODE) alert('⚠️ タブはリンクモードです（ドロワーは開きません）');
         } else {
             // ドロワーモードの場合
-            alert('✅ タブにクリックイベントを登録します');
+            if (DEBUG_MODE) alert('✅ タブにクリックイベントを登録します');
             tab.addEventListener('click', toggleDrawer);
 
             // 診断: タブがクリック可能か確認
             const tabStyle = getComputedStyle(tab);
-            alert('🔍 タブのスタイル:\npointer-events: ' + tabStyle.pointerEvents + '\nz-index: ' + tabStyle.zIndex + '\nposition: ' + tabStyle.position);
+            if (DEBUG_MODE) alert('🔍 タブのスタイル:\npointer-events: ' + tabStyle.pointerEvents + '\nz-index: ' + tabStyle.zIndex + '\nposition: ' + tabStyle.position);
             console.log('🔍 Tab computed style:', {
                 pointerEvents: tabStyle.pointerEvents,
                 zIndex: tabStyle.zIndex,
@@ -1488,7 +1495,7 @@
 
     // ドロワー開閉
     function toggleDrawer() {
-        alert('🔍 toggleDrawer が呼ばれました\nisDrawerOpen: ' + isDrawerOpen);
+        if (DEBUG_MODE) alert('🔍 toggleDrawer が呼ばれました\nisDrawerOpen: ' + isDrawerOpen);
         console.log('🔍 toggleDrawer called, isDrawerOpen:', isDrawerOpen);
 
         if (isDrawerOpen) {
@@ -1499,7 +1506,7 @@
     }
 
     function openDrawer() {
-        alert('🔍 openDrawer が呼ばれました');
+        if (DEBUG_MODE) alert('🔍 openDrawer が呼ばれました');
         console.log('🔍 openDrawer called');
 
         isDrawerOpen = true;
@@ -1507,62 +1514,62 @@
         const tab = shadowRoot.querySelector('.sf-tab');
         const drawer = shadowRoot.querySelector('.sf-drawer');
 
-        alert('🔍 要素取得結果:\nwrap: ' + (wrap ? 'あり' : 'なし') + '\ntab: ' + (tab ? 'あり' : 'なし') + '\ndrawer: ' + (drawer ? 'あり' : 'なし'));
+        if (DEBUG_MODE) alert('🔍 要素取得結果:\nwrap: ' + (wrap ? 'あり' : 'なし') + '\ntab: ' + (tab ? 'あり' : 'なし') + '\ndrawer: ' + (drawer ? 'あり' : 'なし'));
         console.log('🔍 Elements:', { wrap, tab, drawer });
 
         try {
             tab.setAttribute('aria-expanded', 'true');
-            alert('🔍 Line 1429 通過');
+            if (DEBUG_MODE) alert('🔍 Line 1429 通過');
 
             drawer.setAttribute('aria-hidden', 'false');
-            alert('🔍 Line 1430 通過');
+            if (DEBUG_MODE) alert('🔍 Line 1430 通過');
 
             // inert属性を削除
             drawer.removeAttribute('inert');
-            alert('🔍 Line 1433 通過');
+            if (DEBUG_MODE) alert('🔍 Line 1433 通過');
 
             // フォーカス可能な要素を有効化
             const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex="-1"]');
-            alert('🔍 querySelectorAll 成功: ' + focusableElements.length + '個');
+            if (DEBUG_MODE) alert('🔍 querySelectorAll 成功: ' + focusableElements.length + '個');
             focusableElements.forEach(element => {
                 if (element.getAttribute('tabindex') === '-1') {
                     element.removeAttribute('tabindex');
                 }
             });
-            alert('🔍 forEach 完了');
+            if (DEBUG_MODE) alert('🔍 forEach 完了');
         } catch (error) {
-            alert('❌ エラー発生: ' + error.message + '\n行: ' + error.lineNumber);
+            if (DEBUG_MODE) alert('❌ エラー発生: ' + error.message + '\n行: ' + error.lineNumber);
             console.error('openDrawer error:', error);
         }
 
-        alert('🔍 try-catch ブロック完了');
+        if (DEBUG_MODE) alert('🔍 try-catch ブロック完了');
 
         // アニメーション完了後にis-openクラスを追加
         let motionConfig;
         let animationDuration;
 
         try {
-            alert('🔍 config 取得開始');
+            if (DEBUG_MODE) alert('🔍 config 取得開始');
             motionConfig = config.motion || { durationMs: 300 };
-            alert('🔍 motionConfig: ' + JSON.stringify(motionConfig));
+            if (DEBUG_MODE) alert('🔍 motionConfig: ' + JSON.stringify(motionConfig));
             animationDuration = motionConfig.durationMs || 300;
-            alert('🔍 animationDuration: ' + animationDuration);
+            if (DEBUG_MODE) alert('🔍 animationDuration: ' + animationDuration);
 
             // アニメーションクラスを追加（バウンス効果設定によって分岐）
             wrap.classList.remove('is-closing', 'is-open');
-            alert('🔍 classList.remove 完了');
+            if (DEBUG_MODE) alert('🔍 classList.remove 完了');
 
             // CSS変数を確実に設定（viewport-responsive）
-            alert('🔍 config.drawer: ' + JSON.stringify(config.drawer));
+            if (DEBUG_MODE) alert('🔍 config.drawer: ' + JSON.stringify(config.drawer));
             const viewportWidth = window.innerWidth;
             const tabWidth = config.tab?.widthPx || 50;
             const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
             const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
-            alert('🔍 actualDrawerWidth: ' + actualDrawerWidth);
+            if (DEBUG_MODE) alert('🔍 actualDrawerWidth: ' + actualDrawerWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
-            alert('🔍 setProperty 完了');
+            if (DEBUG_MODE) alert('🔍 setProperty 完了');
         } catch (error) {
-            alert('❌ アニメーション準備でエラー: ' + error.message);
+            if (DEBUG_MODE) alert('❌ アニメーション準備でエラー: ' + error.message);
             console.error('Animation setup error:', error);
             return;
         }
@@ -1582,7 +1589,7 @@
                 beforeTranslateX = values[4] || 0;
             }
         }
-        alert('🔍 アニメーション開始前:\ntransform: ' + beforeTransform + '\ntranslateX: ' + Math.round(beforeTranslateX) + 'px\n\nbounceEnabled: ' + bounceEnabled);
+        if (DEBUG_MODE) alert('🔍 アニメーション開始前:\ntransform: ' + beforeTransform + '\ntranslateX: ' + Math.round(beforeTranslateX) + 'px\n\nbounceEnabled: ' + bounceEnabled);
 
         if (bounceEnabled) {
             wrap.classList.add('is-opening');
@@ -1590,36 +1597,38 @@
             wrap.classList.add('is-opening-simple');
         }
 
-        // 診断: アニメーション開始直後の状態を確認（複数回チェック）
-        setTimeout(() => {
-            const after50Style = getComputedStyle(wrap);
-            const after50Transform = after50Style.transform;
-            let after50TranslateX = 0;
-            if (after50Transform && after50Transform !== 'none') {
-                const matrix = after50Transform.match(/matrix\(([^)]+)\)/);
-                if (matrix) {
-                    const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
-                    after50TranslateX = values[4] || 0;
+        if (DEBUG_MODE) {
+            // 診断: アニメーション開始直後の状態を確認（複数回チェック）
+            setTimeout(() => {
+                const after50Style = getComputedStyle(wrap);
+                const after50Transform = after50Style.transform;
+                let after50TranslateX = 0;
+                if (after50Transform && after50Transform !== 'none') {
+                    const matrix = after50Transform.match(/matrix\(([^)]+)\)/);
+                    if (matrix) {
+                        const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                        after50TranslateX = values[4] || 0;
+                    }
                 }
-            }
-            const className = wrap.className;
-            alert('🔍 アニメーション50ms後:\ntransform: ' + after50Transform + '\ntranslateX: ' + Math.round(after50TranslateX) + 'px\nクラス: ' + className);
-        }, 50);
+                const className = wrap.className;
+                alert('🔍 アニメーション50ms後:\ntransform: ' + after50Transform + '\ntranslateX: ' + Math.round(after50TranslateX) + 'px\nクラス: ' + className);
+            }, 50);
 
-        // 診断: アニメーション中間地点の状態を確認
-        setTimeout(() => {
-            const after150Style = getComputedStyle(wrap);
-            const after150Transform = after150Style.transform;
-            let after150TranslateX = 0;
-            if (after150Transform && after150Transform !== 'none') {
-                const matrix = after150Transform.match(/matrix\(([^)]+)\)/);
-                if (matrix) {
-                    const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
-                    after150TranslateX = values[4] || 0;
+            // 診断: アニメーション中間地点の状態を確認
+            setTimeout(() => {
+                const after150Style = getComputedStyle(wrap);
+                const after150Transform = after150Style.transform;
+                let after150TranslateX = 0;
+                if (after150Transform && after150Transform !== 'none') {
+                    const matrix = after150Transform.match(/matrix\(([^)]+)\)/);
+                    if (matrix) {
+                        const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                        after150TranslateX = values[4] || 0;
+                    }
                 }
-            }
-            alert('🔍 アニメーション150ms後:\ntransform: ' + after150Transform + '\ntranslateX: ' + Math.round(after150TranslateX) + 'px');
-        }, 150);
+                alert('🔍 アニメーション150ms後:\ntransform: ' + after150Transform + '\ntranslateX: ' + Math.round(after150TranslateX) + 'px');
+            }, 150);
+        }
 
         setTimeout(() => {
             wrap.classList.remove('is-opening', 'is-opening-simple');
