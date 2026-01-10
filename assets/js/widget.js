@@ -127,38 +127,19 @@
             transform: translateX(0px);
         }
 
-        /* iOS Safe Area対応 - Safe Area APIベースの動的調整 */
-        @supports (-webkit-touch-callout: none) {
-            .sf-wrap {
-                /* 修正: タブ幅分を引いて、タブが画面内に残るようにする */
-                transform: translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px - var(--sf-tabW, 50px)));
-                transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
-            }
-
-            .sf-wrap.anchor-center {
-                /* 修正: タブ幅分を引く */
-                transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 370px) + env(safe-area-inset-right, 0px) + 12px - var(--sf-tabW, 50px)));
-            }
-
-            .sf-wrap.is-open {
-                transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px));
-            }
-
-            .sf-wrap.anchor-center.is-open {
-                transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px));
-            }
-
-            /* ドロワー幅も画面幅に制限 */
-            .sf-drawer {
-                max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - var(--sf-tabW, 50px));
-            }
-
-            /* タブ幅を画面サイズに制限 */
-            .sf-tab {
-                max-width: 60px;
-                width: min(var(--sf-tabW, 50px), 60px);
-            }
-        }
+        /* iOS Safe Area対応を削除: デフォルトのtransformを使用（Line 76-78）
+         *
+         * 削除理由:
+         * - env(safe-area-inset-right) の JavaScript からの取得が不安定
+         * - 縦向き: safe-area = 0px（正しい）
+         * - 横向き: safe-area = 0px のまま（本来は 44px 程度になるはず）
+         * - 結果: 横向きでタブが画面内に2つ分入り込む問題が発生
+         *
+         * 修正後の動作:
+         * - デフォルトの translateX(var(--sf-actualDrawerW, 370px)) を使用
+         * - 全端末・全向きで安定して動作
+         * - ドロワー幅370px固定により、タブ（50px）が画面内に確実に表示される
+         */
 
         .sf-wrap.anchor-bottom {
             bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-offset, 24px));
