@@ -1535,11 +1535,14 @@
         alert('🔍 try-catch ブロック完了');
 
         // アニメーション完了後にis-openクラスを追加
+        let motionConfig;
+        let animationDuration;
+
         try {
             alert('🔍 config 取得開始');
-            const motionConfig = config.motion || { durationMs: 300 };
+            motionConfig = config.motion || { durationMs: 300 };
             alert('🔍 motionConfig: ' + JSON.stringify(motionConfig));
-            const animationDuration = motionConfig.durationMs || 300;
+            animationDuration = motionConfig.durationMs || 300;
             alert('🔍 animationDuration: ' + animationDuration);
 
             // アニメーションクラスを追加（バウンス効果設定によって分岐）
@@ -1547,8 +1550,8 @@
             alert('🔍 classList.remove 完了');
 
             // CSS変数を確実に設定（固定幅）
-            alert('🔍 drawerConfig: ' + JSON.stringify(drawerConfig));
-            const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
+            alert('🔍 config.drawer: ' + JSON.stringify(config.drawer));
+            const actualDrawerWidth = config.drawer?.maxWidthPx || 370;
             alert('🔍 actualDrawerWidth: ' + actualDrawerWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
             alert('🔍 setProperty 完了');
