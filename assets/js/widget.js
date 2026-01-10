@@ -920,7 +920,8 @@
         const actualDrawerWidth = 370;
 
         // iOS デバッグ情報（Safe Area Transform 診断を追加）
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        // 診断ボックスは全端末で表示（PC含む）
+        if (true || /iPad|iPhone|iPod/.test(navigator.userAgent)) {
             // Safe Area 値を取得（初期化後に再取得する必要があるため、setTimeout使用）
             setTimeout(() => {
                 const computedStyle = getComputedStyle(document.documentElement);
