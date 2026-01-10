@@ -911,8 +911,8 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // ドロワー幅を固定値に簡素化（370px固定）
-        const actualDrawerWidth = 370;
+        // ドロワー幅を設定から取得
+        const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
 
         // iOS デバッグ情報（Safe Area Transform 診断を追加）
         // 診断ボックスは全端末で表示（PC含む）
