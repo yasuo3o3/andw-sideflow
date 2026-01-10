@@ -73,14 +73,14 @@
             right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(calc(var(--sf-actualDrawerW, 400px) - var(--sf-tabW, 50px)));
+            transform: translateX(calc(100vw - var(--sf-tabW, 50px)));
             transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             z-index: var(--sf-z-index, 10000);
         }
 
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(calc(var(--sf-actualDrawerW, 400px) - var(--sf-tabW, 50px)));
+            transform: translateY(-50%) translateX(calc(100vw - var(--sf-tabW, 50px)));
         }
 
         .sf-wrap.anchor-center.is-opening {
