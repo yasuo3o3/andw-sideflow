@@ -1622,7 +1622,7 @@
 
         setTimeout(() => {
             wrap.classList.remove('is-closing');
-            wrap.style.transform = '';
+            // transform クリアを削除: CSS変数による制御を維持
         }, animationDuration);
 
         // フォーカストラップ解除
