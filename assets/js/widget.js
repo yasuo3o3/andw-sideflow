@@ -1622,7 +1622,7 @@
 
         setTimeout(() => {
             wrap.classList.remove('is-closing');
-            wrap.style.transform = '';
+            // transform はクリアしない（CSS変数 --sf-actualDrawerW で制御）
         }, animationDuration);
 
         // フォーカストラップ解除
