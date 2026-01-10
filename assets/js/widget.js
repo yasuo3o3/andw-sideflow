@@ -859,8 +859,11 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // ドロワー幅を固定値で設定（全デバイスで統一）
-        const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
+        // ドロワー幅を viewport-responsive に設定（タブが画面内に収まるように）
+        const viewportWidth = window.innerWidth;
+        const tabWidth = tabConfig.widthPx || 50;
+        const maxDrawerWidth = drawerConfig.maxWidthPx || 370;
+        const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
 
         // iOS デバッグ情報（Safe Area Transform 診断を追加）
         // 診断ボックスは全端末で表示（PC含む）
@@ -1549,9 +1552,12 @@
             wrap.classList.remove('is-closing', 'is-open');
             alert('🔍 classList.remove 完了');
 
-            // CSS変数を確実に設定（固定幅）
+            // CSS変数を確実に設定（viewport-responsive）
             alert('🔍 config.drawer: ' + JSON.stringify(config.drawer));
-            const actualDrawerWidth = config.drawer?.maxWidthPx || 370;
+            const viewportWidth = window.innerWidth;
+            const tabWidth = config.tab?.widthPx || 50;
+            const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
+            const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
             alert('🔍 actualDrawerWidth: ' + actualDrawerWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
             alert('🔍 setProperty 完了');
@@ -1852,8 +1858,11 @@
             const wrap = shadowRoot.querySelector('.sf-wrap');
             if (!wrap) return;
 
-            // ドロワー幅を固定値で設定
-            const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
+            // ドロワー幅を viewport-responsive に設定
+            const viewportWidth = window.innerWidth;
+            const tabWidth = config.tab?.widthPx || 50;
+            const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
+            const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
 
             wrap.style.setProperty('--sf-drawerW', `${actualDrawerWidth}px`);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
@@ -2164,8 +2173,11 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 最適サイズ事前計算
     function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
         try {
-            // ドロワー幅を固定値で設定
-            const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
+            // ドロワー幅を viewport-responsive に設定
+            const viewportWidth = window.innerWidth;
+            const tabWidth = config.tab?.widthPx || 50;
+            const maxDrawerWidth = drawerConfig.maxWidthPx || 370;
+            const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
 
             // スライダー幅（ドロワー幅と同じ）
             const sliderWidth = actualDrawerWidth;
