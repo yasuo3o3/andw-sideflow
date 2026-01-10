@@ -1536,11 +1536,39 @@
         const hasBounceSetting = config.ui?.bounceEffect !== undefined;
         const bounceEnabled = hasBounceSetting ? config.ui.bounceEffect : (motionConfig.overshoot !== false);
 
+        // 診断: アニメーション開始前の状態を確認
+        const beforeAnimStyle = getComputedStyle(wrap);
+        const beforeTransform = beforeAnimStyle.transform;
+        let beforeTranslateX = 0;
+        if (beforeTransform && beforeTransform !== 'none') {
+            const matrix = beforeTransform.match(/matrix\(([^)]+)\)/);
+            if (matrix) {
+                const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                beforeTranslateX = values[4] || 0;
+            }
+        }
+        alert('🔍 アニメーション開始前:\ntransform: ' + beforeTransform + '\ntranslateX: ' + Math.round(beforeTranslateX) + 'px\n\nbounceEnabled: ' + bounceEnabled);
+
         if (bounceEnabled) {
             wrap.classList.add('is-opening');
         } else {
             wrap.classList.add('is-opening-simple');
         }
+
+        // 診断: アニメーション開始直後の状態を確認
+        setTimeout(() => {
+            const afterAnimStyle = getComputedStyle(wrap);
+            const afterTransform = afterAnimStyle.transform;
+            let afterTranslateX = 0;
+            if (afterTransform && afterTransform !== 'none') {
+                const matrix = afterTransform.match(/matrix\(([^)]+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                    afterTranslateX = values[4] || 0;
+                }
+            }
+            alert('🔍 アニメーション開始直後:\ntransform: ' + afterTransform + '\ntranslateX: ' + Math.round(afterTranslateX) + 'px\n\nクラス: ' + (bounceEnabled ? 'is-opening' : 'is-opening-simple'));
+        }, 50);
 
         setTimeout(() => {
             wrap.classList.remove('is-opening', 'is-opening-simple');
