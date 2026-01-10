@@ -242,67 +242,15 @@
             100% { transform: translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
         }
 
-        /* iOS専用アニメーション - Safe Area APIベース */
-        @supports (-webkit-touch-callout: none) {
-            @keyframes slideInOvershootIOS {
-                0% { transform: translateY(-50%) translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
-                60% { transform: translateY(-50%) translateX(calc(-15px + env(safe-area-inset-right, 0px) + 12px)); }
-                80% { transform: translateY(-50%) translateX(calc(2px + env(safe-area-inset-right, 0px) + 12px)); }
-                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
-            }
-
-            @keyframes slideInOvershootBottomIOS {
-                0% { transform: translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
-                60% { transform: translateX(calc(-15px + env(safe-area-inset-right, 0px) + 12px)); }
-                80% { transform: translateX(calc(2px + env(safe-area-inset-right, 0px) + 12px)); }
-                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
-            }
-
-            @keyframes slideInSimpleIOS {
-                0% { transform: translateY(-50%) translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
-                100% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
-            }
-
-            @keyframes slideInSimpleBottomIOS {
-                0% { transform: translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
-                100% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
-            }
-
-            @keyframes slideOutSmoothIOS {
-                0% { transform: translateY(-50%) translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
-                100% { transform: translateY(-50%) translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
-            }
-
-            @keyframes slideOutSmoothBottomIOS {
-                0% { transform: translateX(calc(env(safe-area-inset-right, 0px) + 12px)); }
-                100% { transform: translateX(calc(370px + env(safe-area-inset-right, 0px) + 12px)); }
-            }
-
-            /* iOS専用アニメーション定義 - !important適用 */
-            .sf-wrap.anchor-center.is-opening {
-                animation: slideInOvershootIOS var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards !important;
-            }
-
-            .sf-wrap.anchor-bottom.is-opening {
-                animation: slideInOvershootBottomIOS var(--sf-duration, 300ms) cubic-bezier(0.68, -0.2, 0.32, 1.2) forwards !important;
-            }
-
-            .sf-wrap.anchor-center.is-opening-simple {
-                animation: slideInSimpleIOS var(--sf-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
-            }
-
-            .sf-wrap.anchor-bottom.is-opening-simple {
-                animation: slideInSimpleBottomIOS var(--sf-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
-            }
-
-            .sf-wrap.anchor-center.is-closing {
-                animation: slideOutSmoothIOS var(--sf-duration, 300ms) ease-out forwards !important;
-            }
-
-            .sf-wrap.anchor-bottom.is-closing {
-                animation: slideOutSmoothBottomIOS var(--sf-duration, 300ms) ease-out forwards !important;
-            }
-        }
+        /* iOS専用アニメーション削除: デフォルトのアニメーションを使用
+         *
+         * 削除理由:
+         * - iOS Safe Area対応のCSSを削除したため、アニメーションも統一
+         * - env(safe-area-inset-right) + 12px の計算により、
+         *   アニメーション終了位置（0% と 100%）が静的な位置とずれていた
+         * - デフォルトの slideInOvershoot / slideInOvershootBottom を使用することで、
+         *   全端末で統一されたアニメーション動作を実現
+         */
 
         @keyframes slideInSimple {
             0% { transform: translateY(-50%) translateX(var(--sf-actualDrawerW, var(--sf-drawerW))); }
