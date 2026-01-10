@@ -1532,16 +1532,31 @@
             console.error('openDrawer error:', error);
         }
 
+        alert('🔍 try-catch ブロック完了');
+
         // アニメーション完了後にis-openクラスを追加
-        const motionConfig = config.motion || { durationMs: 300 };
-        const animationDuration = motionConfig.durationMs || 300;
+        try {
+            alert('🔍 config 取得開始');
+            const motionConfig = config.motion || { durationMs: 300 };
+            alert('🔍 motionConfig: ' + JSON.stringify(motionConfig));
+            const animationDuration = motionConfig.durationMs || 300;
+            alert('🔍 animationDuration: ' + animationDuration);
 
-        // アニメーションクラスを追加（バウンス効果設定によって分岐）
-        wrap.classList.remove('is-closing', 'is-open');
+            // アニメーションクラスを追加（バウンス効果設定によって分岐）
+            wrap.classList.remove('is-closing', 'is-open');
+            alert('🔍 classList.remove 完了');
 
-        // CSS変数を確実に設定（固定幅）
-        const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
-        wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
+            // CSS変数を確実に設定（固定幅）
+            alert('🔍 drawerConfig: ' + JSON.stringify(drawerConfig));
+            const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
+            alert('🔍 actualDrawerWidth: ' + actualDrawerWidth);
+            wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
+            alert('🔍 setProperty 完了');
+        } catch (error) {
+            alert('❌ アニメーション準備でエラー: ' + error.message);
+            console.error('Animation setup error:', error);
+            return;
+        }
 
         // 即座にアニメーション開始（遅延なし）
         const hasBounceSetting = config.ui?.bounceEffect !== undefined;
