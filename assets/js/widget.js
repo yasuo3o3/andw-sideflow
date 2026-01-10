@@ -1507,19 +1507,30 @@
         alert('🔍 要素取得結果:\nwrap: ' + (wrap ? 'あり' : 'なし') + '\ntab: ' + (tab ? 'あり' : 'なし') + '\ndrawer: ' + (drawer ? 'あり' : 'なし'));
         console.log('🔍 Elements:', { wrap, tab, drawer });
 
-        tab.setAttribute('aria-expanded', 'true');
-        drawer.setAttribute('aria-hidden', 'false');
+        try {
+            tab.setAttribute('aria-expanded', 'true');
+            alert('🔍 Line 1429 通過');
 
-        // inert属性を削除
-        drawer.removeAttribute('inert');
+            drawer.setAttribute('aria-hidden', 'false');
+            alert('🔍 Line 1430 通過');
 
-        // フォーカス可能な要素を有効化
-        const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex="-1"]');
-        focusableElements.forEach(element => {
-            if (element.getAttribute('tabindex') === '-1') {
-                element.removeAttribute('tabindex');
-            }
-        });
+            // inert属性を削除
+            drawer.removeAttribute('inert');
+            alert('🔍 Line 1433 通過');
+
+            // フォーカス可能な要素を有効化
+            const focusableElements = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex="-1"]');
+            alert('🔍 querySelectorAll 成功: ' + focusableElements.length + '個');
+            focusableElements.forEach(element => {
+                if (element.getAttribute('tabindex') === '-1') {
+                    element.removeAttribute('tabindex');
+                }
+            });
+            alert('🔍 forEach 完了');
+        } catch (error) {
+            alert('❌ エラー発生: ' + error.message + '\n行: ' + error.lineNumber);
+            console.error('openDrawer error:', error);
+        }
 
         // アニメーション完了後にis-openクラスを追加
         const motionConfig = config.motion || { durationMs: 300 };
