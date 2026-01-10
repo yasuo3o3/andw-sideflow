@@ -965,7 +965,6 @@
                 const padding = 12;
                 // 修正: iOS Safe Areaコード削除後は、デフォルトのtransform(370px)を使用
                 const totalTransform = actualDrawerWidth; // 370px (削除されたiOS Safe Areaコードの仮定値: 370 + 0 + 12 = 382px)
-                const tabWidth = tabConfig.widthPx || 50;
 
                 console.log('🔍 [SideFlow iOS Transform Debug]', {
                     orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
