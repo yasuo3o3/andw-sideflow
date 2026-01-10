@@ -73,14 +73,14 @@
             right: 0;
             display: flex;
             pointer-events: auto;
-            transform: translateX(calc(100vw - var(--sf-tabW, 50px)));
+            transform: translateX(var(--sf-actualDrawerW, 370px));
             transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
             z-index: var(--sf-z-index, 10000);
         }
 
         .sf-wrap.anchor-center {
             top: calc(50% + var(--tab-offset, 0px));
-            transform: translateY(-50%) translateX(calc(100vw - var(--sf-tabW, 50px)));
+            transform: translateY(-50%) translateX(var(--sf-actualDrawerW, 370px));
         }
 
         .sf-wrap.anchor-center.is-opening {
@@ -911,10 +911,8 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // ドロワー幅を viewport 幅から計算（viewport × widthPercent と maxWidthPx の小さい方）
-        const viewportWidth = window.innerWidth;
-        const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
-        const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
+        // ドロワー幅を固定値で設定（全デバイスで統一）
+        const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
 
         // iOS デバッグ情報（Safe Area Transform 診断を追加）
         // 診断ボックスは全端末で表示（PC含む）
@@ -1556,10 +1554,8 @@
         // アニメーションクラスを追加（バウンス効果設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
 
-        // CSS変数を確実に設定（viewport幅から計算）
-        const viewportWidth = window.innerWidth;
-        const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
-        const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
+        // CSS変数を確実に設定（固定幅）
+        const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
         wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
         // 即座にアニメーション開始（遅延なし）
@@ -1809,10 +1805,8 @@
             const wrap = shadowRoot.querySelector('.sf-wrap');
             if (!wrap) return;
 
-            // ドロワー幅を viewport 幅から計算
-            const viewportWidth = window.innerWidth;
-            const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
-            const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
+            // ドロワー幅を固定値で設定
+            const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
 
             wrap.style.setProperty('--sf-drawerW', `${actualDrawerWidth}px`);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
@@ -2123,10 +2117,8 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 最適サイズ事前計算
     function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
         try {
-            // ドロワー幅を viewport 幅から計算
-            const viewportWidth = window.innerWidth;
-            const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
-            const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
+            // ドロワー幅を固定値で設定
+            const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
 
             // スライダー幅（ドロワー幅と同じ）
             const sliderWidth = actualDrawerWidth;
