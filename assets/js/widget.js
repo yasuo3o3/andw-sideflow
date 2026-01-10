@@ -926,7 +926,8 @@
                 const safeAreaRight = computedStyle.getPropertyValue('safe-area-inset-right') || '0px';
                 const safeAreaRightPx = parseInt(safeAreaRight) || 0;
                 const padding = 12;
-                const totalTransform = actualDrawerWidth + safeAreaRightPx + padding;
+                // 修正: iOS Safe Areaコード削除後は、デフォルトのtransform(370px)を使用
+                const totalTransform = actualDrawerWidth; // 370px (削除されたiOS Safe Areaコードの仮定値: 370 + 0 + 12 = 382px)
                 const tabWidth = tabConfig.widthPx || 50;
 
                 console.log('🔍 [SideFlow iOS Transform Debug]', {
