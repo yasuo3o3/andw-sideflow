@@ -1065,7 +1065,7 @@ class ANDW_SideFlow {
             'andw-sideflow-widget',
             ANDW_SIDEFLOW_PLUGIN_URL . 'assets/js/widget.js',
             array(),
-            ANDW_SIDEFLOW_VERSION,
+            ANDW_SIDEFLOW_VERSION . '.' . time(),
             true
         );
 
