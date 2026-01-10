@@ -947,6 +947,50 @@
                         '⚠️ タブが画面外に押し出されている可能性大' :
                         '✅ タブは画面内にあるはず'
                 });
+
+                // 画面上に診断情報を表示（iPhone用 - Console が使えない場合）
+                const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+                const shouldBeVisible = window.innerWidth >= (totalTransform - tabWidth);
+                const debugDiv = document.createElement('div');
+                debugDiv.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    left: 10px;
+                    background: rgba(0,0,0,0.9);
+                    color: white;
+                    padding: 12px;
+                    font-size: 11px;
+                    font-family: monospace;
+                    z-index: 999999;
+                    max-width: 90%;
+                    border-radius: 6px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                    line-height: 1.5;
+                `;
+                debugDiv.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🔍 SideFlow Debug</div>
+                    <div>Orientation: <strong>${orientation}</strong></div>
+                    <div>Viewport: <strong>${window.innerWidth}px</strong></div>
+                    <div>Safe Area Right: <strong>${safeAreaRight}</strong></div>
+                    <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.3);">
+                        Transform (before): ${totalTransform}px<br>
+                        Transform (after): ${totalTransform - tabWidth}px
+                    </div>
+                    <div style="margin-top: 8px; padding: 6px; background: ${shouldBeVisible ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)'}; border-radius: 4px; text-align: center;">
+                        <strong>${shouldBeVisible ? '✅ Should be visible' : '❌ Should NOT be visible'}</strong>
+                    </div>
+                    <div style="margin-top: 6px; font-size: 10px; opacity: 0.7; text-align: center;">
+                        (Auto-hide in 8 seconds)
+                    </div>
+                `;
+                document.body.appendChild(debugDiv);
+
+                // 8秒後に自動削除
+                setTimeout(() => {
+                    if (debugDiv.parentNode) {
+                        debugDiv.remove();
+                    }
+                }, 8000);
             }, 200);
         }
 
