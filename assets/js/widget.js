@@ -919,8 +919,20 @@
         if (true || /iPad|iPhone|iPod/.test(navigator.userAgent)) {
             // Safe Area 値を取得（初期化後に再取得する必要があるため、setTimeout使用）
             setTimeout(() => {
-                // iPhone診断: この alert が出ればコードは実行されている
-                alert('🔍 診断開始: viewport=' + window.innerWidth + 'px');
+                // iPhone診断: 実際のタブの状態を確認
+                const actualTab = container.querySelector('.sf-wrap');
+                const tabComputedStyle = actualTab ? getComputedStyle(actualTab) : null;
+                const actualTransform = tabComputedStyle ? tabComputedStyle.transform : 'not found';
+                const actualDisplay = tabComputedStyle ? tabComputedStyle.display : 'not found';
+                const actualVisibility = tabComputedStyle ? tabComputedStyle.visibility : 'not found';
+                const actualOpacity = tabComputedStyle ? tabComputedStyle.opacity : 'not found';
+
+                alert('🔍 実際のタブ状態:\n' +
+                      'DOM存在: ' + (actualTab ? 'YES' : 'NO') + '\n' +
+                      'display: ' + actualDisplay + '\n' +
+                      'visibility: ' + actualVisibility + '\n' +
+                      'opacity: ' + actualOpacity + '\n' +
+                      'transform: ' + actualTransform);
 
                 const computedStyle = getComputedStyle(document.documentElement);
                 const safeAreaRight = computedStyle.getPropertyValue('safe-area-inset-right') || '0px';
