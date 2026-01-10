@@ -722,6 +722,9 @@
 
     // 初期化
     function init() {
+        // 【iPhone診断1】最初のalert - これが出なければキャッシュ問題
+        alert('✅ SideFlow: 初期化開始 (ver.2)');
+
         // 診断: 初期化開始を確認
         console.log('🚀 andW SideFlow: 初期化開始');
 
