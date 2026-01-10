@@ -1026,9 +1026,9 @@
             }, 200);
         }
 
-        // CSS変数設定（固定幅）
-        container.style.setProperty('--sf-drawerW', '370px');
-        container.style.setProperty('--sf-drawerMaxW', '370px');
+        // CSS変数設定（viewport幅に応じた動的な幅）
+        container.style.setProperty('--sf-drawerW', `${actualDrawerWidth}px`);
+        container.style.setProperty('--sf-drawerMaxW', `${drawerConfig.maxWidthPx || 370}px`);
         container.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
         container.style.setProperty('--sf-duration', `${motionConfig.durationMs}ms`);
         container.style.setProperty('--sf-ease', motionConfig.easing);
@@ -1537,8 +1537,10 @@
         // アニメーションクラスを追加（バウンス効果設定によって分岐）
         wrap.classList.remove('is-closing', 'is-open');
 
-        // CSS変数を確実に設定（固定幅）
-        const actualDrawerWidth = 370;
+        // CSS変数を確実に設定（viewport幅から計算）
+        const viewportWidth = window.innerWidth;
+        const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
+        const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
         wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
         // 即座にアニメーション開始（遅延なし）
@@ -1788,10 +1790,12 @@
             const wrap = shadowRoot.querySelector('.sf-wrap');
             if (!wrap) return;
 
-            // ドロワー幅を固定値に簡素化
-            const actualDrawerWidth = 370;
+            // ドロワー幅を viewport 幅から計算
+            const viewportWidth = window.innerWidth;
+            const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
+            const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
 
-            wrap.style.setProperty('--sf-drawerW', '370px');
+            wrap.style.setProperty('--sf-drawerW', `${actualDrawerWidth}px`);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
 
             // iOS用のレスポンシブ更新ログ（簡素化）
@@ -2100,8 +2104,10 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     // 最適サイズ事前計算
     function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
         try {
-            // ドロワー幅を固定値に変更
-            const actualDrawerWidth = 370;
+            // ドロワー幅を viewport 幅から計算
+            const viewportWidth = window.innerWidth;
+            const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
+            const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
 
             // スライダー幅（ドロワー幅と同じ）
             const sliderWidth = actualDrawerWidth;
