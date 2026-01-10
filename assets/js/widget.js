@@ -935,6 +935,9 @@
         if (true || /iPad|iPhone|iPod/.test(navigator.userAgent)) {
             // Safe Area 値を取得（初期化後に再取得する必要があるため、setTimeout使用）
             setTimeout(() => {
+                // iPhone診断: この alert が出ればコードは実行されている
+                alert('🔍 診断開始: viewport=' + window.innerWidth + 'px');
+
                 const computedStyle = getComputedStyle(document.documentElement);
                 const safeAreaRight = computedStyle.getPropertyValue('safe-area-inset-right') || '0px';
                 const safeAreaRightPx = parseInt(safeAreaRight) || 0;
@@ -963,6 +966,21 @@
                 // 画面上に診断情報を表示（iPhone用 - Console が使えない場合）
                 const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
                 const shouldBeVisible = window.innerWidth >= (totalTransform - tabWidth);
+
+                // iPhone診断: 診断ボックスの内容を alert で表示
+                const alertMessage = [
+                    '🔍 SideFlow Debug',
+                    '',
+                    'Orientation: ' + orientation,
+                    'Viewport: ' + window.innerWidth + 'px',
+                    'Safe Area Right: ' + safeAreaRight,
+                    'Transform (before): ' + totalTransform + 'px',
+                    'Transform (after): ' + (totalTransform - tabWidth) + 'px',
+                    '',
+                    shouldBeVisible ? '✅ Should be visible' : '❌ Should NOT be visible'
+                ].join('\n');
+                alert(alertMessage);
+
                 const debugDiv = document.createElement('div');
                 debugDiv.style.cssText = `
                     position: fixed;
