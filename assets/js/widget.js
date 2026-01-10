@@ -74,7 +74,7 @@
             display: flex;
             pointer-events: auto;
             transform: translateX(var(--sf-actualDrawerW, 370px));
-            transition: transform var(--sf-duration, 300ms) var(--sf-ease, ease-out);
+            /* transition 削除: CSS @keyframes アニメーションと競合するため */
             z-index: var(--sf-z-index, 10000);
         }
 
@@ -1555,20 +1555,36 @@
             wrap.classList.add('is-opening-simple');
         }
 
-        // 診断: アニメーション開始直後の状態を確認
+        // 診断: アニメーション開始直後の状態を確認（複数回チェック）
         setTimeout(() => {
-            const afterAnimStyle = getComputedStyle(wrap);
-            const afterTransform = afterAnimStyle.transform;
-            let afterTranslateX = 0;
-            if (afterTransform && afterTransform !== 'none') {
-                const matrix = afterTransform.match(/matrix\(([^)]+)\)/);
+            const after50Style = getComputedStyle(wrap);
+            const after50Transform = after50Style.transform;
+            let after50TranslateX = 0;
+            if (after50Transform && after50Transform !== 'none') {
+                const matrix = after50Transform.match(/matrix\(([^)]+)\)/);
                 if (matrix) {
                     const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
-                    afterTranslateX = values[4] || 0;
+                    after50TranslateX = values[4] || 0;
                 }
             }
-            alert('🔍 アニメーション開始直後:\ntransform: ' + afterTransform + '\ntranslateX: ' + Math.round(afterTranslateX) + 'px\n\nクラス: ' + (bounceEnabled ? 'is-opening' : 'is-opening-simple'));
+            const className = wrap.className;
+            alert('🔍 アニメーション50ms後:\ntransform: ' + after50Transform + '\ntranslateX: ' + Math.round(after50TranslateX) + 'px\nクラス: ' + className);
         }, 50);
+
+        // 診断: アニメーション中間地点の状態を確認
+        setTimeout(() => {
+            const after150Style = getComputedStyle(wrap);
+            const after150Transform = after150Style.transform;
+            let after150TranslateX = 0;
+            if (after150Transform && after150Transform !== 'none') {
+                const matrix = after150Transform.match(/matrix\(([^)]+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                    after150TranslateX = values[4] || 0;
+                }
+            }
+            alert('🔍 アニメーション150ms後:\ntransform: ' + after150Transform + '\ntranslateX: ' + Math.round(after150TranslateX) + 'px');
+        }, 150);
 
         setTimeout(() => {
             wrap.classList.remove('is-opening', 'is-opening-simple');
