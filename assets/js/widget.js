@@ -930,14 +930,34 @@
                 const actualPosition = containerStyle.position;
                 const actualRight = containerStyle.right;
 
+                // transform の matrix から translateX 値を抽出
+                let translateXValue = 0;
+                if (actualTransform && actualTransform !== 'none') {
+                    const matrix = actualTransform.match(/matrix\(([^)]+)\)/);
+                    if (matrix) {
+                        const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                        translateXValue = values[4] || 0; // matrix の5番目の値が translateX
+                    }
+                }
+
+                // タブの実際の位置を計算
+                const tabWidth = tabConfig.widthPx || 50;
+                const tabLeftEdge = translateXValue; // タブの左端
+                const tabRightEdge = translateXValue + tabWidth; // タブの右端
+                const viewportWidth = window.innerWidth;
+
+                // 画面右端からのズレを計算
+                const offsetFromRight = viewportWidth - tabRightEdge;
+
                 alert('🔍 実際のコンテナ状態:\n' +
-                      'classList: ' + container.className + '\n' +
-                      'display: ' + actualDisplay + '\n' +
-                      'visibility: ' + actualVisibility + '\n' +
-                      'opacity: ' + actualOpacity + '\n' +
-                      'position: ' + actualPosition + '\n' +
-                      'right: ' + actualRight + '\n' +
-                      'transform: ' + actualTransform);
+                      'Viewport: ' + viewportWidth + 'px\n' +
+                      'Tab幅: ' + tabWidth + 'px\n' +
+                      'TranslateX: ' + Math.round(translateXValue) + 'px\n' +
+                      'タブ左端: ' + Math.round(tabLeftEdge) + 'px\n' +
+                      'タブ右端: ' + Math.round(tabRightEdge) + 'px\n' +
+                      '画面右端: ' + viewportWidth + 'px\n' +
+                      '★ズレ: ' + Math.round(offsetFromRight) + 'px ' +
+                      (offsetFromRight > 0 ? '(右に余白)' : offsetFromRight < 0 ? '(はみ出し)' : '(ぴったり)'));
 
                 const computedStyle = getComputedStyle(document.documentElement);
                 const safeAreaRight = computedStyle.getPropertyValue('safe-area-inset-right') || '0px';
