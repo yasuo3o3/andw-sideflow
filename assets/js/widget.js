@@ -911,8 +911,10 @@
         // CSS変数を事前設定（レイアウト安定化）
         container.style.setProperty('--sf-tabW', `${tabConfig.widthPx}px`);
 
-        // ドロワー幅を設定から取得
-        const actualDrawerWidth = drawerConfig.maxWidthPx || 370;
+        // ドロワー幅を viewport 幅から計算（viewport × widthPercent と maxWidthPx の小さい方）
+        const viewportWidth = window.innerWidth;
+        const calculatedWidth = Math.floor(viewportWidth * (drawerConfig.widthPercent || 0.76));
+        const actualDrawerWidth = Math.min(calculatedWidth, drawerConfig.maxWidthPx || 370);
 
         // iOS デバッグ情報（Safe Area Transform 診断を追加）
         // 診断ボックスは全端末で表示（PC含む）
