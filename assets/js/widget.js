@@ -722,15 +722,22 @@
 
     // 初期化
     function init() {
+        // 診断: 初期化開始を確認
+        console.log('🚀 andW SideFlow: 初期化開始');
+
         if (typeof andwSideFlowConfig === 'undefined') {
             console.warn('andW SideFlow: 設定が見つかりません');
+            alert('⚠️ andW SideFlow: 設定が見つかりません（スクリプトが読み込まれていない可能性）');
             return;
         }
+
+        console.log('✅ andW SideFlow: 設定を確認', andwSideFlowConfig);
 
         fetchConfig()
             .then(createWidget)
             .catch(error => {
                 console.error('andW SideFlow: 初期化エラー:', error);
+                alert('❌ andW SideFlow: 初期化エラー - ' + error.message);
             });
     }
 
@@ -772,10 +779,14 @@
 
     // ウィジェット作成
     async function createWidget() {
+        console.log('🎨 andW SideFlow: ウィジェット作成開始');
+
         // Shadow DOM作成
         widget = document.createElement('div');
         widget.setAttribute('id', 'andw-sideflow-widget');
         shadowRoot = widget.attachShadow({ mode: 'closed' });
+
+        console.log('✅ andW SideFlow: Shadow DOM作成完了');
 
         // CSS変数を設定
         applyCSSVariables();
