@@ -1567,7 +1567,6 @@
             const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
             if (DEBUG_MODE) alert('🔍 actualDrawerWidth: ' + actualDrawerWidth);
             wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
-            wrap.dataset.savedDrawerWidth = actualDrawerWidth; // Firefox対策: 閉じる時に復元用
             if (DEBUG_MODE) alert('🔍 setProperty 完了');
         } catch (error) {
             if (DEBUG_MODE) alert('❌ アニメーション準備でエラー: ' + error.message);
@@ -1685,12 +1684,7 @@
 
         setTimeout(() => {
             wrap.classList.remove('is-closing');
-
-            // Firefox対策: 保存した値でCSS変数を復元
-            const savedWidth = wrap.dataset.savedDrawerWidth;
-            if (savedWidth) {
-                wrap.style.setProperty('--sf-actualDrawerW', `${savedWidth}px`);
-            }
+            // transform クリアを削除: CSS変数による制御を維持
         }, animationDuration);
 
         // フォーカストラップ解除
