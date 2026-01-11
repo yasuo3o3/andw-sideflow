@@ -1684,7 +1684,11 @@
 
         setTimeout(() => {
             wrap.classList.remove('is-closing');
-            // transform クリアを削除: CSS変数による制御を維持
+
+            // Firefox対策: CSS変数を初期値にリセット
+            // Firefoxでは開く時に設定したCSS変数が残り続け、位置ズレの原因になる
+            const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
+            wrap.style.setProperty('--sf-actualDrawerW', `${maxDrawerWidth}px`);
         }, animationDuration);
 
         // フォーカストラップ解除
