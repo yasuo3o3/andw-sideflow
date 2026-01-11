@@ -2,7 +2,7 @@
 
 A floating drawer-style slideshow and button plugin for WordPress, designed for mobile-first recruitment displays.
 
-**📋 Status**: Ready for WordPress.org submission | **🌐 Text Domain**: `andw-sideflow` | **⚡ Version**: 0.3.1
+**📋 Status**: Ready for WordPress.org submission | **🌐 Text Domain**: `andw-sideflow` | **⚡ Version**: 0.4.3
 
 ## Overview
 
@@ -110,7 +110,10 @@ This plugin is prepared for **WordPress.org Plugin Directory** submission with:
 - PHP 7.4以上
 
 ### Version History
-- **0.3.1**: Bug fixes and code quality improvements (current)
+- **0.4.3**: DEBUG_MODE implementation for production environments (current)
+- **0.4.2**: Mobile viewport fixes (Android, iPhone portrait overflow)
+- **0.4.1**: iOS Safe Area positioning improvements
+- **0.3.1**: Bug fixes and code quality improvements
 - **0.3.0**: Initial stable release with complete feature set
 - **0.2.x**: Development versions (beta testing)
 

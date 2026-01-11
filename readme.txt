@@ -4,7 +4,7 @@ Tags: sidebar, drawer, slider, mobile, recruitment
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.3.1
+Stable tag: 0.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,20 @@ iOS SafeAreaに対応済みです。設定のlayout.topSafeOffset, bottomSafeOff
 4. 管理画面の設定画面
 
 == Changelog ==
+
+= 0.4.3 =
+* Enhanced: Added DEBUG_MODE flag for diagnostic controls (production-ready)
+* Enhanced: All 29 diagnostic alerts now controllable via single flag
+* Performance: Console logs remain active for developer debugging
+
+= 0.4.2 =
+* Fixed: Floating tab overflow on small viewports (Android, iPhone portrait)
+* Fixed: Viewport-responsive drawer width calculation (4 locations)
+* Fixed: CSS transition conflict causing drawer animation issues on PC
+* Enhanced: Dynamic transform calculation based on viewport width
+
+= 0.4.1 =
+* Enhanced: iOS Safe Area positioning improvements
 
 = 0.3.1 =
 * Fixed: Plugin activation destroying existing configuration options
