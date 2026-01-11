@@ -2,7 +2,7 @@
 /**
  * Plugin Name: andW SideFlow
  * Description: 右サイド追従タブから展開するドロワー型求人スライドショー&ボタン群プラグイン
- * Version: 0.4.4
+ * Version: 0.4.3
  * Author: yasuo3o3
  * Author URI: https://yasuo-o.xyz/
  * License: GPLv2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // プラグインの定数定義
-define('ANDW_SIDEFLOW_VERSION', '0.4.4');
+define('ANDW_SIDEFLOW_VERSION', '0.4.3');
 define('ANDW_SIDEFLOW_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ANDW_SIDEFLOW_PLUGIN_BASENAME', plugin_basename(__FILE__));

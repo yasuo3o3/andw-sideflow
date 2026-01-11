@@ -1685,10 +1685,12 @@
         setTimeout(() => {
             wrap.classList.remove('is-closing');
 
-            // Firefox対策: CSS変数を初期値にリセット
-            // Firefoxでは開く時に設定したCSS変数が残り続け、位置ズレの原因になる
+            // Firefox対策: 現在のviewportで再計算してCSS変数をリセット
+            const viewportWidth = window.innerWidth;
+            const tabWidth = config.tab?.widthPx || 50;
             const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
-            wrap.style.setProperty('--sf-actualDrawerW', `${maxDrawerWidth}px`);
+            const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
+            wrap.style.setProperty('--sf-actualDrawerW', `${actualDrawerWidth}px`);
         }, animationDuration);
 
         // フォーカストラップ解除
