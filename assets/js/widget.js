@@ -1561,7 +1561,7 @@
 
             // CSS変数を確実に設定（viewport-responsive）
             if (DEBUG_MODE) alert('🔍 config.drawer: ' + JSON.stringify(config.drawer));
-            const viewportWidth = document.documentElement.clientWidth;
+            const viewportWidth = window.innerWidth;
             const tabWidth = config.tab?.widthPx || 50;
             const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
             const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
@@ -1868,7 +1868,7 @@
             if (!wrap) return;
 
             // ドロワー幅を viewport-responsive に設定
-            const viewportWidth = document.documentElement.clientWidth;
+            const viewportWidth = window.innerWidth;
             const tabWidth = config.tab?.widthPx || 50;
             const maxDrawerWidth = config.drawer?.maxWidthPx || 370;
             const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
@@ -2183,7 +2183,7 @@ Backdrop: ${config.drawer?.backdrop ? 'enabled' : 'disabled'}`;
     function calculateOptimalDimensions(drawerConfig, sliderConfig, layoutConfig) {
         try {
             // ドロワー幅を viewport-responsive に設定
-            const viewportWidth = document.documentElement.clientWidth;
+            const viewportWidth = window.innerWidth;
             const tabWidth = config.tab?.widthPx || 50;
             const maxDrawerWidth = drawerConfig.maxWidthPx || 370;
             const actualDrawerWidth = Math.min(viewportWidth - tabWidth, maxDrawerWidth);
